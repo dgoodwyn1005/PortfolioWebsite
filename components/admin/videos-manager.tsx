@@ -26,6 +26,7 @@ interface VideoItem {
   title: string
   embed_id: string
   section: string
+  platform: string
   display_order: number
   is_visible: boolean
 }
@@ -41,11 +42,12 @@ export function VideosManager({ initialVideos }: { initialVideos: VideoItem[] })
     title: "",
     embed_id: "",
     section: "music",
+    platform: "youtube",
     is_visible: true,
   })
 
   const resetForm = () => {
-    setFormData({ title: "", embed_id: "", section: "music", is_visible: true })
+    setFormData({ title: "", embed_id: "", section: "music", platform: "youtube", is_visible: true })
     setEditingVideo(null)
   }
 
@@ -55,6 +57,7 @@ export function VideosManager({ initialVideos }: { initialVideos: VideoItem[] })
       title: video.title,
       embed_id: video.embed_id,
       section: video.section,
+      platform: video.platform || "youtube",
       is_visible: video.is_visible,
     })
     setIsDialogOpen(true)
@@ -74,6 +77,7 @@ export function VideosManager({ initialVideos }: { initialVideos: VideoItem[] })
             title: formData.title,
             embed_id: formData.embed_id,
             section: formData.section,
+            platform: formData.platform,
             is_visible: formData.is_visible,
             updated_at: new Date().toISOString(),
           })
@@ -86,6 +90,7 @@ export function VideosManager({ initialVideos }: { initialVideos: VideoItem[] })
           title: formData.title,
           embed_id: formData.embed_id,
           section: formData.section,
+          platform: formData.platform,
           is_visible: formData.is_visible,
           display_order: sectionVideos.length + 1,
         })
@@ -119,6 +124,7 @@ export function VideosManager({ initialVideos }: { initialVideos: VideoItem[] })
   }
 
   const musicVideos = videos.filter((v) => v.section === "music")
+  const pianoVideos = videos.filter((v) => v.section === "piano")
   const basketballVideos = videos.filter((v) => v.section === "basketball")
 
   return (
@@ -139,7 +145,7 @@ export function VideosManager({ initialVideos }: { initialVideos: VideoItem[] })
         <DialogContent>
           <DialogHeader>
             <DialogTitle>{editingVideo ? "Edit Video" : "Add New Video"}</DialogTitle>
-            <DialogDescription>Add a YouTube video to your portfolio.</DialogDescription>
+            <DialogDescription>Add a YouTube or TikTok video to your portfolio.</DialogDescription>
           </DialogHeader>
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="space-y-2">
@@ -153,17 +159,48 @@ export function VideosManager({ initialVideos }: { initialVideos: VideoItem[] })
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="embed_id">YouTube Video ID</Label>
+              <Label>Platform</Label>
+              <Select value={formData.platform} onValueChange={(value) => setFormData({ ...formData, platform: value })}>
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="youtube">YouTube</SelectItem>
+                  <SelectItem value="tiktok">TikTok</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="embed_id">
+                {formData.platform === "tiktok" ? "TikTok Video ID" : "YouTube Video ID"}
+              </Label>
               <Input
                 id="embed_id"
                 value={formData.embed_id}
-                onChange={(e) => setFormData({ ...formData, embed_id: e.target.value })}
-                placeholder="dQw4w9WgXcQ"
+                onChange={(e) => {
+                  let value = e.target.value.trim()
+                  // Auto-extract ID from full URLs
+                  if (formData.platform === "tiktok") {
+                    const tiktokMatch = value.match(/video\/(\d+)/)
+                    if (tiktokMatch) value = tiktokMatch[1]
+                  } else {
+                    const ytMatch = value.match(/(?:v=|youtu\.be\/|\/embed\/)([a-zA-Z0-9_-]+)/)
+                    if (ytMatch) value = ytMatch[1]
+                  }
+                  setFormData({ ...formData, embed_id: value })
+                }}
+                placeholder={formData.platform === "tiktok" ? "7123456789012345678" : "dQw4w9WgXcQ"}
                 required
               />
-              <p className="text-xs text-muted-foreground">
-                The ID from the YouTube URL: youtube.com/watch?v=<strong>dQw4w9WgXcQ</strong>
-              </p>
+              {formData.platform === "tiktok" ? (
+                <p className="text-xs text-muted-foreground">
+                  Paste the full TikTok URL or just the video ID. Example: tiktok.com/@TheSilentPianist/video/<strong>7123456789012345678</strong>
+                </p>
+              ) : (
+                <p className="text-xs text-muted-foreground">
+                  Paste the full YouTube URL or just the video ID. Example: youtube.com/watch?v=<strong>dQw4w9WgXcQ</strong>
+                </p>
+              )}
             </div>
             <div className="space-y-2">
               <Label>Section</Label>
@@ -176,6 +213,12 @@ export function VideosManager({ initialVideos }: { initialVideos: VideoItem[] })
                     <div className="flex items-center gap-2">
                       <Music className="h-4 w-4" />
                       Music
+                    </div>
+                  </SelectItem>
+                  <SelectItem value="piano">
+                    <div className="flex items-center gap-2">
+                      <Music className="h-4 w-4" />
+                      Piano
                     </div>
                   </SelectItem>
                   <SelectItem value="basketball">
@@ -234,6 +277,40 @@ export function VideosManager({ initialVideos }: { initialVideos: VideoItem[] })
               </Card>
             ))}
             {musicVideos.length === 0 && <p className="text-sm text-muted-foreground">No music videos yet.</p>}
+          </div>
+        </div>
+
+        <div>
+          <div className="flex items-center gap-2 mb-4">
+            <Music className="h-5 w-5 text-primary" />
+            <h2 className="text-lg font-semibold">Piano Videos (TheSilentPianist)</h2>
+          </div>
+          <div className="grid gap-3">
+            {pianoVideos.map((video) => (
+              <Card key={video.id} className={!video.is_visible ? "opacity-50" : ""}>
+                <CardHeader className="flex flex-row items-center justify-between py-3">
+                  <div className="flex items-center gap-3">
+                    <Video className="h-4 w-4 text-muted-foreground" />
+                    <CardTitle className="text-sm font-medium">{video.title}</CardTitle>
+                    <span className="text-xs px-2 py-0.5 rounded-full bg-muted">{video.platform || "youtube"}</span>
+                  </div>
+                  <div className="flex gap-2">
+                    <Button variant="ghost" size="icon" onClick={() => openEditDialog(video)}>
+                      <Pencil className="h-4 w-4" />
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="text-destructive"
+                      onClick={() => handleDelete(video.id)}
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </Button>
+                  </div>
+                </CardHeader>
+              </Card>
+            ))}
+            {pianoVideos.length === 0 && <p className="text-sm text-muted-foreground">No piano videos yet.</p>}
           </div>
         </div>
 
