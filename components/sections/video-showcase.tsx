@@ -1,7 +1,7 @@
 "use client"
 
 import { motion } from "framer-motion"
-import { Play } from "lucide-react"
+import { Play, ExternalLink } from "lucide-react"
 import { useState } from "react"
 
 interface Video {
@@ -9,6 +9,8 @@ interface Video {
   title: string
   youtube_id?: string
   embed_id?: string
+  tiktok_username?: string
+  thumbnail_url?: string
   category?: string
   section?: string
   platform?: string
@@ -71,6 +73,8 @@ export function VideoShowcase({ videos }: { videos: Video[] }) {
             const isTikTok = video.platform === "tiktok"
             const isActive = activeVideo === video.id
 
+            const tiktokUsername = video.tiktok_username || "TheSilentPianist"
+
             return (
               <motion.div
                 key={video.id}
@@ -81,15 +85,22 @@ export function VideoShowcase({ videos }: { videos: Video[] }) {
                 className="group"
               >
                 {isTikTok ? (
-                  <div className="relative rounded-lg overflow-hidden bg-background border" style={{ aspectRatio: "9/16", maxHeight: "500px" }}>
-                    <iframe
-                      src={`https://www.tiktok.com/embed/v2/${videoId}`}
-                      title={video.title}
-                      allowFullScreen
-                      allow="encrypted-media"
-                      className="absolute inset-0 w-full h-full"
-                    />
-                  </div>
+                  <a
+                    href={`https://www.tiktok.com/@${tiktokUsername}/video/${videoId}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="relative aspect-[9/16] max-h-[400px] rounded-lg overflow-hidden bg-gradient-to-br from-pink-500 via-red-500 to-yellow-500 border flex flex-col items-center justify-center group-hover:scale-[1.02] transition-transform"
+                  >
+                    <div className="absolute inset-0 bg-black/40 flex flex-col items-center justify-center gap-4">
+                      <svg viewBox="0 0 24 24" className="w-16 h-16 text-white" fill="currentColor">
+                        <path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 0 1-5.2 1.74 2.89 2.89 0 0 1 2.31-4.64 2.93 2.93 0 0 1 .88.13V9.4a6.84 6.84 0 0 0-1-.05A6.33 6.33 0 0 0 5 20.1a6.34 6.34 0 0 0 10.86-4.43v-7a8.16 8.16 0 0 0 4.77 1.52v-3.4a4.85 4.85 0 0 1-1-.1z"/>
+                      </svg>
+                      <span className="text-white font-medium flex items-center gap-2">
+                        <ExternalLink className="h-4 w-4" />
+                        Watch on TikTok
+                      </span>
+                    </div>
+                  </a>
                 ) : (
                   <div className="relative aspect-video rounded-lg overflow-hidden bg-background border">
                     {isActive ? (
@@ -103,11 +114,14 @@ export function VideoShowcase({ videos }: { videos: Video[] }) {
                     ) : (
                       <button onClick={() => setActiveVideo(video.id)} className="absolute inset-0 w-full h-full">
                         <img
-                          src={`https://img.youtube.com/vi/${videoId}/maxresdefault.jpg`}
+                          src={video.thumbnail_url || `https://img.youtube.com/vi/${videoId}/maxresdefault.jpg`}
                           alt={video.title}
                           className="w-full h-full object-cover"
                           onError={(e) => {
-                            ;(e.target as HTMLImageElement).src = `https://img.youtube.com/vi/${videoId}/hqdefault.jpg`
+                            const target = e.target as HTMLImageElement
+                            if (!video.thumbnail_url) {
+                              target.src = `https://img.youtube.com/vi/${videoId}/hqdefault.jpg`
+                            }
                           }}
                         />
                         <div className="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">

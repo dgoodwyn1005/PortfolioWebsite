@@ -19,12 +19,14 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog"
-import { Plus, Pencil, Trash2, Loader2, Music, Trophy, Video } from "lucide-react"
+import { Plus, Pencil, Trash2, Loader2, Music, Trophy, Video, Upload, X } from "lucide-react"
 
 interface VideoItem {
   id: string
   title: string
   embed_id: string
+  tiktok_username?: string
+  thumbnail_url?: string
   section: string
   platform: string
   display_order: number
@@ -41,14 +43,43 @@ export function VideosManager({ initialVideos }: { initialVideos: VideoItem[] })
   const [formData, setFormData] = useState({
     title: "",
     embed_id: "",
+    tiktok_username: "TheSilentPianist",
+    thumbnail_url: "",
     section: "music",
     platform: "youtube",
     is_visible: true,
   })
+  const [isUploading, setIsUploading] = useState(false)
 
   const resetForm = () => {
-    setFormData({ title: "", embed_id: "", section: "music", platform: "youtube", is_visible: true })
+    setFormData({ title: "", embed_id: "", tiktok_username: "TheSilentPianist", thumbnail_url: "", section: "music", platform: "youtube", is_visible: true })
     setEditingVideo(null)
+  }
+
+  const handleThumbnailUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+
+    setIsUploading(true)
+    try {
+      const formDataUpload = new FormData()
+      formDataUpload.append("file", file)
+
+      const response = await fetch("/api/upload", {
+        method: "POST",
+        body: formDataUpload,
+      })
+
+      if (!response.ok) throw new Error("Upload failed")
+
+      const { url } = await response.json()
+      setFormData((prev) => ({ ...prev, thumbnail_url: url }))
+    } catch (err) {
+      console.error("Upload error:", err)
+      alert("Failed to upload image. Please try again.")
+    } finally {
+      setIsUploading(false)
+    }
   }
 
   const openEditDialog = (video: VideoItem) => {
@@ -56,6 +87,8 @@ export function VideosManager({ initialVideos }: { initialVideos: VideoItem[] })
     setFormData({
       title: video.title,
       embed_id: video.embed_id,
+      tiktok_username: video.tiktok_username || "TheSilentPianist",
+      thumbnail_url: video.thumbnail_url || "",
       section: video.section,
       platform: video.platform || "youtube",
       is_visible: video.is_visible,
@@ -76,6 +109,8 @@ export function VideosManager({ initialVideos }: { initialVideos: VideoItem[] })
           .update({
             title: formData.title,
             embed_id: formData.embed_id,
+            tiktok_username: formData.tiktok_username,
+            thumbnail_url: formData.thumbnail_url || null,
             section: formData.section,
             platform: formData.platform,
             is_visible: formData.is_visible,
@@ -89,6 +124,8 @@ export function VideosManager({ initialVideos }: { initialVideos: VideoItem[] })
         const { error } = await supabase.from("videos").insert({
           title: formData.title,
           embed_id: formData.embed_id,
+          tiktok_username: formData.tiktok_username,
+          thumbnail_url: formData.thumbnail_url || null,
           section: formData.section,
           platform: formData.platform,
           is_visible: formData.is_visible,
@@ -179,22 +216,27 @@ export function VideosManager({ initialVideos }: { initialVideos: VideoItem[] })
                 value={formData.embed_id}
                 onChange={(e) => {
                   let value = e.target.value.trim()
-                  // Auto-extract ID from full URLs
+                  // Auto-extract ID and username from full URLs
                   if (formData.platform === "tiktok") {
+                    // Extract username from URL like @username or /@username
+                    const usernameMatch = value.match(/@([a-zA-Z0-9_.-]+)/)
+                    if (usernameMatch) {
+                      setFormData((prev) => ({ ...prev, tiktok_username: usernameMatch[1] }))
+                    }
                     const tiktokMatch = value.match(/video\/(\d+)/)
                     if (tiktokMatch) value = tiktokMatch[1]
                   } else {
                     const ytMatch = value.match(/(?:v=|youtu\.be\/|\/embed\/)([a-zA-Z0-9_-]+)/)
                     if (ytMatch) value = ytMatch[1]
                   }
-                  setFormData({ ...formData, embed_id: value })
+                  setFormData((prev) => ({ ...prev, embed_id: value }))
                 }}
                 placeholder={formData.platform === "tiktok" ? "7123456789012345678" : "dQw4w9WgXcQ"}
                 required
               />
               {formData.platform === "tiktok" ? (
                 <p className="text-xs text-muted-foreground">
-                  Paste the full TikTok URL or just the video ID. Example: tiktok.com/@TheSilentPianist/video/<strong>7123456789012345678</strong>
+                  Paste the full TikTok URL (username will be auto-extracted) or just the video ID.
                 </p>
               ) : (
                 <p className="text-xs text-muted-foreground">
@@ -202,6 +244,75 @@ export function VideosManager({ initialVideos }: { initialVideos: VideoItem[] })
                 </p>
               )}
             </div>
+            {formData.platform === "tiktok" && (
+              <div className="space-y-2">
+                <Label htmlFor="tiktok_username">TikTok Username</Label>
+                <Input
+                  id="tiktok_username"
+                  value={formData.tiktok_username}
+                  onChange={(e) => setFormData({ ...formData, tiktok_username: e.target.value.replace("@", "") })}
+                  placeholder="TheSilentPianist"
+                  required
+                />
+                <p className="text-xs text-muted-foreground">
+                  Your TikTok username without the @ symbol
+                </p>
+              </div>
+            )}
+            {formData.platform !== "tiktok" && (
+              <div className="space-y-2">
+                <Label>Custom Thumbnail (Optional)</Label>
+                <div className="flex gap-2">
+                  <Input
+                    id="thumbnail_url"
+                    value={formData.thumbnail_url}
+                    onChange={(e) => setFormData({ ...formData, thumbnail_url: e.target.value })}
+                    placeholder="https://example.com/my-thumbnail.jpg"
+                    className="flex-1"
+                  />
+                  <label className="cursor-pointer">
+                    <input
+                      type="file"
+                      accept="image/*"
+                      onChange={handleThumbnailUpload}
+                      className="hidden"
+                      disabled={isUploading}
+                    />
+                    <Button type="button" variant="outline" disabled={isUploading} asChild>
+                      <span>
+                        {isUploading ? (
+                          <Loader2 className="h-4 w-4 animate-spin" />
+                        ) : (
+                          <Upload className="h-4 w-4" />
+                        )}
+                      </span>
+                    </Button>
+                  </label>
+                </div>
+                <p className="text-xs text-muted-foreground">
+                  Upload an image or paste a URL. Leave empty to use YouTube's default thumbnail.
+                </p>
+                {formData.thumbnail_url && (
+                  <div className="mt-2 relative inline-block">
+                    <img 
+                      src={formData.thumbnail_url} 
+                      alt="Thumbnail preview" 
+                      className="w-32 h-20 object-cover rounded border"
+                      onError={(e) => {
+                        (e.target as HTMLImageElement).style.display = 'none'
+                      }}
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setFormData({ ...formData, thumbnail_url: "" })}
+                      className="absolute -top-2 -right-2 bg-destructive text-destructive-foreground rounded-full p-1 hover:bg-destructive/90"
+                    >
+                      <X className="h-3 w-3" />
+                    </button>
+                  </div>
+                )}
+              </div>
+            )}
             <div className="space-y-2">
               <Label>Section</Label>
               <Select value={formData.section} onValueChange={(value) => setFormData({ ...formData, section: value })}>
