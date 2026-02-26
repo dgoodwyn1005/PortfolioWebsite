@@ -2,7 +2,7 @@
 
 import { motion } from "framer-motion"
 import { Play, ExternalLink } from "lucide-react"
-import { useState } from "react"
+import { useState, useEffect } from "react"
 
 interface Video {
   id: string
@@ -19,6 +19,34 @@ interface Video {
 export function VideoShowcase({ videos }: { videos: Video[] }) {
   const [activeVideo, setActiveVideo] = useState<string | null>(null)
   const [activeFilter, setActiveFilter] = useState<string>("all")
+  const [tiktokThumbnails, setTiktokThumbnails] = useState<Record<string, string>>({})
+
+  // Fetch TikTok thumbnails via oEmbed API
+  useEffect(() => {
+    const fetchTiktokThumbnails = async () => {
+      const tiktokVideos = videos.filter((v) => v.platform === "tiktok" && !v.thumbnail_url)
+      
+      for (const video of tiktokVideos) {
+        const videoId = video.youtube_id || video.embed_id
+        const username = video.tiktok_username || "TheSilentPianist"
+        const url = `https://www.tiktok.com/@${username}/video/${videoId}`
+        
+        try {
+          const response = await fetch(`https://www.tiktok.com/oembed?url=${encodeURIComponent(url)}`)
+          if (response.ok) {
+            const data = await response.json()
+            if (data.thumbnail_url) {
+              setTiktokThumbnails((prev) => ({ ...prev, [video.id]: data.thumbnail_url }))
+            }
+          }
+        } catch {
+          // Silently fail - will use fallback
+        }
+      }
+    }
+
+    fetchTiktokThumbnails()
+  }, [videos])
 
   if (!videos || videos.length === 0) return null
 
@@ -89,10 +117,19 @@ export function VideoShowcase({ videos }: { videos: Video[] }) {
                     href={`https://www.tiktok.com/@${tiktokUsername}/video/${videoId}`}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="relative aspect-[9/16] max-h-[400px] rounded-lg overflow-hidden bg-gradient-to-br from-pink-500 via-red-500 to-yellow-500 border flex flex-col items-center justify-center group-hover:scale-[1.02] transition-transform"
+                    className="relative aspect-[9/16] max-h-[400px] rounded-lg overflow-hidden bg-muted border flex flex-col items-center justify-center group-hover:scale-[1.02] transition-transform"
                   >
-                    <div className="absolute inset-0 bg-black/40 flex flex-col items-center justify-center gap-4">
-                      <svg viewBox="0 0 24 24" className="w-16 h-16 text-white" fill="currentColor">
+                    {(video.thumbnail_url || tiktokThumbnails[video.id]) ? (
+                      <img
+                        src={video.thumbnail_url || tiktokThumbnails[video.id]}
+                        alt={video.title}
+                        className="absolute inset-0 w-full h-full object-cover"
+                      />
+                    ) : (
+                      <div className="absolute inset-0 bg-gradient-to-br from-pink-500 via-red-500 to-yellow-500" />
+                    )}
+                    <div className="absolute inset-0 bg-black/40 flex flex-col items-center justify-center gap-4 opacity-0 group-hover:opacity-100 transition-opacity">
+                      <svg viewBox="0 0 24 24" className="w-12 h-12 text-white" fill="currentColor">
                         <path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 0 1-5.2 1.74 2.89 2.89 0 0 1 2.31-4.64 2.93 2.93 0 0 1 .88.13V9.4a6.84 6.84 0 0 0-1-.05A6.33 6.33 0 0 0 5 20.1a6.34 6.34 0 0 0 10.86-4.43v-7a8.16 8.16 0 0 0 4.77 1.52v-3.4a4.85 4.85 0 0 1-1-.1z"/>
                       </svg>
                       <span className="text-white font-medium flex items-center gap-2">
