@@ -1,5 +1,4 @@
 "use client"
-// Updated: TikTok + Piano support added
 
 import type React from "react"
 
