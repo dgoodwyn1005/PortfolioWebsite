@@ -19,7 +19,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog"
-import { Plus, Pencil, Trash2, Loader2, Music, Trophy, Video } from "lucide-react"
+import { Plus, Pencil, Trash2, Loader2, Music, Trophy, Video, Upload, X } from "lucide-react"
 
 interface VideoItem {
   id: string
@@ -49,10 +49,37 @@ export function VideosManager({ initialVideos }: { initialVideos: VideoItem[] })
     platform: "youtube",
     is_visible: true,
   })
+  const [isUploading, setIsUploading] = useState(false)
 
   const resetForm = () => {
     setFormData({ title: "", embed_id: "", tiktok_username: "TheSilentPianist", thumbnail_url: "", section: "music", platform: "youtube", is_visible: true })
     setEditingVideo(null)
+  }
+
+  const handleThumbnailUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+
+    setIsUploading(true)
+    try {
+      const formDataUpload = new FormData()
+      formDataUpload.append("file", file)
+
+      const response = await fetch("/api/upload", {
+        method: "POST",
+        body: formDataUpload,
+      })
+
+      if (!response.ok) throw new Error("Upload failed")
+
+      const { url } = await response.json()
+      setFormData((prev) => ({ ...prev, thumbnail_url: url }))
+    } catch (err) {
+      console.error("Upload error:", err)
+      alert("Failed to upload image. Please try again.")
+    } finally {
+      setIsUploading(false)
+    }
   }
 
   const openEditDialog = (video: VideoItem) => {
@@ -232,20 +259,41 @@ export function VideosManager({ initialVideos }: { initialVideos: VideoItem[] })
                 </p>
               </div>
             )}
-            {formData.platform === "youtube" && (
+            {formData.platform !== "tiktok" && (
               <div className="space-y-2">
-                <Label htmlFor="thumbnail_url">Custom Thumbnail URL (Optional)</Label>
-                <Input
-                  id="thumbnail_url"
-                  value={formData.thumbnail_url}
-                  onChange={(e) => setFormData({ ...formData, thumbnail_url: e.target.value })}
-                  placeholder="https://example.com/my-thumbnail.jpg"
-                />
+                <Label>Custom Thumbnail (Optional)</Label>
+                <div className="flex gap-2">
+                  <Input
+                    id="thumbnail_url"
+                    value={formData.thumbnail_url}
+                    onChange={(e) => setFormData({ ...formData, thumbnail_url: e.target.value })}
+                    placeholder="https://example.com/my-thumbnail.jpg"
+                    className="flex-1"
+                  />
+                  <label className="cursor-pointer">
+                    <input
+                      type="file"
+                      accept="image/*"
+                      onChange={handleThumbnailUpload}
+                      className="hidden"
+                      disabled={isUploading}
+                    />
+                    <Button type="button" variant="outline" disabled={isUploading} asChild>
+                      <span>
+                        {isUploading ? (
+                          <Loader2 className="h-4 w-4 animate-spin" />
+                        ) : (
+                          <Upload className="h-4 w-4" />
+                        )}
+                      </span>
+                    </Button>
+                  </label>
+                </div>
                 <p className="text-xs text-muted-foreground">
-                  Leave empty to use YouTube's default thumbnail. Enter a URL to use a custom image.
+                  Upload an image or paste a URL. Leave empty to use YouTube's default thumbnail.
                 </p>
                 {formData.thumbnail_url && (
-                  <div className="mt-2">
+                  <div className="mt-2 relative inline-block">
                     <img 
                       src={formData.thumbnail_url} 
                       alt="Thumbnail preview" 
@@ -254,6 +302,13 @@ export function VideosManager({ initialVideos }: { initialVideos: VideoItem[] })
                         (e.target as HTMLImageElement).style.display = 'none'
                       }}
                     />
+                    <button
+                      type="button"
+                      onClick={() => setFormData({ ...formData, thumbnail_url: "" })}
+                      className="absolute -top-2 -right-2 bg-destructive text-destructive-foreground rounded-full p-1 hover:bg-destructive/90"
+                    >
+                      <X className="h-3 w-3" />
+                    </button>
                   </div>
                 )}
               </div>
