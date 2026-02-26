@@ -12,10 +12,10 @@ export default async function AdminLayout({
     data: { user },
   } = await supabase.auth.getUser()
 
-  // Allow login page without auth
+  // Show sidebar for any authenticated user
   return (
     <div className="min-h-screen bg-background">
-      {user?.user_metadata?.is_admin ? (
+      {user ? (
         <div className="flex">
           <AdminSidebar />
           <main className="flex-1 p-8">{children}</main>

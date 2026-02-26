@@ -26,19 +26,12 @@ export default function AdminLoginPage() {
     const supabase = createClient()
 
     try {
-      const { data, error } = await supabase.auth.signInWithPassword({
+      const { error } = await supabase.auth.signInWithPassword({
         email,
         password,
       })
 
       if (error) throw error
-
-      // Check if user is admin
-      const isAdmin = data.user?.user_metadata?.is_admin === true
-      if (!isAdmin) {
-        await supabase.auth.signOut()
-        throw new Error("You do not have admin access")
-      }
 
       router.push("/admin")
       router.refresh()
