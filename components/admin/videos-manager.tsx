@@ -26,6 +26,7 @@ interface VideoItem {
   title: string
   embed_id: string
   tiktok_username?: string
+  thumbnail_url?: string
   section: string
   platform: string
   display_order: number
@@ -43,13 +44,14 @@ export function VideosManager({ initialVideos }: { initialVideos: VideoItem[] })
     title: "",
     embed_id: "",
     tiktok_username: "TheSilentPianist",
+    thumbnail_url: "",
     section: "music",
     platform: "youtube",
     is_visible: true,
   })
 
   const resetForm = () => {
-    setFormData({ title: "", embed_id: "", tiktok_username: "TheSilentPianist", section: "music", platform: "youtube", is_visible: true })
+    setFormData({ title: "", embed_id: "", tiktok_username: "TheSilentPianist", thumbnail_url: "", section: "music", platform: "youtube", is_visible: true })
     setEditingVideo(null)
   }
 
@@ -59,6 +61,7 @@ export function VideosManager({ initialVideos }: { initialVideos: VideoItem[] })
       title: video.title,
       embed_id: video.embed_id,
       tiktok_username: video.tiktok_username || "TheSilentPianist",
+      thumbnail_url: video.thumbnail_url || "",
       section: video.section,
       platform: video.platform || "youtube",
       is_visible: video.is_visible,
@@ -80,6 +83,7 @@ export function VideosManager({ initialVideos }: { initialVideos: VideoItem[] })
             title: formData.title,
             embed_id: formData.embed_id,
             tiktok_username: formData.tiktok_username,
+            thumbnail_url: formData.thumbnail_url || null,
             section: formData.section,
             platform: formData.platform,
             is_visible: formData.is_visible,
@@ -94,6 +98,7 @@ export function VideosManager({ initialVideos }: { initialVideos: VideoItem[] })
           title: formData.title,
           embed_id: formData.embed_id,
           tiktok_username: formData.tiktok_username,
+          thumbnail_url: formData.thumbnail_url || null,
           section: formData.section,
           platform: formData.platform,
           is_visible: formData.is_visible,
@@ -225,6 +230,32 @@ export function VideosManager({ initialVideos }: { initialVideos: VideoItem[] })
                 <p className="text-xs text-muted-foreground">
                   Your TikTok username without the @ symbol
                 </p>
+              </div>
+            )}
+            {formData.platform === "youtube" && (
+              <div className="space-y-2">
+                <Label htmlFor="thumbnail_url">Custom Thumbnail URL (Optional)</Label>
+                <Input
+                  id="thumbnail_url"
+                  value={formData.thumbnail_url}
+                  onChange={(e) => setFormData({ ...formData, thumbnail_url: e.target.value })}
+                  placeholder="https://example.com/my-thumbnail.jpg"
+                />
+                <p className="text-xs text-muted-foreground">
+                  Leave empty to use YouTube's default thumbnail. Enter a URL to use a custom image.
+                </p>
+                {formData.thumbnail_url && (
+                  <div className="mt-2">
+                    <img 
+                      src={formData.thumbnail_url} 
+                      alt="Thumbnail preview" 
+                      className="w-32 h-20 object-cover rounded border"
+                      onError={(e) => {
+                        (e.target as HTMLImageElement).style.display = 'none'
+                      }}
+                    />
+                  </div>
+                )}
               </div>
             )}
             <div className="space-y-2">

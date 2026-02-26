@@ -10,6 +10,7 @@ interface Video {
   youtube_id?: string
   embed_id?: string
   tiktok_username?: string
+  thumbnail_url?: string
   category?: string
   section?: string
   platform?: string
@@ -113,11 +114,14 @@ export function VideoShowcase({ videos }: { videos: Video[] }) {
                     ) : (
                       <button onClick={() => setActiveVideo(video.id)} className="absolute inset-0 w-full h-full">
                         <img
-                          src={`https://img.youtube.com/vi/${videoId}/maxresdefault.jpg`}
+                          src={video.thumbnail_url || `https://img.youtube.com/vi/${videoId}/maxresdefault.jpg`}
                           alt={video.title}
                           className="w-full h-full object-cover"
                           onError={(e) => {
-                            ;(e.target as HTMLImageElement).src = `https://img.youtube.com/vi/${videoId}/hqdefault.jpg`
+                            const target = e.target as HTMLImageElement
+                            if (!video.thumbnail_url) {
+                              target.src = `https://img.youtube.com/vi/${videoId}/hqdefault.jpg`
+                            }
                           }}
                         />
                         <div className="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
