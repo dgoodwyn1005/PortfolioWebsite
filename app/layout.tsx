@@ -12,6 +12,11 @@ export const metadata: Metadata = {
   title: "Deshawn Goodwyn | D2 Basketball · Wyntech Founder · Gospel Pianist · Full-Stack Developer",
   description:
     "Former Virginia HS 3-point record holder, 4.56 GPA student-athlete, full-stack developer, and gospel pianist. Explore my projects, music, and basketball journey.",
+  other: {
+    "Cache-Control": "no-cache, no-store, must-revalidate",
+    "Pragma": "no-cache",
+    "Expires": "0",
+  },
     generator: 'v0.app'
 }
 
