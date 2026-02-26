@@ -25,6 +25,7 @@ interface VideoItem {
   id: string
   title: string
   embed_id: string
+  tiktok_username?: string
   section: string
   platform: string
   display_order: number
@@ -57,6 +58,7 @@ export function VideosManager({ initialVideos }: { initialVideos: VideoItem[] })
     setFormData({
       title: video.title,
       embed_id: video.embed_id,
+      tiktok_username: video.tiktok_username || "TheSilentPianist",
       section: video.section,
       platform: video.platform || "youtube",
       is_visible: video.is_visible,
@@ -77,6 +79,7 @@ export function VideosManager({ initialVideos }: { initialVideos: VideoItem[] })
           .update({
             title: formData.title,
             embed_id: formData.embed_id,
+            tiktok_username: formData.tiktok_username,
             section: formData.section,
             platform: formData.platform,
             is_visible: formData.is_visible,
@@ -90,6 +93,7 @@ export function VideosManager({ initialVideos }: { initialVideos: VideoItem[] })
         const { error } = await supabase.from("videos").insert({
           title: formData.title,
           embed_id: formData.embed_id,
+          tiktok_username: formData.tiktok_username,
           section: formData.section,
           platform: formData.platform,
           is_visible: formData.is_visible,
@@ -223,7 +227,6 @@ export function VideosManager({ initialVideos }: { initialVideos: VideoItem[] })
                 </p>
               </div>
             )}
-            </div>
             <div className="space-y-2">
               <Label>Section</Label>
               <Select value={formData.section} onValueChange={(value) => setFormData({ ...formData, section: value })}>

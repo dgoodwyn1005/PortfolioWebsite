@@ -9,6 +9,7 @@ interface Video {
   title: string
   youtube_id?: string
   embed_id?: string
+  tiktok_username?: string
   category?: string
   section?: string
   platform?: string
@@ -85,6 +86,8 @@ export function VideoShowcase({ videos }: { videos: Video[] }) {
             const isTikTok = video.platform === "tiktok"
             const isActive = activeVideo === video.id
 
+            const tiktokUsername = video.tiktok_username || "TheSilentPianist"
+
             return (
               <motion.div
                 key={video.id}
@@ -98,7 +101,7 @@ export function VideoShowcase({ videos }: { videos: Video[] }) {
                   <div className="relative rounded-lg overflow-hidden bg-background border flex flex-col items-center justify-center p-4" style={{ minHeight: "400px" }}>
                     <blockquote
                       className="tiktok-embed"
-                      cite={`https://www.tiktok.com/@TheSilentPianist/video/${videoId}`}
+                      cite={`https://www.tiktok.com/@${tiktokUsername}/video/${videoId}`}
                       data-video-id={videoId}
                       style={{ maxWidth: "325px", minWidth: "280px" }}
                     >
@@ -106,7 +109,7 @@ export function VideoShowcase({ videos }: { videos: Video[] }) {
                         <a
                           target="_blank"
                           rel="noopener noreferrer"
-                          href={`https://www.tiktok.com/@TheSilentPianist/video/${videoId}`}
+                          href={`https://www.tiktok.com/@${tiktokUsername}/video/${videoId}`}
                           className="flex items-center gap-2 text-primary hover:underline"
                         >
                           <ExternalLink className="h-4 w-4" />
