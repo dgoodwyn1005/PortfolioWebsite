@@ -41,13 +41,14 @@ export function VideosManager({ initialVideos }: { initialVideos: VideoItem[] })
   const [formData, setFormData] = useState({
     title: "",
     embed_id: "",
+    tiktok_username: "TheSilentPianist",
     section: "music",
     platform: "youtube",
     is_visible: true,
   })
 
   const resetForm = () => {
-    setFormData({ title: "", embed_id: "", section: "music", platform: "youtube", is_visible: true })
+    setFormData({ title: "", embed_id: "", tiktok_username: "TheSilentPianist", section: "music", platform: "youtube", is_visible: true })
     setEditingVideo(null)
   }
 
@@ -179,28 +180,49 @@ export function VideosManager({ initialVideos }: { initialVideos: VideoItem[] })
                 value={formData.embed_id}
                 onChange={(e) => {
                   let value = e.target.value.trim()
-                  // Auto-extract ID from full URLs
+                  // Auto-extract ID and username from full URLs
                   if (formData.platform === "tiktok") {
+                    // Extract username from URL like @username or /@username
+                    const usernameMatch = value.match(/@([a-zA-Z0-9_.-]+)/)
+                    if (usernameMatch) {
+                      setFormData((prev) => ({ ...prev, tiktok_username: usernameMatch[1] }))
+                    }
                     const tiktokMatch = value.match(/video\/(\d+)/)
                     if (tiktokMatch) value = tiktokMatch[1]
                   } else {
                     const ytMatch = value.match(/(?:v=|youtu\.be\/|\/embed\/)([a-zA-Z0-9_-]+)/)
                     if (ytMatch) value = ytMatch[1]
                   }
-                  setFormData({ ...formData, embed_id: value })
+                  setFormData((prev) => ({ ...prev, embed_id: value }))
                 }}
                 placeholder={formData.platform === "tiktok" ? "7123456789012345678" : "dQw4w9WgXcQ"}
                 required
               />
               {formData.platform === "tiktok" ? (
                 <p className="text-xs text-muted-foreground">
-                  Paste the full TikTok URL or just the video ID. Example: tiktok.com/@TheSilentPianist/video/<strong>7123456789012345678</strong>
+                  Paste the full TikTok URL (username will be auto-extracted) or just the video ID.
                 </p>
               ) : (
                 <p className="text-xs text-muted-foreground">
                   Paste the full YouTube URL or just the video ID. Example: youtube.com/watch?v=<strong>dQw4w9WgXcQ</strong>
                 </p>
               )}
+            </div>
+            {formData.platform === "tiktok" && (
+              <div className="space-y-2">
+                <Label htmlFor="tiktok_username">TikTok Username</Label>
+                <Input
+                  id="tiktok_username"
+                  value={formData.tiktok_username}
+                  onChange={(e) => setFormData({ ...formData, tiktok_username: e.target.value.replace("@", "") })}
+                  placeholder="TheSilentPianist"
+                  required
+                />
+                <p className="text-xs text-muted-foreground">
+                  Your TikTok username without the @ symbol
+                </p>
+              </div>
+            )}
             </div>
             <div className="space-y-2">
               <Label>Section</Label>

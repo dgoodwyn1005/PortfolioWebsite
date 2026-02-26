@@ -1,8 +1,8 @@
 "use client"
 
 import { motion } from "framer-motion"
-import { Play } from "lucide-react"
-import { useState } from "react"
+import { Play, ExternalLink } from "lucide-react"
+import { useState, useEffect } from "react"
 
 interface Video {
   id: string
@@ -17,6 +17,20 @@ interface Video {
 export function VideoShowcase({ videos }: { videos: Video[] }) {
   const [activeVideo, setActiveVideo] = useState<string | null>(null)
   const [activeFilter, setActiveFilter] = useState<string>("all")
+
+  // Load TikTok embed script
+  useEffect(() => {
+    const hasTikTok = videos.some((v) => v.platform === "tiktok")
+    if (hasTikTok && typeof window !== "undefined") {
+      const existingScript = document.querySelector('script[src="https://www.tiktok.com/embed.js"]')
+      if (!existingScript) {
+        const script = document.createElement("script")
+        script.src = "https://www.tiktok.com/embed.js"
+        script.async = true
+        document.body.appendChild(script)
+      }
+    }
+  }, [videos])
 
   if (!videos || videos.length === 0) return null
 
@@ -81,14 +95,25 @@ export function VideoShowcase({ videos }: { videos: Video[] }) {
                 className="group"
               >
                 {isTikTok ? (
-                  <div className="relative rounded-lg overflow-hidden bg-background border" style={{ aspectRatio: "9/16", maxHeight: "500px" }}>
-                    <iframe
-                      src={`https://www.tiktok.com/embed/v2/${videoId}`}
-                      title={video.title}
-                      allowFullScreen
-                      allow="encrypted-media"
-                      className="absolute inset-0 w-full h-full"
-                    />
+                  <div className="relative rounded-lg overflow-hidden bg-background border flex flex-col items-center justify-center p-4" style={{ minHeight: "400px" }}>
+                    <blockquote
+                      className="tiktok-embed"
+                      cite={`https://www.tiktok.com/@TheSilentPianist/video/${videoId}`}
+                      data-video-id={videoId}
+                      style={{ maxWidth: "325px", minWidth: "280px" }}
+                    >
+                      <section>
+                        <a
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          href={`https://www.tiktok.com/@TheSilentPianist/video/${videoId}`}
+                          className="flex items-center gap-2 text-primary hover:underline"
+                        >
+                          <ExternalLink className="h-4 w-4" />
+                          Watch on TikTok
+                        </a>
+                      </section>
+                    </blockquote>
                   </div>
                 ) : (
                   <div className="relative aspect-video rounded-lg overflow-hidden bg-background border">
