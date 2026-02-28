@@ -204,12 +204,13 @@ export function VideosManager({ initialVideos }: { initialVideos: VideoItem[] })
                 <SelectContent>
                   <SelectItem value="youtube">YouTube</SelectItem>
                   <SelectItem value="tiktok">TikTok</SelectItem>
+                  <SelectItem value="twitter">X (Twitter)</SelectItem>
                 </SelectContent>
               </Select>
             </div>
             <div className="space-y-2">
               <Label htmlFor="embed_id">
-                {formData.platform === "tiktok" ? "TikTok Video ID" : "YouTube Video ID"}
+                {formData.platform === "tiktok" ? "TikTok Video ID" : formData.platform === "twitter" ? "X Post ID" : "YouTube Video ID"}
               </Label>
               <Input
                 id="embed_id"
@@ -225,18 +226,26 @@ export function VideosManager({ initialVideos }: { initialVideos: VideoItem[] })
                     }
                     const tiktokMatch = value.match(/video\/(\d+)/)
                     if (tiktokMatch) value = tiktokMatch[1]
+                  } else if (formData.platform === "twitter") {
+                    // Extract status ID from X/Twitter URLs
+                    const twitterMatch = value.match(/status\/(\d+)/)
+                    if (twitterMatch) value = twitterMatch[1]
                   } else {
                     const ytMatch = value.match(/(?:v=|youtu\.be\/|\/embed\/)([a-zA-Z0-9_-]+)/)
                     if (ytMatch) value = ytMatch[1]
                   }
                   setFormData((prev) => ({ ...prev, embed_id: value }))
                 }}
-                placeholder={formData.platform === "tiktok" ? "7123456789012345678" : "dQw4w9WgXcQ"}
+                placeholder={formData.platform === "tiktok" ? "7123456789012345678" : formData.platform === "twitter" ? "1234567890123456789" : "dQw4w9WgXcQ"}
                 required
               />
               {formData.platform === "tiktok" ? (
                 <p className="text-xs text-muted-foreground">
                   Paste the full TikTok URL (username will be auto-extracted) or just the video ID.
+                </p>
+              ) : formData.platform === "twitter" ? (
+                <p className="text-xs text-muted-foreground">
+                  Paste the full X/Twitter URL or just the post ID. Example: x.com/user/status/<strong>1234567890123456789</strong>
                 </p>
               ) : (
                 <p className="text-xs text-muted-foreground">
@@ -259,7 +268,7 @@ export function VideosManager({ initialVideos }: { initialVideos: VideoItem[] })
                 </p>
               </div>
             )}
-            {formData.platform !== "tiktok" && (
+            {(formData.platform === "youtube" || formData.platform === "twitter") && (
               <div className="space-y-2">
                 <Label>Custom Thumbnail (Optional)</Label>
                 <div className="flex gap-2">
@@ -290,7 +299,7 @@ export function VideosManager({ initialVideos }: { initialVideos: VideoItem[] })
                   </label>
                 </div>
                 <p className="text-xs text-muted-foreground">
-                  Upload an image or paste a URL. Leave empty to use YouTube's default thumbnail.
+                  Upload an image or paste a URL.{formData.platform === "youtube" ? " Leave empty to use YouTube's default thumbnail." : " Recommended for X posts."}
                 </p>
                 {formData.thumbnail_url && (
                   <div className="mt-2 relative inline-block">
