@@ -1,15 +1,14 @@
 import { Navbar } from "@/components/navbar"
 import { Footer } from "@/components/footer"
 import { ShopContent } from "@/components/shop-content"
-import { stripe } from "@/lib/stripe"
+import { getStripe } from "@/lib/stripe"
 
 export const dynamic = "force-dynamic"
 
 // Seed products if none exist
 async function seedProductsIfNeeded() {
-  if (!stripe) return
-
   try {
+    const stripe = await getStripe()
     const products = await stripe.products.list({ limit: 1, active: true })
     
     // If no products exist, seed them
@@ -45,6 +44,7 @@ async function seedProductsIfNeeded() {
       }
     }
   } catch (error) {
+    // Silently fail - products API will handle missing Stripe config
     console.error("Error seeding products:", error)
   }
 }
