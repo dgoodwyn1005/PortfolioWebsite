@@ -9,9 +9,23 @@ import { CompanyContact } from "@/components/company/contact"
 import { CompanyFooter } from "@/components/company/footer"
 import { notFound } from "next/navigation"
 
-export const metadata = {
-  title: "WynTech Solutions | Custom Software Development",
-  description: "Full-service software development company building custom solutions for businesses.",
+import type { Metadata } from "next"
+
+export const metadata: Metadata = {
+  title: "WynTech Solutions | Web Development & Automation",
+  description: "Custom website development, automation tools, and software solutions for students and small businesses. Starter websites, portfolio sites, e-commerce, and study automation tools.",
+  keywords: ["Web Development", "Website Design", "Custom Software", "Automation Tools", "Portfolio Website", "E-Commerce", "WynTech"],
+  openGraph: {
+    title: "WynTech Solutions | Web Development & Automation",
+    description: "Custom website development, automation tools, and software solutions for students and small businesses.",
+    type: "website",
+    images: [{ url: "/og-wyntech.jpg", width: 1200, height: 630, alt: "WynTech Solutions" }],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "WynTech Solutions",
+    description: "Custom website development, automation tools, and software solutions.",
+  },
 }
 
 export default async function WynTechPage() {

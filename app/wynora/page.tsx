@@ -10,9 +10,23 @@ import { CompanyFooter } from "@/components/company/footer"
 import { MusicSection } from "@/components/company/music-section"
 import { notFound } from "next/navigation"
 
-export const metadata = {
-  title: "Wynora | Creative Digital Agency",
-  description: "Creative agency specializing in brand development, digital design, and strategic marketing.",
+import type { Metadata } from "next"
+
+export const metadata: Metadata = {
+  title: "Wynora Music Services | Professional Piano & Recording",
+  description: "Professional piano accompaniment, music recording, and arrangement services. Offering essential to luxury recording packages for musicians, vocalists, and performers.",
+  keywords: ["Piano Accompaniment", "Music Recording", "Gospel Piano", "Music Arrangement", "Recording Studio", "Wynora"],
+  openGraph: {
+    title: "Wynora Music Services | Professional Piano & Recording",
+    description: "Professional piano accompaniment, music recording, and arrangement services for musicians and performers.",
+    type: "website",
+    images: [{ url: "/og-wynora.jpg", width: 1200, height: 630, alt: "Wynora Music Services" }],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Wynora Music Services",
+    description: "Professional piano accompaniment, music recording, and arrangement services.",
+  },
 }
 
 export default async function WynoraPage() {
