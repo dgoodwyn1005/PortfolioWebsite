@@ -12,6 +12,7 @@ interface Company {
   slug: string
   name: string
   primary_color: string
+  logo_url?: string
 }
 
 const navLinks = [
@@ -51,8 +52,14 @@ export function CompanyNavbar({ company }: { company: Company }) {
             <Link href="/" className="text-muted-foreground hover:text-foreground transition-colors">
               <ArrowLeft className="h-5 w-5" />
             </Link>
-            <a href="#" className="text-lg font-bold" style={{ color: company.primary_color }}>
-              {company.name}
+            <a href="#" className="flex items-center gap-2">
+              {company.logo_url ? (
+                <img src={company.logo_url} alt={company.name} className="h-8 w-auto" />
+              ) : (
+                <span className="text-lg font-bold" style={{ color: company.primary_color }}>
+                  {company.name}
+                </span>
+              )}
             </a>
           </div>
 
