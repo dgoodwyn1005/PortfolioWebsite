@@ -48,6 +48,7 @@ function WaveformPlayer({ sample }: { sample: AudioSample }) {
   const wavesurferRef = useRef<any>(null)
   const [isPlaying, setIsPlaying] = useState(false)
   const [isReady, setIsReady] = useState(false)
+  const [hasError, setHasError] = useState(false)
   const [currentTime, setCurrentTime] = useState(0)
   const [duration, setDuration] = useState(0)
 
@@ -94,6 +95,10 @@ function WaveformPlayer({ sample }: { sample: AudioSample }) {
 
       ws.on("play", () => setIsPlaying(true))
       ws.on("pause", () => setIsPlaying(false))
+      ws.on("error", () => {
+        setHasError(true)
+        setIsReady(false)
+      })
     }
 
     initWaveSurfer()
@@ -135,9 +140,9 @@ function WaveformPlayer({ sample }: { sample: AudioSample }) {
           </div>
           <button
             onClick={togglePlay}
-            disabled={!isReady}
+            disabled={!isReady || hasError}
             className={`w-12 h-12 rounded-full flex items-center justify-center transition-all duration-300 ${
-              isReady
+              isReady && !hasError
                 ? "bg-primary text-primary-foreground hover:scale-110 hover:shadow-lg"
                 : "bg-muted text-muted-foreground"
             }`}
@@ -157,9 +162,14 @@ function WaveformPlayer({ sample }: { sample: AudioSample }) {
               isReady ? "opacity-100" : "opacity-50"
             }`}
           />
-          {!isReady && (
+          {!isReady && !hasError && (
             <div className="absolute inset-0 flex items-center justify-center">
               <div className="w-6 h-6 border-2 border-primary border-t-transparent rounded-full animate-spin" />
+            </div>
+          )}
+          {hasError && (
+            <div className="absolute inset-0 flex items-center justify-center bg-muted/50 rounded-lg">
+              <p className="text-sm text-muted-foreground">Audio sample coming soon</p>
             </div>
           )}
         </div>
