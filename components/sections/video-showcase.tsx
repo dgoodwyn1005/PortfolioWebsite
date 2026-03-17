@@ -99,6 +99,7 @@ export function VideoShowcase({ videos }: { videos: Video[] }) {
           {filteredVideos.map((video, index) => {
             const videoId = video.youtube_id || video.embed_id
             const isTikTok = video.platform === "tiktok"
+            const isTwitter = video.platform === "twitter"
             const isActive = activeVideo === video.id
 
             const tiktokUsername = video.tiktok_username || "TheSilentPianist"
@@ -112,7 +113,33 @@ export function VideoShowcase({ videos }: { videos: Video[] }) {
                 viewport={{ once: true }}
                 className="group"
               >
-                {isTikTok ? (
+                {isTwitter ? (
+                  <a
+                    href={`https://x.com/i/status/${videoId}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="relative aspect-video rounded-lg overflow-hidden bg-muted border flex flex-col items-center justify-center group-hover:scale-[1.02] transition-transform"
+                  >
+                    {video.thumbnail_url ? (
+                      <img
+                        src={video.thumbnail_url}
+                        alt={video.title}
+                        className="absolute inset-0 w-full h-full object-cover"
+                      />
+                    ) : (
+                      <div className="absolute inset-0 bg-black" />
+                    )}
+                    <div className="absolute inset-0 bg-black/40 flex flex-col items-center justify-center gap-4 opacity-0 group-hover:opacity-100 transition-opacity">
+                      <svg viewBox="0 0 24 24" className="w-12 h-12 text-white" fill="currentColor">
+                        <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
+                      </svg>
+                      <span className="text-white font-medium flex items-center gap-2">
+                        <ExternalLink className="h-4 w-4" />
+                        Watch on X
+                      </span>
+                    </div>
+                  </a>
+                ) : isTikTok ? (
                   <a
                     href={`https://www.tiktok.com/@${tiktokUsername}/video/${videoId}`}
                     target="_blank"
@@ -174,6 +201,9 @@ export function VideoShowcase({ videos }: { videos: Video[] }) {
                   <h3 className="font-medium text-sm">{video.title}</h3>
                   {isTikTok && (
                     <span className="text-[10px] px-1.5 py-0.5 rounded bg-muted text-muted-foreground font-medium">TikTok</span>
+                  )}
+                  {isTwitter && (
+                    <span className="text-[10px] px-1.5 py-0.5 rounded bg-muted text-muted-foreground font-medium">X</span>
                   )}
                 </div>
                 {(video.category || video.section) && (

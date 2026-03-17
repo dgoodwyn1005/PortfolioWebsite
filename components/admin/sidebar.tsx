@@ -29,13 +29,15 @@ import {
   FileText,
   CreditCard,
   Music,
+  Package,
 } from "lucide-react"
 import { useState } from "react"
 
 const mainNavItems = [
   { name: "Dashboard", href: "/admin", icon: LayoutDashboard },
   { name: "Site Settings", href: "/admin/settings", icon: Settings },
-  { name: "Stripe", href: "/admin/stripe", icon: CreditCard }, // Added Stripe menu item
+  { name: "Stripe", href: "/admin/stripe", icon: CreditCard },
+  { name: "Products", href: "/admin/products", icon: Package },
   { name: "Images", href: "/admin/images", icon: ImageIcon },
   { name: "Photo Gallery", href: "/admin/gallery", icon: Camera }, // Added Photo Gallery menu item
   { name: "Projects", href: "/admin/projects", icon: Folders },

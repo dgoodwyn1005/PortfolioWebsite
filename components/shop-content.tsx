@@ -131,8 +131,8 @@ export function ShopContent() {
 
         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
           {products.map((product, index) => {
-            const price = product.default_price || product.prices[0]
-            const isRecurring = price?.recurring !== null
+            const price = product.default_price || product.prices?.[0]
+            const isRecurring = price?.recurring != null
 
             return (
               <motion.div

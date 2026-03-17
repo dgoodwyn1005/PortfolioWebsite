@@ -3,6 +3,12 @@ import Stripe from "stripe"
 import { createClient } from "@/lib/supabase/server"
 
 async function getStripeKey(): Promise<string> {
+  // Always prioritize environment variable if set
+  if (process.env.STRIPE_SECRET_KEY) {
+    return process.env.STRIPE_SECRET_KEY
+  }
+
+  // Fall back to database-stored key
   try {
     const supabase = await createClient()
     const { data } = await supabase.from("site_settings").select("value").eq("key", "stripe_secret_key").single()
@@ -11,14 +17,10 @@ async function getStripeKey(): Promise<string> {
       return data.value
     }
   } catch (error) {
-    // Fall through to env var
+    // Fall through to error
   }
 
-  if (!process.env.STRIPE_SECRET_KEY) {
-    throw new Error("STRIPE_SECRET_KEY is not set. Please configure Stripe in Admin → Stripe.")
-  }
-
-  return process.env.STRIPE_SECRET_KEY
+  throw new Error("STRIPE_SECRET_KEY is not set. Please configure Stripe in Admin → Stripe.")
 }
 
 // Create Stripe instance with custom or env key
