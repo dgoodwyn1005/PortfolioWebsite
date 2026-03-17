@@ -19,13 +19,27 @@ export async function GET() {
     // Map products with their prices
     const productsWithPrices = products.data.map((product) => {
       const productPrices = prices.data.filter((price) => price.product === product.id)
+      
+      // Format default_price if it exists and is expanded
+      let formattedDefaultPrice = null
+      if (product.default_price && typeof product.default_price === 'object') {
+        const dp = product.default_price
+        formattedDefaultPrice = {
+          id: dp.id,
+          unit_amount: dp.unit_amount,
+          currency: dp.currency,
+          type: dp.type,
+          recurring: dp.recurring,
+        }
+      }
+      
       return {
         id: product.id,
         name: product.name,
         description: product.description,
         images: product.images,
         metadata: product.metadata,
-        default_price: product.default_price,
+        default_price: formattedDefaultPrice,
         prices: productPrices.map((price) => ({
           id: price.id,
           unit_amount: price.unit_amount,
