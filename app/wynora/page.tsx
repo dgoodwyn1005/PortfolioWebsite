@@ -9,6 +9,7 @@ import { CompanyContact } from "@/components/company/contact"
 import { CompanyFooter } from "@/components/company/footer"
 import { MusicSection } from "@/components/company/music-section"
 import { SilentPianist } from "@/components/company/silent-pianist"
+import { AudioSamples } from "@/components/company/audio-samples"
 import { notFound } from "next/navigation"
 
 import type { Metadata } from "next"
@@ -81,11 +82,21 @@ export default async function WynoraPage() {
     .eq("is_visible", true)
     .order("display_order")
 
+  const { data: audioSamples } = await supabase
+    .from("audio_samples")
+    .select("*")
+    .eq("company_id", company.id)
+    .eq("is_visible", true)
+    .order("display_order")
+
   return (
     <main className="min-h-screen">
       <CompanyNavbar company={company} />
       <CompanyHero company={company} />
       <CompanyAbout company={company} />
+      {audioSamples && audioSamples.length > 0 && (
+        <AudioSamples samples={audioSamples} />
+      )}
       {audioClips && audioClips.length > 0 && (
         <MusicSection clips={audioClips} companyName={company.name} />
       )}
