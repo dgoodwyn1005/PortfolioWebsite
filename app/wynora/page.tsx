@@ -8,6 +8,7 @@ import { CompanyTestimonials } from "@/components/company/testimonials"
 import { CompanyContact } from "@/components/company/contact"
 import { CompanyFooter } from "@/components/company/footer"
 import { MusicSection } from "@/components/company/music-section"
+import { SilentPianist } from "@/components/company/silent-pianist"
 import { notFound } from "next/navigation"
 
 import type { Metadata } from "next"
@@ -73,6 +74,13 @@ export default async function WynoraPage() {
     .eq("is_visible", true)
     .order("display_order")
 
+  const { data: silentPianistVideos } = await supabase
+    .from("silent_pianist_videos")
+    .select("*")
+    .eq("company_id", company.id)
+    .eq("is_visible", true)
+    .order("display_order")
+
   return (
     <main className="min-h-screen">
       <CompanyNavbar company={company} />
@@ -80,6 +88,9 @@ export default async function WynoraPage() {
       <CompanyAbout company={company} />
       {audioClips && audioClips.length > 0 && (
         <MusicSection clips={audioClips} companyName={company.name} />
+      )}
+      {silentPianistVideos && silentPianistVideos.length > 0 && (
+        <SilentPianist videos={silentPianistVideos} />
       )}
       <CompanyServices company={company} services={services || []} />
       <CompanyPortfolio company={company} portfolio={portfolio || []} />
