@@ -2,7 +2,7 @@
 
 import type React from "react"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { createClient } from "@/lib/supabase/client"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -166,6 +166,26 @@ function CompanyForm({
       is_active: true,
     },
   )
+
+  useEffect(() => {
+    if (company) {
+      setFormData(company)
+    } else {
+      setFormData({
+        name: "",
+        slug: "",
+        tagline: "",
+        hero_title: "",
+        hero_subtitle: "",
+        about_text: "",
+        mission_text: "",
+        contact_email: "",
+        contact_phone: "",
+        primary_color: "#3b82f6",
+        is_active: true,
+      })
+    }
+  }, [company])
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()

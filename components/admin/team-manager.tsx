@@ -2,7 +2,7 @@
 
 import type React from "react"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { createClient } from "@/lib/supabase/client"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -196,6 +196,23 @@ function TeamMemberForm({
       display_order: 0,
     },
   )
+
+  useEffect(() => {
+    if (member) {
+      setFormData(member)
+    } else {
+      setFormData({
+        company_id: companies[0]?.id || "",
+        name: "",
+        role: "",
+        bio: "",
+        image_url: "",
+        linkedin_url: "",
+        is_visible: true,
+        display_order: 0,
+      })
+    }
+  }, [member, companies])
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()

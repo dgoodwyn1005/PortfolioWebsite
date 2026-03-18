@@ -2,7 +2,7 @@
 
 import type React from "react"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { createClient } from "@/lib/supabase/client"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -225,6 +225,24 @@ function PortfolioForm({
     },
   )
   const [newTag, setNewTag] = useState("")
+
+  useEffect(() => {
+    if (item) {
+      setFormData(item)
+    } else {
+      setFormData({
+        company_id: companies[0]?.id || "",
+        title: "",
+        description: "",
+        client_name: "",
+        image_url: "",
+        project_url: "",
+        tags: [],
+        is_visible: true,
+        display_order: 0,
+      })
+    }
+  }, [item, companies])
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
