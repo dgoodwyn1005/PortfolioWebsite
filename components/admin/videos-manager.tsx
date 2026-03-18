@@ -306,9 +306,8 @@ export function VideosManager({ initialVideos }: { initialVideos: VideoItem[] })
                 </div>
               </div>
             )}
-            {(formData.platform === "youtube" || formData.platform === "twitter") && (
-              <div className="space-y-2">
-                <Label>Custom Thumbnail (Optional)</Label>
+            <div className="space-y-2">
+                <Label>Custom Thumbnail {formData.platform === "tiktok" ? "(Recommended)" : "(Optional)"}</Label>
                 <div className="flex gap-2">
                   <Input
                     id="thumbnail_url"
@@ -337,7 +336,7 @@ export function VideosManager({ initialVideos }: { initialVideos: VideoItem[] })
                   </label>
                 </div>
                 <p className="text-xs text-muted-foreground">
-                  Upload an image or paste a URL.{formData.platform === "youtube" ? " Leave empty to use YouTube's default thumbnail." : " Recommended for X posts."}
+                  Upload an image or paste a URL.{formData.platform === "youtube" ? " Leave empty to use YouTube's default thumbnail." : formData.platform === "tiktok" ? " Required for TikTok videos to show preview." : " Recommended for X posts."}
                 </p>
                 {formData.thumbnail_url && (
                   <div className="mt-2 relative inline-block">
@@ -359,7 +358,6 @@ export function VideosManager({ initialVideos }: { initialVideos: VideoItem[] })
                   </div>
                 )}
               </div>
-            )}
             <div className="space-y-2">
               <Label>Section</Label>
               <Select value={formData.section} onValueChange={(value) => setFormData({ ...formData, section: value })}>

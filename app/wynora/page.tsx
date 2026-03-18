@@ -99,50 +99,10 @@ export default async function WynoraPage() {
     .in("section", ["music", "piano", "worship"])
     .order("display_order")
 
-  // Fetch TikTok thumbnails server-side to avoid CORS issues
-  const videosWithThumbnails = await Promise.all(
-    (silentPianistVideos || []).map(async (video) => {
-      if (video.platform === "tiktok" && !video.thumbnail) {
-        const username = video.tiktok_username || "TheSilentPianist"
-        const url = `https://www.tiktok.com/@${username}/video/${video.embed_id}`
-        try {
-          const response = await fetch(`https://www.tiktok.com/oembed?url=${encodeURIComponent(url)}`, {
-            next: { revalidate: 3600 } // Cache for 1 hour
-          })
-          if (response.ok) {
-            const data = await response.json()
-            return { ...video, thumbnail: data.thumbnail_url || null }
-          }
-        } catch {
-          // Silently fail
-        }
-      }
-      return video
-    })
-  )
-
-  // Also fetch thumbnails for music videos
-  const musicVideosWithThumbnails = await Promise.all(
-    (musicVideos || []).map(async (video) => {
-      if (video.platform === "tiktok" && !video.thumbnail_url) {
-        const username = video.tiktok_username || "TheSilentPianist"
-        const videoId = video.youtube_id || video.embed_id
-        const url = `https://www.tiktok.com/@${username}/video/${videoId}`
-        try {
-          const response = await fetch(`https://www.tiktok.com/oembed?url=${encodeURIComponent(url)}`, {
-            next: { revalidate: 3600 }
-          })
-          if (response.ok) {
-            const data = await response.json()
-            return { ...video, thumbnail_url: data.thumbnail_url || null }
-          }
-        } catch {
-          // Silently fail
-        }
-      }
-      return video
-    })
-  )
+  // Use videos directly - TikTok oEmbed is unreliable
+  // For TikTok thumbnails, store them directly in the database via admin
+  const videosWithThumbnails = silentPianistVideos || []
+  const musicVideosWithThumbnails = musicVideos || []
 
   return (
     <main className="min-h-screen">
