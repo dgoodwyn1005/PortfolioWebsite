@@ -116,19 +116,34 @@ export function SilentPianistManager() {
     setIsDialogOpen(true)
   }
 
-  // Extract YouTube video ID from URL
+  // Extract YouTube video ID from URL and clean invalid characters
   const extractVideoId = (input: string): string => {
     if (!input) return ""
-    // YouTube patterns
+    const trimmed = input.trim()
+    
+    // YouTube URL patterns
     const youtubePatterns = [
-      /(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/)([^&\n?#]+)/,
-      /^([a-zA-Z0-9_-]{11})$/,
+      /(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/)([a-zA-Z0-9_-]+)/,
+      /(?:youtube\.com\/live\/)([a-zA-Z0-9_-]+)/,
+      /(?:youtube\.com\/shorts\/)([a-zA-Z0-9_-]+)/,
     ]
+    
     for (const pattern of youtubePatterns) {
-      const match = input.match(pattern)
-      if (match) return match[1]
+      const match = trimmed.match(pattern)
+      if (match) {
+        // Clean the ID - YouTube IDs are only alphanumeric, underscore, and hyphen
+        return match[1].replace(/[^a-zA-Z0-9_-]/g, "")
+      }
     }
-    return input
+    
+    // If it looks like a raw ID (11 chars, valid characters only), use it
+    const cleanedId = trimmed.replace(/[^a-zA-Z0-9_-]/g, "")
+    if (cleanedId.length === 11) {
+      return cleanedId
+    }
+    
+    // Return cleaned input as fallback
+    return cleanedId || trimmed
   }
 
   const handleSubmit = async (e: React.FormEvent) => {
