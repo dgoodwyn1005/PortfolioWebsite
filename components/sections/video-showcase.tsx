@@ -14,32 +14,6 @@ interface Video {
   category?: string
   section?: string
   platform?: string
-  start_time?: string
-  end_time?: string
-}
-
-// Convert time string (HH:MM:SS or MM:SS) to seconds
-function timeToSeconds(time: string | undefined): number | null {
-  if (!time) return null
-  const parts = time.split(":").map(Number)
-  if (parts.some(isNaN)) return null
-  if (parts.length === 3) {
-    return parts[0] * 3600 + parts[1] * 60 + parts[2]
-  } else if (parts.length === 2) {
-    return parts[0] * 60 + parts[1]
-  }
-  return null
-}
-
-function buildYouTubeEmbedUrl(videoId: string, video: Video, autoplay: boolean = false): string {
-  const params = new URLSearchParams()
-  if (autoplay) params.set("autoplay", "1")
-  const startSec = timeToSeconds(video.start_time)
-  const endSec = timeToSeconds(video.end_time)
-  if (startSec !== null) params.set("start", startSec.toString())
-  if (endSec !== null) params.set("end", endSec.toString())
-  const paramStr = params.toString()
-  return `https://www.youtube.com/embed/${videoId}${paramStr ? `?${paramStr}` : ""}`
 }
 
 export function VideoShowcase({ videos }: { videos: Video[] }) {
@@ -195,7 +169,7 @@ export function VideoShowcase({ videos }: { videos: Video[] }) {
                   <div className="relative aspect-video rounded-lg overflow-hidden bg-background border">
                     {isActive ? (
                       <iframe
-                        src={buildYouTubeEmbedUrl(videoId || "", video, true)}
+                        src={`https://www.youtube.com/embed/${videoId}?autoplay=1`}
                         title={video.title}
                         allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                         allowFullScreen
@@ -216,14 +190,9 @@ export function VideoShowcase({ videos }: { videos: Video[] }) {
                         />
                         <div className="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
                           <div className="w-16 h-16 rounded-full bg-primary flex items-center justify-center">
-                            <Play className="h-8 w-8 text-primary-foreground ml-1" fill="currentColor" />
+                            <Play className="h-8 w-8 text-primary-foreground ml-1" />
                           </div>
                         </div>
-                        {video.start_time && (
-                          <div className="absolute bottom-2 right-2 bg-black/70 text-white text-xs px-2 py-1 rounded">
-                            {video.start_time}{video.end_time ? ` - ${video.end_time}` : ""}
-                          </div>
-                        )}
                       </button>
                     )}
                   </div>

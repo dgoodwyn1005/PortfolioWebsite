@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useRef, useState } from "react"
+import { useEffect, useRef } from "react"
 import { motion } from "framer-motion"
 import { Piano, Play, ExternalLink } from "lucide-react"
 import { Card, CardContent } from "@/components/ui/card"
@@ -19,7 +19,6 @@ interface Video {
 function timeToSeconds(time: string | null | undefined): number | null {
   if (!time) return null
   const parts = time.split(":").map(Number)
-  if (parts.some(isNaN)) return null
   if (parts.length === 3) {
     return parts[0] * 3600 + parts[1] * 60 + parts[2]
   } else if (parts.length === 2) {
@@ -88,60 +87,6 @@ function isValidVideoId(video: Video): boolean {
   return true
 }
 
-// YouTube video card with click-to-play functionality
-function YouTubeVideoCard({ video, getEmbedUrl, getExternalUrl }: { 
-  video: Video
-  getEmbedUrl: (v: Video) => string | null
-  getExternalUrl: (v: Video) => string 
-}) {
-  const [isPlaying, setIsPlaying] = useState(false)
-  
-  // Get YouTube thumbnail - use maxresdefault for best quality, fallback to hqdefault
-  const thumbnailUrl = video.thumbnail || `https://img.youtube.com/vi/${video.embed_id}/hqdefault.jpg`
-  
-  return (
-    <div className="relative aspect-video bg-muted overflow-hidden">
-      {isPlaying ? (
-        <iframe
-          src={`${getEmbedUrl(video)}&autoplay=1`}
-          title={video.title}
-          className="w-full h-full"
-          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-          allowFullScreen
-        />
-      ) : (
-        <button
-          onClick={() => setIsPlaying(true)}
-          className="w-full h-full relative group"
-        >
-          <img
-            src={thumbnailUrl}
-            alt={video.title}
-            className="w-full h-full object-cover"
-            onError={(e) => {
-              // Fallback to default thumbnail if maxres fails
-              const target = e.target as HTMLImageElement
-              if (!target.src.includes('hqdefault')) {
-                target.src = `https://img.youtube.com/vi/${video.embed_id}/hqdefault.jpg`
-              }
-            }}
-          />
-          <div className="absolute inset-0 bg-black/30 group-hover:bg-black/40 transition-colors flex items-center justify-center">
-            <div className="w-16 h-16 rounded-full bg-primary/90 group-hover:bg-primary flex items-center justify-center transition-colors">
-              <Play className="w-8 h-8 text-primary-foreground ml-1" fill="currentColor" />
-            </div>
-          </div>
-          {video.start_time && (
-            <div className="absolute bottom-2 right-2 bg-black/70 text-white text-xs px-2 py-1 rounded">
-              {video.start_time}{video.end_time ? ` - ${video.end_time}` : ""}
-            </div>
-          )}
-        </button>
-      )}
-    </div>
-  )
-}
-
 export function SilentPianist({ 
   videos, 
   title = "The Silent Pianist",
@@ -155,17 +100,24 @@ export function SilentPianist({
   function getEmbedUrl(video: Video) {
     switch (video.platform) {
       case "youtube":
-        let url = `https://www.youtube.com/embed/${video.embed_id}`
-        const params = new URLSearchParams()
+        const baseUrl = `https://www.youtube.com/embed/${video.embed_id}`
         const startSec = timeToSeconds(video.start_time)
         const endSec = timeToSeconds(video.end_time)
-        if (startSec !== null) params.set("start", startSec.toString())
-        if (endSec !== null) params.set("end", endSec.toString())
-        const paramStr = params.toString()
-        return paramStr ? `${url}?${paramStr}` : url
+        const params: string[] = []
+        if (startSec !== null && startSec > 0) params.push(`start=${startSec}`)
+        if (endSec !== null && endSec > 0) params.push(`end=${endSec}`)
+        return params.length > 0 ? `${baseUrl}?${params.join("&")}` : baseUrl
       default:
         return null
     }
+  }
+
+  function getThumbnailUrl(video: Video) {
+    if (video.thumbnail) return video.thumbnail
+    if (video.platform === "youtube") {
+      return `https://img.youtube.com/vi/${video.embed_id}/hqdefault.jpg`
+    }
+    return null
   }
 
   function getExternalUrl(video: Video) {
@@ -212,10 +164,12 @@ export function SilentPianist({
               <Card className="overflow-hidden group hover:shadow-lg transition-shadow h-full">
                 <div className="relative aspect-video bg-muted overflow-hidden">
                   {video.platform === "youtube" ? (
-                    <YouTubeVideoCard 
-                      video={video} 
-                      getEmbedUrl={getEmbedUrl} 
-                      getExternalUrl={getExternalUrl} 
+                    <iframe
+                      src={getEmbedUrl(video) || ""}
+                      title={video.title}
+                      className="w-full h-full"
+                      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                      allowFullScreen
                     />
                   ) : video.platform === "tiktok" ? (
                     <TikTokEmbed videoId={video.embed_id} title={video.title} />

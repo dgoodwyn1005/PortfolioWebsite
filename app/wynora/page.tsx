@@ -83,14 +83,6 @@ export default async function WynoraPage() {
     .eq("is_visible", true)
     .order("display_order")
 
-  // Also fetch music-related videos from the main videos table
-  const { data: musicVideos } = await supabase
-    .from("videos")
-    .select("*")
-    .eq("section", "music")
-    .eq("is_visible", true)
-    .order("display_order")
-
   const { data: audioSamples } = await supabase
     .from("audio_samples")
     .select("*")
@@ -109,30 +101,8 @@ export default async function WynoraPage() {
       {audioClips && audioClips.length > 0 && (
         <MusicSection clips={audioClips} companyName={company.name} />
       )}
-      {/* Show Silent Pianist section with company videos or music videos from main site */}
-      {((silentPianistVideos && silentPianistVideos.length > 0) || (musicVideos && musicVideos.length > 0)) && (
-        <SilentPianist 
-          videos={[
-            ...(silentPianistVideos || []).map(v => ({
-              id: v.id,
-              title: v.title,
-              platform: v.platform as "youtube" | "tiktok" | "twitter",
-              embed_id: v.embed_id,
-              thumbnail: v.thumbnail,
-              start_time: v.start_time,
-              end_time: v.end_time,
-            })),
-            ...(musicVideos || []).map(v => ({
-              id: v.id,
-              title: v.title,
-              platform: (v.platform || "youtube") as "youtube" | "tiktok" | "twitter",
-              embed_id: v.embed_id,
-              thumbnail: v.thumbnail_url,
-              start_time: v.start_time,
-              end_time: v.end_time,
-            })),
-          ]} 
-        />
+      {silentPianistVideos && silentPianistVideos.length > 0 && (
+        <SilentPianist videos={silentPianistVideos} />
       )}
       <CompanyServices company={company} services={services || []} />
       <CompanyPortfolio company={company} portfolio={portfolio || []} />
