@@ -11,6 +11,20 @@ interface Video {
   platform: "youtube" | "tiktok" | "twitter"
   embed_id: string
   thumbnail?: string | null
+  start_time?: string | null
+  end_time?: string | null
+}
+
+// Convert time string (HH:MM:SS or MM:SS) to seconds
+function timeToSeconds(time: string | null | undefined): number | null {
+  if (!time) return null
+  const parts = time.split(":").map(Number)
+  if (parts.length === 3) {
+    return parts[0] * 3600 + parts[1] * 60 + parts[2]
+  } else if (parts.length === 2) {
+    return parts[0] * 60 + parts[1]
+  }
+  return null
 }
 
 interface SilentPianistProps {
@@ -86,7 +100,14 @@ export function SilentPianist({
   function getEmbedUrl(video: Video) {
     switch (video.platform) {
       case "youtube":
-        return `https://www.youtube.com/embed/${video.embed_id}`
+        let url = `https://www.youtube.com/embed/${video.embed_id}`
+        const params = new URLSearchParams()
+        const startSec = timeToSeconds(video.start_time)
+        const endSec = timeToSeconds(video.end_time)
+        if (startSec !== null) params.set("start", startSec.toString())
+        if (endSec !== null) params.set("end", endSec.toString())
+        const paramStr = params.toString()
+        return paramStr ? `${url}?${paramStr}` : url
       default:
         return null
     }
@@ -179,9 +200,16 @@ export function SilentPianist({
                       <ExternalLink className="w-4 h-4" />
                     </a>
                   </div>
-                  <span className="text-xs text-muted-foreground capitalize mt-1 inline-block px-2 py-0.5 bg-muted rounded-full">
-                    {video.platform === "twitter" ? "X" : video.platform}
-                  </span>
+                  <div className="flex items-center gap-2 mt-1">
+                    <span className="text-xs text-muted-foreground capitalize px-2 py-0.5 bg-muted rounded-full">
+                      {video.platform === "twitter" ? "X" : video.platform}
+                    </span>
+                    {video.start_time && (
+                      <span className="text-xs text-muted-foreground">
+                        {video.start_time}{video.end_time ? ` - ${video.end_time}` : ""}
+                      </span>
+                    )}
+                  </div>
                 </CardContent>
               </Card>
             </motion.div>

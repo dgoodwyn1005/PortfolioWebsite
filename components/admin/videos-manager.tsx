@@ -31,6 +31,8 @@ interface VideoItem {
   platform: string
   display_order: number
   is_visible: boolean
+  start_time?: string
+  end_time?: string
 }
 
 export function VideosManager({ initialVideos }: { initialVideos: VideoItem[] }) {
@@ -48,11 +50,13 @@ export function VideosManager({ initialVideos }: { initialVideos: VideoItem[] })
     section: "music",
     platform: "youtube",
     is_visible: true,
+    start_time: "",
+    end_time: "",
   })
   const [isUploading, setIsUploading] = useState(false)
 
   const resetForm = () => {
-    setFormData({ title: "", embed_id: "", tiktok_username: "TheSilentPianist", thumbnail_url: "", section: "music", platform: "youtube", is_visible: true })
+    setFormData({ title: "", embed_id: "", tiktok_username: "TheSilentPianist", thumbnail_url: "", section: "music", platform: "youtube", is_visible: true, start_time: "", end_time: "" })
     setEditingVideo(null)
   }
 
@@ -92,6 +96,8 @@ export function VideosManager({ initialVideos }: { initialVideos: VideoItem[] })
       section: video.section,
       platform: video.platform || "youtube",
       is_visible: video.is_visible,
+      start_time: video.start_time || "",
+      end_time: video.end_time || "",
     })
     setIsDialogOpen(true)
   }
@@ -114,6 +120,8 @@ export function VideosManager({ initialVideos }: { initialVideos: VideoItem[] })
             section: formData.section,
             platform: formData.platform,
             is_visible: formData.is_visible,
+            start_time: formData.start_time || null,
+            end_time: formData.end_time || null,
             updated_at: new Date().toISOString(),
           })
           .eq("id", editingVideo.id)
@@ -129,6 +137,8 @@ export function VideosManager({ initialVideos }: { initialVideos: VideoItem[] })
           section: formData.section,
           platform: formData.platform,
           is_visible: formData.is_visible,
+          start_time: formData.start_time || null,
+          end_time: formData.end_time || null,
           display_order: sectionVideos.length + 1,
         })
 
@@ -266,6 +276,34 @@ export function VideosManager({ initialVideos }: { initialVideos: VideoItem[] })
                 <p className="text-xs text-muted-foreground">
                   Your TikTok username without the @ symbol
                 </p>
+              </div>
+            )}
+            {formData.platform === "youtube" && (
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="start_time">Start Time (Optional)</Label>
+                  <Input
+                    id="start_time"
+                    value={formData.start_time}
+                    onChange={(e) => setFormData({ ...formData, start_time: e.target.value })}
+                    placeholder="0:45:00 or 45:00"
+                  />
+                  <p className="text-xs text-muted-foreground">
+                    Format: HH:MM:SS or MM:SS
+                  </p>
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="end_time">End Time (Optional)</Label>
+                  <Input
+                    id="end_time"
+                    value={formData.end_time}
+                    onChange={(e) => setFormData({ ...formData, end_time: e.target.value })}
+                    placeholder="0:48:00 or 48:00"
+                  />
+                  <p className="text-xs text-muted-foreground">
+                    Leave empty to play to end
+                  </p>
+                </div>
               </div>
             )}
             {(formData.platform === "youtube" || formData.platform === "twitter") && (
