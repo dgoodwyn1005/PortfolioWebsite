@@ -58,6 +58,7 @@ const companyNavItems = [
   { name: "Testimonials", href: "/admin/companies/testimonials", icon: MessageSquare },
   { name: "Portfolio", href: "/admin/companies/portfolio", icon: ImageIcon },
   { name: "FAQs", href: "/admin/companies/faqs", icon: HelpCircle },
+  { name: "Audio Samples", href: "/admin/audio-samples", icon: Music },
 ]
 
 export function AdminSidebar() {
