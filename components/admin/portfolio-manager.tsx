@@ -41,6 +41,14 @@ interface PortfolioItem {
   is_visible: boolean
   display_order: number
   companies?: { name: string }
+  // New metadata fields
+  problem_solved?: string
+  income_generated?: string
+  time_to_build?: string
+  technologies_used?: string[]
+  key_features?: string[]
+  lessons_learned?: string
+  status?: string
 }
 
 export function PortfolioManager({
@@ -222,9 +230,18 @@ function PortfolioForm({
       tags: [],
       is_visible: true,
       display_order: 0,
+      problem_solved: "",
+      income_generated: "",
+      time_to_build: "",
+      technologies_used: [],
+      key_features: [],
+      lessons_learned: "",
+      status: "completed",
     },
   )
   const [newTag, setNewTag] = useState("")
+  const [newTech, setNewTech] = useState("")
+  const [newFeature, setNewFeature] = useState("")
 
   useEffect(() => {
     if (item) {
@@ -240,6 +257,13 @@ function PortfolioForm({
         tags: [],
         is_visible: true,
         display_order: 0,
+        problem_solved: "",
+        income_generated: "",
+        time_to_build: "",
+        technologies_used: [],
+        key_features: [],
+        lessons_learned: "",
+        status: "completed",
       })
     }
   }, [item, companies])
@@ -355,6 +379,178 @@ function PortfolioForm({
               </button>
             </Badge>
           ))}
+        </div>
+      </div>
+
+      {/* Project Metadata Section */}
+      <div className="border-t pt-4 mt-4">
+        <h3 className="font-medium mb-4">Project Details</h3>
+        
+        <div className="space-y-4">
+          <div className="space-y-2">
+            <Label>Problem Solved</Label>
+            <Textarea
+              value={formData.problem_solved || ""}
+              onChange={(e) => setFormData({ ...formData, problem_solved: e.target.value })}
+              placeholder="What problem did this project solve for the client?"
+              rows={2}
+            />
+          </div>
+
+          <div className="grid grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <Label>Income Generated</Label>
+              <Input
+                value={formData.income_generated || ""}
+                onChange={(e) => setFormData({ ...formData, income_generated: e.target.value })}
+                placeholder="e.g., $5,000 or $500/month"
+              />
+            </div>
+            <div className="space-y-2">
+              <Label>Time to Build</Label>
+              <Input
+                value={formData.time_to_build || ""}
+                onChange={(e) => setFormData({ ...formData, time_to_build: e.target.value })}
+                placeholder="e.g., 2 weeks, 3 months"
+              />
+            </div>
+          </div>
+
+          <div className="space-y-2">
+            <Label>Status</Label>
+            <Select 
+              value={formData.status || "completed"} 
+              onValueChange={(value) => setFormData({ ...formData, status: value })}
+            >
+              <SelectTrigger>
+                <SelectValue placeholder="Select status" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="completed">Completed</SelectItem>
+                <SelectItem value="in_progress">In Progress</SelectItem>
+                <SelectItem value="maintenance">Ongoing Maintenance</SelectItem>
+                <SelectItem value="archived">Archived</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+
+          <div className="space-y-2">
+            <Label>Technologies Used</Label>
+            <div className="flex gap-2">
+              <Input
+                value={newTech}
+                onChange={(e) => setNewTech(e.target.value)}
+                placeholder="Add technology..."
+                onKeyPress={(e) => {
+                  if (e.key === "Enter") {
+                    e.preventDefault()
+                    if (newTech.trim()) {
+                      setFormData({
+                        ...formData,
+                        technologies_used: [...(formData.technologies_used || []), newTech.trim()],
+                      })
+                      setNewTech("")
+                    }
+                  }
+                }}
+              />
+              <Button 
+                type="button" 
+                variant="outline"
+                onClick={() => {
+                  if (newTech.trim()) {
+                    setFormData({
+                      ...formData,
+                      technologies_used: [...(formData.technologies_used || []), newTech.trim()],
+                    })
+                    setNewTech("")
+                  }
+                }}
+              >
+                Add
+              </Button>
+            </div>
+            <div className="flex flex-wrap gap-2 mt-2">
+              {(formData.technologies_used || []).map((tech, index) => (
+                <Badge key={index} variant="outline" className="gap-1">
+                  {tech}
+                  <button 
+                    type="button" 
+                    onClick={() => setFormData({
+                      ...formData,
+                      technologies_used: (formData.technologies_used || []).filter((_, i) => i !== index),
+                    })}
+                  >
+                    <X className="h-3 w-3" />
+                  </button>
+                </Badge>
+              ))}
+            </div>
+          </div>
+
+          <div className="space-y-2">
+            <Label>Key Features</Label>
+            <div className="flex gap-2">
+              <Input
+                value={newFeature}
+                onChange={(e) => setNewFeature(e.target.value)}
+                placeholder="Add feature..."
+                onKeyPress={(e) => {
+                  if (e.key === "Enter") {
+                    e.preventDefault()
+                    if (newFeature.trim()) {
+                      setFormData({
+                        ...formData,
+                        key_features: [...(formData.key_features || []), newFeature.trim()],
+                      })
+                      setNewFeature("")
+                    }
+                  }
+                }}
+              />
+              <Button 
+                type="button" 
+                variant="outline"
+                onClick={() => {
+                  if (newFeature.trim()) {
+                    setFormData({
+                      ...formData,
+                      key_features: [...(formData.key_features || []), newFeature.trim()],
+                    })
+                    setNewFeature("")
+                  }
+                }}
+              >
+                Add
+              </Button>
+            </div>
+            <div className="flex flex-wrap gap-2 mt-2">
+              {(formData.key_features || []).map((feature, index) => (
+                <Badge key={index} variant="secondary" className="gap-1">
+                  {feature}
+                  <button 
+                    type="button" 
+                    onClick={() => setFormData({
+                      ...formData,
+                      key_features: (formData.key_features || []).filter((_, i) => i !== index),
+                    })}
+                  >
+                    <X className="h-3 w-3" />
+                  </button>
+                </Badge>
+              ))}
+            </div>
+          </div>
+
+          <div className="space-y-2">
+            <Label>Lessons Learned</Label>
+            <Textarea
+              value={formData.lessons_learned || ""}
+              onChange={(e) => setFormData({ ...formData, lessons_learned: e.target.value })}
+              placeholder="What did you learn from this project?"
+              rows={2}
+            />
+          </div>
         </div>
       </div>
 
