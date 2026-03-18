@@ -1,9 +1,9 @@
 "use client"
 
+import { useEffect, useRef } from "react"
 import { motion } from "framer-motion"
 import { Piano, Play, ExternalLink } from "lucide-react"
 import { Card, CardContent } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
 
 interface Video {
   id: string
@@ -19,6 +19,50 @@ interface SilentPianistProps {
   description?: string
 }
 
+// TikTok embed component that loads the SDK
+function TikTokEmbed({ videoId, title }: { videoId: string; title: string }) {
+  const containerRef = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    // Load TikTok embed script
+    const script = document.createElement("script")
+    script.src = "https://www.tiktok.com/embed.js"
+    script.async = true
+    document.body.appendChild(script)
+
+    return () => {
+      // Cleanup if needed
+      const existingScript = document.querySelector('script[src="https://www.tiktok.com/embed.js"]')
+      if (existingScript) {
+        existingScript.remove()
+      }
+    }
+  }, [videoId])
+
+  return (
+    <div ref={containerRef} className="w-full min-h-[300px] flex items-center justify-center bg-muted overflow-hidden">
+      <blockquote 
+        className="tiktok-embed" 
+        cite={`https://www.tiktok.com/@wynora/video/${videoId}`}
+        data-video-id={videoId}
+        style={{ maxWidth: "100%", minWidth: "250px" }}
+      >
+        <section className="flex flex-col items-center justify-center p-4 gap-2">
+          <Play className="w-8 h-8 text-primary" />
+          <a 
+            href={`https://www.tiktok.com/@wynora/video/${videoId}`}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-primary hover:underline text-sm text-center"
+          >
+            Watch {title} on TikTok
+          </a>
+        </section>
+      </blockquote>
+    </div>
+  )
+}
+
 export function SilentPianist({ 
   videos, 
   title = "The Silent Pianist",
@@ -30,8 +74,6 @@ export function SilentPianist({
     switch (video.platform) {
       case "youtube":
         return `https://www.youtube.com/embed/${video.embed_id}`
-      case "tiktok":
-        return `https://www.tiktok.com/embed/v2/${video.embed_id}`
       default:
         return null
     }
@@ -79,8 +121,8 @@ export function SilentPianist({
               transition={{ duration: 0.6, delay: index * 0.1 }}
             >
               <Card className="overflow-hidden group hover:shadow-lg transition-shadow h-full">
-                <div className="relative aspect-video bg-muted">
-                  {video.platform === "youtube" || video.platform === "tiktok" ? (
+                <div className="relative aspect-video bg-muted overflow-hidden">
+                  {video.platform === "youtube" ? (
                     <iframe
                       src={getEmbedUrl(video) || ""}
                       title={video.title}
@@ -88,6 +130,8 @@ export function SilentPianist({
                       allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                       allowFullScreen
                     />
+                  ) : video.platform === "tiktok" ? (
+                    <TikTokEmbed videoId={video.embed_id} title={video.title} />
                   ) : (
                     <a
                       href={getExternalUrl(video)}

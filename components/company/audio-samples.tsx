@@ -124,33 +124,34 @@ function WaveformPlayer({ sample }: { sample: AudioSample }) {
 
   return (
     <Card className="overflow-hidden group hover:shadow-lg transition-all duration-300 border-border/50">
-      <CardContent className="p-6">
-        <div className="flex items-start justify-between mb-4">
-          <div className="flex-1">
+      <CardContent className="p-4 sm:p-6">
+        <div className="flex items-start justify-between gap-3 mb-4">
+          <div className="flex-1 min-w-0">
             <div className="flex items-center gap-2 mb-2">
-              <Badge variant="outline" className={tier.color}>
+              <Badge variant="outline" className={`${tier.color} text-xs`}>
                 <TierIcon className="w-3 h-3 mr-1" />
-                {tier.label}
+                <span className="hidden sm:inline">{tier.label}</span>
+                <span className="sm:hidden">{tier.label.split(' ')[0]}</span>
               </Badge>
             </div>
-            <h3 className="font-semibold text-lg">{sample.title}</h3>
+            <h3 className="font-semibold text-base sm:text-lg truncate">{sample.title}</h3>
             {sample.description && (
-              <p className="text-sm text-muted-foreground mt-1">{sample.description}</p>
+              <p className="text-xs sm:text-sm text-muted-foreground mt-1 line-clamp-2">{sample.description}</p>
             )}
           </div>
           <button
             onClick={togglePlay}
             disabled={!isReady || hasError}
-            className={`w-12 h-12 rounded-full flex items-center justify-center transition-all duration-300 ${
+            className={`w-10 h-10 sm:w-12 sm:h-12 rounded-full flex items-center justify-center flex-shrink-0 transition-all duration-300 ${
               isReady && !hasError
                 ? "bg-primary text-primary-foreground hover:scale-110 hover:shadow-lg"
                 : "bg-muted text-muted-foreground"
             }`}
           >
             {isPlaying ? (
-              <Pause className="w-5 h-5" />
+              <Pause className="w-4 h-4 sm:w-5 sm:h-5" />
             ) : (
-              <Play className="w-5 h-5 ml-0.5" />
+              <Play className="w-4 h-4 sm:w-5 sm:h-5 ml-0.5" />
             )}
           </button>
         </div>
