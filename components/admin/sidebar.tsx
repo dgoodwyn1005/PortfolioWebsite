@@ -58,6 +58,8 @@ const companyNavItems = [
   { name: "Testimonials", href: "/admin/companies/testimonials", icon: MessageSquare },
   { name: "Portfolio", href: "/admin/companies/portfolio", icon: ImageIcon },
   { name: "FAQs", href: "/admin/companies/faqs", icon: HelpCircle },
+  { name: "Audio Samples", href: "/admin/companies/audio-samples", icon: Music },
+  { name: "Silent Pianist", href: "/admin/companies/silent-pianist", icon: Video },
 ]
 
 export function AdminSidebar() {

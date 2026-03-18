@@ -11,6 +11,7 @@ import { MusicSection } from "@/components/company/music-section"
 import { SilentPianist } from "@/components/company/silent-pianist"
 import { AudioSamples } from "@/components/company/audio-samples"
 import { BookingSection } from "@/components/company/booking-section"
+import { VideoShowcase } from "@/components/sections/video-showcase"
 import { notFound } from "next/navigation"
 
 import type { Metadata } from "next"
@@ -90,6 +91,19 @@ export default async function WynoraPage() {
     .eq("is_visible", true)
     .order("display_order")
 
+  // Fetch music-related videos for the video showcase (from main videos table)
+  const { data: musicVideos } = await supabase
+    .from("videos")
+    .select("*")
+    .eq("is_visible", true)
+    .in("section", ["music", "piano", "worship"])
+    .order("display_order")
+
+  // Use videos directly - TikTok oEmbed is unreliable
+  // For TikTok thumbnails, store them directly in the database via admin
+  const videosWithThumbnails = silentPianistVideos || []
+  const musicVideosWithThumbnails = musicVideos || []
+
   return (
     <main className="min-h-screen">
       <CompanyNavbar company={company} />
@@ -101,8 +115,11 @@ export default async function WynoraPage() {
       {audioClips && audioClips.length > 0 && (
         <MusicSection clips={audioClips} companyName={company.name} />
       )}
-      {silentPianistVideos && silentPianistVideos.length > 0 && (
-        <SilentPianist videos={silentPianistVideos} />
+      {videosWithThumbnails && videosWithThumbnails.length > 0 && (
+        <SilentPianist videos={videosWithThumbnails} />
+      )}
+      {musicVideosWithThumbnails && musicVideosWithThumbnails.length > 0 && (
+        <VideoShowcase videos={musicVideosWithThumbnails} />
       )}
       <CompanyServices company={company} services={services || []} />
       <CompanyPortfolio company={company} portfolio={portfolio || []} />
