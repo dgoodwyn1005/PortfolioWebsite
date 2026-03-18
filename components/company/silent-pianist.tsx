@@ -11,6 +11,7 @@ interface Video {
   platform: "youtube" | "tiktok" | "twitter"
   embed_id: string
   thumbnail?: string | null
+  tiktok_username?: string | null
   start_time?: string | null
   end_time?: string | null
 }
@@ -34,7 +35,7 @@ interface SilentPianistProps {
 }
 
 // TikTok embed component that loads the SDK
-function TikTokEmbed({ videoId, title }: { videoId: string; title: string }) {
+function TikTokEmbed({ videoId, title, username = "TheSilentPianist" }: { videoId: string; title: string; username?: string }) {
   const containerRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
@@ -53,18 +54,20 @@ function TikTokEmbed({ videoId, title }: { videoId: string; title: string }) {
     }
   }, [videoId])
 
+  const tiktokUrl = `https://www.tiktok.com/@${username}/video/${videoId}`
+
   return (
     <div ref={containerRef} className="w-full min-h-[300px] flex items-center justify-center bg-muted overflow-hidden">
       <blockquote 
         className="tiktok-embed" 
-        cite={`https://www.tiktok.com/@wynora/video/${videoId}`}
+        cite={tiktokUrl}
         data-video-id={videoId}
         style={{ maxWidth: "100%", minWidth: "250px" }}
       >
         <section className="flex flex-col items-center justify-center p-4 gap-2">
           <Play className="w-8 h-8 text-primary" />
           <a 
-            href={`https://www.tiktok.com/@wynora/video/${videoId}`}
+            href={tiktokUrl}
             target="_blank"
             rel="noopener noreferrer"
             className="text-primary hover:underline text-sm text-center"
@@ -121,11 +124,12 @@ export function SilentPianist({
   }
 
   function getExternalUrl(video: Video) {
+    const tiktokUsername = video.tiktok_username || "TheSilentPianist"
     switch (video.platform) {
       case "youtube":
         return `https://www.youtube.com/watch?v=${video.embed_id}`
       case "tiktok":
-        return `https://www.tiktok.com/@wynora/video/${video.embed_id}`
+        return `https://www.tiktok.com/@${tiktokUsername}/video/${video.embed_id}`
       case "twitter":
         return `https://x.com/i/status/${video.embed_id}`
       default:
@@ -172,7 +176,7 @@ export function SilentPianist({
                       allowFullScreen
                     />
                   ) : video.platform === "tiktok" ? (
-                    <TikTokEmbed videoId={video.embed_id} title={video.title} />
+                    <TikTokEmbed videoId={video.embed_id} title={video.title} username={video.tiktok_username || "TheSilentPianist"} />
                   ) : (
                     <a
                       href={getExternalUrl(video)}

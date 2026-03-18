@@ -19,6 +19,7 @@ interface SilentPianistVideo {
   description: string | null
   platform: string
   embed_id: string
+  tiktok_username: string | null
   thumbnail: string | null
   start_time: string | null
   end_time: string | null
@@ -44,6 +45,7 @@ export function SilentPianistManager() {
     description: "",
     platform: "youtube",
     embed_id: "",
+    tiktok_username: "TheSilentPianist",
     thumbnail: "",
     start_time: "",
     end_time: "",
@@ -89,6 +91,7 @@ export function SilentPianistManager() {
       description: "",
       platform: "youtube",
       embed_id: "",
+      tiktok_username: "TheSilentPianist",
       thumbnail: "",
       start_time: "",
       end_time: "",
@@ -104,6 +107,7 @@ export function SilentPianistManager() {
       description: video.description || "",
       platform: video.platform,
       embed_id: video.embed_id,
+      tiktok_username: video.tiktok_username || "TheSilentPianist",
       thumbnail: video.thumbnail || "",
       start_time: video.start_time || "",
       end_time: video.end_time || "",
@@ -140,6 +144,7 @@ export function SilentPianistManager() {
           description: formData.description || null,
           platform: formData.platform,
           embed_id: embedId,
+          tiktok_username: formData.tiktok_username || null,
           thumbnail: formData.thumbnail || null,
           start_time: formData.start_time || null,
           end_time: formData.end_time || null,
@@ -154,6 +159,7 @@ export function SilentPianistManager() {
         description: formData.description || null,
         platform: formData.platform,
         embed_id: embedId,
+        tiktok_username: formData.tiktok_username || null,
         thumbnail: formData.thumbnail || null,
         start_time: formData.start_time || null,
         end_time: formData.end_time || null,
@@ -261,6 +267,18 @@ export function SilentPianistManager() {
                   {formData.platform === "twitter" && "Paste X/Twitter post ID"}
                 </p>
               </div>
+              {formData.platform === "tiktok" && (
+                <div className="space-y-2">
+                  <Label htmlFor="tiktok_username">TikTok Username</Label>
+                  <Input
+                    id="tiktok_username"
+                    value={formData.tiktok_username}
+                    onChange={(e) => setFormData({ ...formData, tiktok_username: e.target.value.replace("@", "") })}
+                    placeholder="TheSilentPianist"
+                  />
+                  <p className="text-xs text-muted-foreground">Without the @ symbol</p>
+                </div>
+              )}
               {formData.platform === "youtube" && (
                 <div className="grid grid-cols-2 gap-4">
                   <div className="space-y-2">
