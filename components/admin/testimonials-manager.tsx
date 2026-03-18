@@ -2,7 +2,7 @@
 
 import type React from "react"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { createClient } from "@/lib/supabase/client"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -217,6 +217,24 @@ function TestimonialForm({
       display_order: 0,
     },
   )
+
+  useEffect(() => {
+    if (testimonial) {
+      setFormData(testimonial)
+    } else {
+      setFormData({
+        company_id: companies[0]?.id || "",
+        client_name: "",
+        client_role: "",
+        client_company: "",
+        content: "",
+        rating: 5,
+        image_url: "",
+        is_visible: true,
+        display_order: 0,
+      })
+    }
+  }, [testimonial, companies])
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()

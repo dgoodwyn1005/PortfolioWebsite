@@ -2,7 +2,7 @@
 
 import type React from "react"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { createClient } from "@/lib/supabase/client"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -182,6 +182,21 @@ function FAQForm({
       display_order: 0,
     },
   )
+
+  // Reset form data when faq prop changes (e.g., when editing a different FAQ)
+  useEffect(() => {
+    if (faq) {
+      setFormData(faq)
+    } else {
+      setFormData({
+        company_id: companies[0]?.id || "",
+        question: "",
+        answer: "",
+        is_visible: true,
+        display_order: 0,
+      })
+    }
+  }, [faq, companies])
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()

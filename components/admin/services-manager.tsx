@@ -2,7 +2,7 @@
 
 import type React from "react"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { createClient } from "@/lib/supabase/client"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -201,6 +201,23 @@ function ServiceForm({
     },
   )
   const [newFeature, setNewFeature] = useState("")
+
+  useEffect(() => {
+    if (service) {
+      setFormData(service)
+    } else {
+      setFormData({
+        company_id: companies[0]?.id || "",
+        title: "",
+        description: "",
+        price: "",
+        features: [],
+        is_featured: false,
+        is_visible: true,
+        display_order: 0,
+      })
+    }
+  }, [service, companies])
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
