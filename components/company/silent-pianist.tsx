@@ -63,12 +63,25 @@ function TikTokEmbed({ videoId, title }: { videoId: string; title: string }) {
   )
 }
 
+// Check if a video ID appears to be a valid/real ID (not a placeholder)
+function isValidVideoId(video: Video): boolean {
+  // Filter out known placeholder IDs
+  const placeholderIds = ['dQw4w9WgXcQ', '7339123456789012345', 'placeholder', 'test', 'example']
+  if (placeholderIds.includes(video.embed_id)) return false
+  // Check if embed_id has reasonable length
+  if (!video.embed_id || video.embed_id.length < 5) return false
+  return true
+}
+
 export function SilentPianist({ 
   videos, 
   title = "The Silent Pianist",
   description = "Watch performances and behind-the-scenes content from The Silent Pianist series"
 }: SilentPianistProps) {
-  if (videos.length === 0) return null
+  // Filter to only show videos with valid IDs
+  const validVideos = videos.filter(isValidVideoId)
+  
+  if (validVideos.length === 0) return null
 
   function getEmbedUrl(video: Video) {
     switch (video.platform) {
@@ -112,7 +125,7 @@ export function SilentPianist({
         </motion.div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {videos.map((video, index) => (
+          {validVideos.map((video, index) => (
             <motion.div
               key={video.id}
               initial={{ opacity: 0, y: 20 }}
