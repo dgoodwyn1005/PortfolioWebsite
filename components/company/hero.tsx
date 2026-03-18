@@ -10,6 +10,7 @@ interface Company {
   hero_title: string
   hero_subtitle: string
   primary_color: string
+  logo_url?: string
 }
 
 export function CompanyHero({ company }: { company: Company }) {
@@ -30,6 +31,21 @@ export function CompanyHero({ company }: { company: Company }) {
           transition={{ duration: 0.6 }}
           className="text-center"
         >
+          {company.logo_url && (
+            <motion.div
+              initial={{ opacity: 0, scale: 0.9 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ delay: 0.1 }}
+              className="mb-8"
+            >
+              <img 
+                src={company.logo_url} 
+                alt={company.name} 
+                className="h-32 md:h-40 lg:h-48 w-auto mx-auto"
+              />
+            </motion.div>
+          )}
+
           <motion.p
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}

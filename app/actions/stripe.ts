@@ -1,9 +1,10 @@
 "use server"
 
-import { stripe } from "@/lib/stripe"
+import { getStripe } from "@/lib/stripe"
 import { createClient } from "@/lib/supabase/server"
 
 export async function createCheckoutSession(serviceId: string, serviceType: "pricing" | "company_service") {
+  const stripe = await getStripe()
   const supabase = await createClient()
 
   let service: any
@@ -73,6 +74,7 @@ export async function createCheckoutSession(serviceId: string, serviceType: "pri
 }
 
 export async function getSessionStatus(sessionId: string) {
+  const stripe = await getStripe()
   const session = await stripe.checkout.sessions.retrieve(sessionId)
 
   if (session.payment_status === "paid") {

@@ -8,11 +8,28 @@ import { CompanyTestimonials } from "@/components/company/testimonials"
 import { CompanyContact } from "@/components/company/contact"
 import { CompanyFooter } from "@/components/company/footer"
 import { MusicSection } from "@/components/company/music-section"
+import { SilentPianist } from "@/components/company/silent-pianist"
+import { AudioSamples } from "@/components/company/audio-samples"
+import { BookingSection } from "@/components/company/booking-section"
 import { notFound } from "next/navigation"
 
-export const metadata = {
-  title: "Wynora | Creative Digital Agency",
-  description: "Creative agency specializing in brand development, digital design, and strategic marketing.",
+import type { Metadata } from "next"
+
+export const metadata: Metadata = {
+  title: "Wynora Music Services | Professional Piano & Recording",
+  description: "Professional piano accompaniment, music recording, and arrangement services. Offering essential to luxury recording packages for musicians, vocalists, and performers.",
+  keywords: ["Piano Accompaniment", "Music Recording", "Gospel Piano", "Music Arrangement", "Recording Studio", "Wynora"],
+  openGraph: {
+    title: "Wynora Music Services | Professional Piano & Recording",
+    description: "Professional piano accompaniment, music recording, and arrangement services for musicians and performers.",
+    type: "website",
+    images: [{ url: "/og-wynora.jpg", width: 1200, height: 630, alt: "Wynora Music Services" }],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Wynora Music Services",
+    description: "Professional piano accompaniment, music recording, and arrangement services.",
+  },
 }
 
 export default async function WynoraPage() {
@@ -59,17 +76,42 @@ export default async function WynoraPage() {
     .eq("is_visible", true)
     .order("display_order")
 
+  const { data: silentPianistVideos } = await supabase
+    .from("silent_pianist_videos")
+    .select("*")
+    .eq("company_id", company.id)
+    .eq("is_visible", true)
+    .order("display_order")
+
+  const { data: audioSamples } = await supabase
+    .from("audio_samples")
+    .select("*")
+    .eq("company_id", company.id)
+    .eq("is_visible", true)
+    .order("display_order")
+
   return (
     <main className="min-h-screen">
       <CompanyNavbar company={company} />
       <CompanyHero company={company} />
       <CompanyAbout company={company} />
+      {audioSamples && audioSamples.length > 0 && (
+        <AudioSamples samples={audioSamples} />
+      )}
       {audioClips && audioClips.length > 0 && (
         <MusicSection clips={audioClips} companyName={company.name} />
+      )}
+      {silentPianistVideos && silentPianistVideos.length > 0 && (
+        <SilentPianist videos={silentPianistVideos} />
       )}
       <CompanyServices company={company} services={services || []} />
       <CompanyPortfolio company={company} portfolio={portfolio || []} />
       <CompanyTestimonials company={company} testimonials={testimonials || []} />
+      <BookingSection 
+        companyName={company.name} 
+        primaryColor={company.primary_color} 
+        schedulingUrl={company.scheduling_url} 
+      />
       <CompanyContact company={company} faqs={faqs || []} />
       <CompanyFooter company={company} />
     </main>

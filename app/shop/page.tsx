@@ -1,7 +1,19 @@
+import type { Metadata } from "next"
 import { Navbar } from "@/components/navbar"
 import { Footer } from "@/components/footer"
 import { ShopContent } from "@/components/shop-content"
 import { getStripe } from "@/lib/stripe"
+
+export const metadata: Metadata = {
+  title: "Shop | Services & Products",
+  description: "Browse and purchase professional services from Wynora Music and WynTech Solutions. Piano accompaniment, recording packages, website development, and more.",
+  keywords: ["Services", "Products", "Piano Accompaniment", "Website Development", "Recording Packages", "Shop"],
+  openGraph: {
+    title: "Shop | Deshawn Goodwyn Services",
+    description: "Browse and purchase professional services from Wynora Music and WynTech Solutions.",
+    type: "website",
+  },
+}
 
 export const dynamic = "force-dynamic"
 
