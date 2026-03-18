@@ -103,13 +103,14 @@ export function SilentPianist({
   function getEmbedUrl(video: Video) {
     switch (video.platform) {
       case "youtube":
+        // Note: YouTube's "end" parameter doesn't work in embeds (deprecated)
+        // Only "start" is reliable for controlling playback start time
         const baseUrl = `https://www.youtube.com/embed/${video.embed_id}`
         const startSec = timeToSeconds(video.start_time)
-        const endSec = timeToSeconds(video.end_time)
-        const params: string[] = []
-        if (startSec !== null && startSec > 0) params.push(`start=${startSec}`)
-        if (endSec !== null && endSec > 0) params.push(`end=${endSec}`)
-        return params.length > 0 ? `${baseUrl}?${params.join("&")}` : baseUrl
+        if (startSec !== null && startSec > 0) {
+          return `${baseUrl}?start=${startSec}`
+        }
+        return baseUrl
       default:
         return null
     }
