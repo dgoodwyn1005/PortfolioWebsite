@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import { useState } from "react"
 import { motion } from "framer-motion"
 import { Piano, Play, ExternalLink } from "lucide-react"
 import { Card, CardContent } from "@/components/ui/card"
@@ -52,36 +52,9 @@ export function SilentPianist({
   description = "Watch performances and behind-the-scenes content from The Silent Pianist series"
 }: SilentPianistProps) {
   const [activeVideo, setActiveVideo] = useState<string | null>(null)
-  const [tiktokThumbnails, setTiktokThumbnails] = useState<Record<string, string>>({})
   
   // Filter to only show videos with valid IDs
   const validVideos = videos.filter(isValidVideoId)
-  
-  // Fetch TikTok thumbnails via oEmbed API
-  useEffect(() => {
-    const fetchTiktokThumbnails = async () => {
-      const tiktokVideos = validVideos.filter((v) => v.platform === "tiktok" && !v.thumbnail)
-      
-      for (const video of tiktokVideos) {
-        const username = video.tiktok_username || "TheSilentPianist"
-        const url = `https://www.tiktok.com/@${username}/video/${video.embed_id}`
-        
-        try {
-          const response = await fetch(`https://www.tiktok.com/oembed?url=${encodeURIComponent(url)}`)
-          if (response.ok) {
-            const data = await response.json()
-            if (data.thumbnail_url) {
-              setTiktokThumbnails((prev) => ({ ...prev, [video.id]: data.thumbnail_url }))
-            }
-          }
-        } catch {
-          // Silently fail - will use fallback
-        }
-      }
-    }
-
-    fetchTiktokThumbnails()
-  }, [validVideos])
   
   if (validVideos.length === 0) return null
 
@@ -157,7 +130,16 @@ export function SilentPianist({
                   {video.platform === "youtube" ? (
                     activeVideo === video.id ? (
                       <iframe
-                        src={`${getEmbedUrl(video)}&autoplay=1`}
+                        src={(() => {
+                          const baseUrl = `https://www.youtube.com/embed/${video.embed_id}`
+                          const startSec = timeToSeconds(video.start_time)
+                          const params = new URLSearchParams()
+                          params.set("autoplay", "1")
+                          if (startSec !== null && startSec > 0) {
+                            params.set("start", startSec.toString())
+                          }
+                          return `${baseUrl}?${params.toString()}`
+                        })()}
                         title={video.title}
                         className="w-full h-full"
                         allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
@@ -191,9 +173,9 @@ export function SilentPianist({
                       rel="noopener noreferrer"
                       className="absolute inset-0 w-full h-full flex flex-col items-center justify-center group/tiktok"
                     >
-                      {(video.thumbnail || tiktokThumbnails[video.id]) ? (
+                      {video.thumbnail ? (
                         <img
-                          src={video.thumbnail || tiktokThumbnails[video.id]}
+                          src={video.thumbnail}
                           alt={video.title}
                           className="w-full h-full object-cover"
                         />

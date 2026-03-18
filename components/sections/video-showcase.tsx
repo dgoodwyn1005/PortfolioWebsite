@@ -2,7 +2,7 @@
 
 import { motion } from "framer-motion"
 import { Play, ExternalLink } from "lucide-react"
-import { useState, useEffect } from "react"
+import { useState } from "react"
 
 interface Video {
   id: string
@@ -19,34 +19,6 @@ interface Video {
 export function VideoShowcase({ videos }: { videos: Video[] }) {
   const [activeVideo, setActiveVideo] = useState<string | null>(null)
   const [activeFilter, setActiveFilter] = useState<string>("all")
-  const [tiktokThumbnails, setTiktokThumbnails] = useState<Record<string, string>>({})
-
-  // Fetch TikTok thumbnails via oEmbed API
-  useEffect(() => {
-    const fetchTiktokThumbnails = async () => {
-      const tiktokVideos = videos.filter((v) => v.platform === "tiktok" && !v.thumbnail_url)
-      
-      for (const video of tiktokVideos) {
-        const videoId = video.youtube_id || video.embed_id
-        const username = video.tiktok_username || "TheSilentPianist"
-        const url = `https://www.tiktok.com/@${username}/video/${videoId}`
-        
-        try {
-          const response = await fetch(`https://www.tiktok.com/oembed?url=${encodeURIComponent(url)}`)
-          if (response.ok) {
-            const data = await response.json()
-            if (data.thumbnail_url) {
-              setTiktokThumbnails((prev) => ({ ...prev, [video.id]: data.thumbnail_url }))
-            }
-          }
-        } catch {
-          // Silently fail - will use fallback
-        }
-      }
-    }
-
-    fetchTiktokThumbnails()
-  }, [videos])
 
   if (!videos || videos.length === 0) return null
 
@@ -146,9 +118,9 @@ export function VideoShowcase({ videos }: { videos: Video[] }) {
                     rel="noopener noreferrer"
                     className="relative aspect-[9/16] max-h-[400px] rounded-lg overflow-hidden bg-muted border flex flex-col items-center justify-center group-hover:scale-[1.02] transition-transform"
                   >
-                    {(video.thumbnail_url || tiktokThumbnails[video.id]) ? (
+                    {video.thumbnail_url ? (
                       <img
-                        src={video.thumbnail_url || tiktokThumbnails[video.id]}
+                        src={video.thumbnail_url}
                         alt={video.title}
                         className="absolute inset-0 w-full h-full object-cover"
                       />

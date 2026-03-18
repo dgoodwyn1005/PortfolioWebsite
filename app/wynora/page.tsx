@@ -11,6 +11,7 @@ import { MusicSection } from "@/components/company/music-section"
 import { SilentPianist } from "@/components/company/silent-pianist"
 import { AudioSamples } from "@/components/company/audio-samples"
 import { BookingSection } from "@/components/company/booking-section"
+import { VideoShowcase } from "@/components/sections/video-showcase"
 import { notFound } from "next/navigation"
 
 import type { Metadata } from "next"
@@ -90,6 +91,59 @@ export default async function WynoraPage() {
     .eq("is_visible", true)
     .order("display_order")
 
+  // Fetch music-related videos for the video showcase (from main videos table)
+  const { data: musicVideos } = await supabase
+    .from("videos")
+    .select("*")
+    .eq("is_visible", true)
+    .in("section", ["music", "piano", "worship"])
+    .order("display_order")
+
+  // Fetch TikTok thumbnails server-side to avoid CORS issues
+  const videosWithThumbnails = await Promise.all(
+    (silentPianistVideos || []).map(async (video) => {
+      if (video.platform === "tiktok" && !video.thumbnail) {
+        const username = video.tiktok_username || "TheSilentPianist"
+        const url = `https://www.tiktok.com/@${username}/video/${video.embed_id}`
+        try {
+          const response = await fetch(`https://www.tiktok.com/oembed?url=${encodeURIComponent(url)}`, {
+            next: { revalidate: 3600 } // Cache for 1 hour
+          })
+          if (response.ok) {
+            const data = await response.json()
+            return { ...video, thumbnail: data.thumbnail_url || null }
+          }
+        } catch {
+          // Silently fail
+        }
+      }
+      return video
+    })
+  )
+
+  // Also fetch thumbnails for music videos
+  const musicVideosWithThumbnails = await Promise.all(
+    (musicVideos || []).map(async (video) => {
+      if (video.platform === "tiktok" && !video.thumbnail_url) {
+        const username = video.tiktok_username || "TheSilentPianist"
+        const videoId = video.youtube_id || video.embed_id
+        const url = `https://www.tiktok.com/@${username}/video/${videoId}`
+        try {
+          const response = await fetch(`https://www.tiktok.com/oembed?url=${encodeURIComponent(url)}`, {
+            next: { revalidate: 3600 }
+          })
+          if (response.ok) {
+            const data = await response.json()
+            return { ...video, thumbnail_url: data.thumbnail_url || null }
+          }
+        } catch {
+          // Silently fail
+        }
+      }
+      return video
+    })
+  )
+
   return (
     <main className="min-h-screen">
       <CompanyNavbar company={company} />
@@ -101,8 +155,11 @@ export default async function WynoraPage() {
       {audioClips && audioClips.length > 0 && (
         <MusicSection clips={audioClips} companyName={company.name} />
       )}
-      {silentPianistVideos && silentPianistVideos.length > 0 && (
-        <SilentPianist videos={silentPianistVideos} />
+      {videosWithThumbnails && videosWithThumbnails.length > 0 && (
+        <SilentPianist videos={videosWithThumbnails} />
+      )}
+      {musicVideosWithThumbnails && musicVideosWithThumbnails.length > 0 && (
+        <VideoShowcase videos={musicVideosWithThumbnails} />
       )}
       <CompanyServices company={company} services={services || []} />
       <CompanyPortfolio company={company} portfolio={portfolio || []} />
