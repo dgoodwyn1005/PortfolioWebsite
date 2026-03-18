@@ -263,34 +263,6 @@ export function VideosManager({ initialVideos }: { initialVideos: VideoItem[] })
                 </p>
               )}
             </div>
-            {formData.platform === "youtube" && (
-              <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label htmlFor="start_time">Start Time (Optional)</Label>
-                  <Input
-                    id="start_time"
-                    value={formData.start_time}
-                    onChange={(e) => setFormData({ ...formData, start_time: e.target.value })}
-                    placeholder="0:45:00 or 45:00"
-                  />
-                  <p className="text-xs text-muted-foreground">
-                    Format: H:MM:SS or MM:SS
-                  </p>
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="end_time">End Time (Optional)</Label>
-                  <Input
-                    id="end_time"
-                    value={formData.end_time}
-                    onChange={(e) => setFormData({ ...formData, end_time: e.target.value })}
-                    placeholder="0:48:00 or 48:00"
-                  />
-                  <p className="text-xs text-muted-foreground">
-                    Format: H:MM:SS or MM:SS
-                  </p>
-                </div>
-              </div>
-            )}
             {formData.platform === "tiktok" && (
               <div className="space-y-2">
                 <Label htmlFor="tiktok_username">TikTok Username</Label>
@@ -304,6 +276,34 @@ export function VideosManager({ initialVideos }: { initialVideos: VideoItem[] })
                 <p className="text-xs text-muted-foreground">
                   Your TikTok username without the @ symbol
                 </p>
+              </div>
+            )}
+            {formData.platform === "youtube" && (
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="start_time">Start Time (Optional)</Label>
+                  <Input
+                    id="start_time"
+                    value={formData.start_time}
+                    onChange={(e) => setFormData({ ...formData, start_time: e.target.value })}
+                    placeholder="0:45:00 or 45:00"
+                  />
+                  <p className="text-xs text-muted-foreground">
+                    Format: HH:MM:SS or MM:SS
+                  </p>
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="end_time">End Time (Optional)</Label>
+                  <Input
+                    id="end_time"
+                    value={formData.end_time}
+                    onChange={(e) => setFormData({ ...formData, end_time: e.target.value })}
+                    placeholder="0:48:00 or 48:00"
+                  />
+                  <p className="text-xs text-muted-foreground">
+                    Leave empty to play to end
+                  </p>
+                </div>
               </div>
             )}
             {(formData.platform === "youtube" || formData.platform === "twitter") && (

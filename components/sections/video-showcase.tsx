@@ -14,20 +14,6 @@ interface Video {
   category?: string
   section?: string
   platform?: string
-  start_time?: string
-  end_time?: string
-}
-
-// Convert time string (HH:MM:SS or MM:SS) to seconds
-function parseTimeToSeconds(time: string): number {
-  if (!time) return 0
-  const parts = time.split(":").map(Number)
-  if (parts.length === 3) {
-    return parts[0] * 3600 + parts[1] * 60 + parts[2]
-  } else if (parts.length === 2) {
-    return parts[0] * 60 + parts[1]
-  }
-  return 0
 }
 
 export function VideoShowcase({ videos }: { videos: Video[] }) {
@@ -183,16 +169,7 @@ export function VideoShowcase({ videos }: { videos: Video[] }) {
                   <div className="relative aspect-video rounded-lg overflow-hidden bg-background border">
                     {isActive ? (
                       <iframe
-                        src={(() => {
-                          let url = `https://www.youtube.com/embed/${videoId}?autoplay=1`
-                          if (video.start_time) {
-                            url += `&start=${parseTimeToSeconds(video.start_time)}`
-                          }
-                          if (video.end_time) {
-                            url += `&end=${parseTimeToSeconds(video.end_time)}`
-                          }
-                          return url
-                        })()}
+                        src={`https://www.youtube.com/embed/${videoId}?autoplay=1`}
                         title={video.title}
                         allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                         allowFullScreen
