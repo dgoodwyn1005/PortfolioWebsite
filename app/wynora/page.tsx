@@ -10,6 +10,7 @@ import { CompanyFooter } from "@/components/company/footer"
 import { MusicSection } from "@/components/company/music-section"
 import { SilentPianist } from "@/components/company/silent-pianist"
 import { AudioSamples } from "@/components/company/audio-samples"
+import { BookingSection } from "@/components/company/booking-section"
 import { notFound } from "next/navigation"
 
 import type { Metadata } from "next"
@@ -106,6 +107,11 @@ export default async function WynoraPage() {
       <CompanyServices company={company} services={services || []} />
       <CompanyPortfolio company={company} portfolio={portfolio || []} />
       <CompanyTestimonials company={company} testimonials={testimonials || []} />
+      <BookingSection 
+        companyName={company.name} 
+        primaryColor={company.primary_color} 
+        schedulingUrl={company.scheduling_url} 
+      />
       <CompanyContact company={company} faqs={faqs || []} />
       <CompanyFooter company={company} />
     </main>

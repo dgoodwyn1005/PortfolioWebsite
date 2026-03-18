@@ -7,6 +7,7 @@ import { CompanyPortfolio } from "@/components/company/portfolio"
 import { CompanyTestimonials } from "@/components/company/testimonials"
 import { CompanyContact } from "@/components/company/contact"
 import { CompanyFooter } from "@/components/company/footer"
+import { BookingSection } from "@/components/company/booking-section"
 import { notFound } from "next/navigation"
 
 import type { Metadata } from "next"
@@ -73,6 +74,11 @@ export default async function WynTechPage() {
       <CompanyServices company={company} services={services || []} />
       <CompanyPortfolio company={company} portfolio={portfolio || []} />
       <CompanyTestimonials company={company} testimonials={testimonials || []} />
+      <BookingSection 
+        companyName={company.name} 
+        primaryColor={company.primary_color} 
+        schedulingUrl={company.scheduling_url} 
+      />
       <CompanyContact company={company} faqs={faqs || []} />
       <CompanyFooter company={company} />
     </main>
