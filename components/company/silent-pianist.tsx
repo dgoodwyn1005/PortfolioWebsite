@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useRef } from "react"
+import { useEffect, useState } from "react"
 import { motion } from "framer-motion"
 import { Piano, Play, ExternalLink } from "lucide-react"
 import { Card, CardContent } from "@/components/ui/card"
@@ -34,51 +34,7 @@ interface SilentPianistProps {
   description?: string
 }
 
-// TikTok embed component that loads the SDK
-function TikTokEmbed({ videoId, title, username = "TheSilentPianist" }: { videoId: string; title: string; username?: string }) {
-  const containerRef = useRef<HTMLDivElement>(null)
 
-  useEffect(() => {
-    // Load TikTok embed script
-    const script = document.createElement("script")
-    script.src = "https://www.tiktok.com/embed.js"
-    script.async = true
-    document.body.appendChild(script)
-
-    return () => {
-      // Cleanup if needed
-      const existingScript = document.querySelector('script[src="https://www.tiktok.com/embed.js"]')
-      if (existingScript) {
-        existingScript.remove()
-      }
-    }
-  }, [videoId])
-
-  const tiktokUrl = `https://www.tiktok.com/@${username}/video/${videoId}`
-
-  return (
-    <div ref={containerRef} className="w-full min-h-[300px] flex items-center justify-center bg-muted overflow-hidden">
-      <blockquote 
-        className="tiktok-embed" 
-        cite={tiktokUrl}
-        data-video-id={videoId}
-        style={{ maxWidth: "100%", minWidth: "250px" }}
-      >
-        <section className="flex flex-col items-center justify-center p-4 gap-2">
-          <Play className="w-8 h-8 text-primary" />
-          <a 
-            href={tiktokUrl}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="text-primary hover:underline text-sm text-center"
-          >
-            Watch {title} on TikTok
-          </a>
-        </section>
-      </blockquote>
-    </div>
-  )
-}
 
 // Check if a video ID appears to be a valid/real ID (not a placeholder)
 function isValidVideoId(video: Video): boolean {
@@ -95,8 +51,37 @@ export function SilentPianist({
   title = "The Silent Pianist",
   description = "Watch performances and behind-the-scenes content from The Silent Pianist series"
 }: SilentPianistProps) {
+  const [activeVideo, setActiveVideo] = useState<string | null>(null)
+  const [tiktokThumbnails, setTiktokThumbnails] = useState<Record<string, string>>({})
+  
   // Filter to only show videos with valid IDs
   const validVideos = videos.filter(isValidVideoId)
+  
+  // Fetch TikTok thumbnails via oEmbed API
+  useEffect(() => {
+    const fetchTiktokThumbnails = async () => {
+      const tiktokVideos = validVideos.filter((v) => v.platform === "tiktok" && !v.thumbnail)
+      
+      for (const video of tiktokVideos) {
+        const username = video.tiktok_username || "TheSilentPianist"
+        const url = `https://www.tiktok.com/@${username}/video/${video.embed_id}`
+        
+        try {
+          const response = await fetch(`https://www.tiktok.com/oembed?url=${encodeURIComponent(url)}`)
+          if (response.ok) {
+            const data = await response.json()
+            if (data.thumbnail_url) {
+              setTiktokThumbnails((prev) => ({ ...prev, [video.id]: data.thumbnail_url }))
+            }
+          }
+        } catch {
+          // Silently fail - will use fallback
+        }
+      }
+    }
+
+    fetchTiktokThumbnails()
+  }, [validVideos])
   
   if (validVideos.length === 0) return null
 
@@ -107,10 +92,11 @@ export function SilentPianist({
         // Only "start" is reliable for controlling playback start time
         const baseUrl = `https://www.youtube.com/embed/${video.embed_id}`
         const startSec = timeToSeconds(video.start_time)
+        // Always return URL with ? so we can append &autoplay=1 later
         if (startSec !== null && startSec > 0) {
           return `${baseUrl}?start=${startSec}`
         }
-        return baseUrl
+        return `${baseUrl}?rel=0`
       default:
         return null
     }
@@ -169,15 +155,61 @@ export function SilentPianist({
               <Card className="overflow-hidden group hover:shadow-lg transition-shadow h-full">
                 <div className="relative aspect-video bg-muted overflow-hidden">
                   {video.platform === "youtube" ? (
-                    <iframe
-                      src={getEmbedUrl(video) || ""}
-                      title={video.title}
-                      className="w-full h-full"
-                      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                      allowFullScreen
-                    />
+                    activeVideo === video.id ? (
+                      <iframe
+                        src={`${getEmbedUrl(video)}&autoplay=1`}
+                        title={video.title}
+                        className="w-full h-full"
+                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                        allowFullScreen
+                      />
+                    ) : (
+                      <button
+                        onClick={() => setActiveVideo(video.id)}
+                        className="absolute inset-0 w-full h-full group/play"
+                      >
+                        <img
+                          src={getThumbnailUrl(video) || ""}
+                          alt={video.title}
+                          className="w-full h-full object-cover"
+                          onError={(e) => {
+                            const target = e.target as HTMLImageElement
+                            target.src = `https://img.youtube.com/vi/${video.embed_id}/hqdefault.jpg`
+                          }}
+                        />
+                        <div className="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover/play:opacity-100 transition-opacity">
+                          <div className="w-16 h-16 rounded-full bg-primary flex items-center justify-center">
+                            <Play className="h-8 w-8 text-primary-foreground ml-1" />
+                          </div>
+                        </div>
+                      </button>
+                    )
                   ) : video.platform === "tiktok" ? (
-                    <TikTokEmbed videoId={video.embed_id} title={video.title} username={video.tiktok_username || "TheSilentPianist"} />
+                    <a
+                      href={getExternalUrl(video)}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="absolute inset-0 w-full h-full flex flex-col items-center justify-center group/tiktok"
+                    >
+                      {(video.thumbnail || tiktokThumbnails[video.id]) ? (
+                        <img
+                          src={video.thumbnail || tiktokThumbnails[video.id]}
+                          alt={video.title}
+                          className="w-full h-full object-cover"
+                        />
+                      ) : (
+                        <div className="absolute inset-0 bg-gradient-to-br from-pink-500 via-red-500 to-yellow-500" />
+                      )}
+                      <div className="absolute inset-0 bg-black/40 flex flex-col items-center justify-center gap-4 opacity-0 group-hover/tiktok:opacity-100 transition-opacity">
+                        <svg viewBox="0 0 24 24" className="w-12 h-12 text-white" fill="currentColor">
+                          <path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 0 1-5.2 1.74 2.89 2.89 0 0 1 2.31-4.64 2.93 2.93 0 0 1 .88.13V9.4a6.84 6.84 0 0 0-1-.05A6.33 6.33 0 0 0 5 20.1a6.34 6.34 0 0 0 10.86-4.43v-7a8.16 8.16 0 0 0 4.77 1.52v-3.4a4.85 4.85 0 0 1-1-.1z"/>
+                        </svg>
+                        <span className="text-white font-medium flex items-center gap-2">
+                          <ExternalLink className="h-4 w-4" />
+                          Watch on TikTok
+                        </span>
+                      </div>
+                    </a>
                   ) : (
                     <a
                       href={getExternalUrl(video)}
