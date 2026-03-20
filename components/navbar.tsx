@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react"
 import { motion, AnimatePresence } from "framer-motion"
-import { Menu, X, Moon, Sun, Linkedin, ShoppingBag } from "lucide-react"
+import { Menu, X, Moon, Sun, Linkedin } from "lucide-react"
 import { useTheme } from "next-themes"
 import { Button } from "@/components/ui/button"
 import Link from "next/link"
@@ -108,13 +108,7 @@ export function Navbar() {
                 {link.name}
               </Link>
             ))}
-            <Link
-              href="/shop"
-              className="text-sm font-medium text-muted-foreground hover:text-primary transition-colors flex items-center gap-1"
-            >
-              <ShoppingBag className="h-4 w-4" />
-              Shop
-            </Link>
+            
             {linkedinUrl && (
               <a
                 href={linkedinUrl}
@@ -191,16 +185,7 @@ export function Navbar() {
                   </Link>
                 ))}
               </div>
-              <div className="border-t border-border pt-2 mt-2">
-                <Link
-                  href="/shop"
-                  onClick={() => setIsOpen(false)}
-                  className="flex items-center gap-2 py-2 font-medium text-muted-foreground hover:text-primary transition-colors"
-                >
-                  <ShoppingBag className="h-5 w-5" />
-                  Shop
-                </Link>
-              </div>
+              
               {linkedinUrl && (
                 <div className="border-t border-border pt-2 mt-2">
                   <a

@@ -34,6 +34,7 @@ interface Company {
   contact_email: string
   contact_phone: string
   primary_color: string
+  scheduling_url: string
   is_active: boolean
 }
 
@@ -163,6 +164,7 @@ function CompanyForm({
       contact_email: "",
       contact_phone: "",
       primary_color: "#3b82f6",
+      scheduling_url: "",
       is_active: true,
     },
   )
@@ -182,6 +184,7 @@ function CompanyForm({
         contact_email: "",
         contact_phone: "",
         primary_color: "#3b82f6",
+        scheduling_url: "",
         is_active: true,
       })
     }
@@ -299,6 +302,18 @@ function CompanyForm({
             placeholder="+1 (555) 123-4567"
           />
         </div>
+      </div>
+
+      <div className="space-y-2">
+        <Label>Scheduling URL (Calendly, Cal.com, Google Calendar, etc.)</Label>
+        <Input
+          value={formData.scheduling_url || ""}
+          onChange={(e) => setFormData({ ...formData, scheduling_url: e.target.value })}
+          placeholder="https://calendly.com/your-username or https://calendar.google.com/calendar/appointments/..."
+        />
+        <p className="text-xs text-muted-foreground">
+          Add a booking link so customers can schedule consultations directly
+        </p>
       </div>
 
       <div className="flex items-center gap-2">

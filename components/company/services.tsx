@@ -88,8 +88,12 @@ export function CompanyServices({ company, services }: { company: Company; servi
                         </li>
                       ))}
                     </ul>
-                    <Button className="w-full text-white" style={{ backgroundColor: company.primary_color }} asChild>
-                      <a href="#contact">Get Quote</a>
+                    <Button 
+                      className="w-full text-white" 
+                      style={{ backgroundColor: company.primary_color }} 
+                      asChild
+                    >
+                      <a href={`#contact?service=${encodeURIComponent(service.title)}`}>Get Quote</a>
                     </Button>
                   </CardContent>
                 </Card>
