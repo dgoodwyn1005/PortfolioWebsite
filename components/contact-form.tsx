@@ -2,7 +2,7 @@
 
 import type React from "react"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
@@ -33,6 +33,33 @@ export function ContactForm({
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [isSubmitted, setIsSubmitted] = useState(false)
   const [error, setError] = useState("")
+
+  // Check for service parameter in URL hash when component mounts or hash changes
+  useEffect(() => {
+    const checkForService = () => {
+      const hash = window.location.hash
+      if (hash.includes("?service=")) {
+        const serviceParam = hash.split("?service=")[1]
+        if (serviceParam) {
+          const serviceName = decodeURIComponent(serviceParam)
+          setFormData(prev => ({
+            ...prev,
+            subject: `Quote Request: ${serviceName}`,
+            message: `Hi, I'm interested in getting a quote for your "${serviceName}" service.\n\nPlease provide more details about pricing and availability.`
+          }))
+          // Scroll to contact section
+          const contactSection = document.getElementById("contact")
+          if (contactSection) {
+            contactSection.scrollIntoView({ behavior: "smooth" })
+          }
+        }
+      }
+    }
+    
+    checkForService()
+    window.addEventListener("hashchange", checkForService)
+    return () => window.removeEventListener("hashchange", checkForService)
+  }, [])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
