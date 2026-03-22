@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { motion } from "framer-motion"
 import { Piano, Play, ExternalLink } from "lucide-react"
 import { Card, CardContent } from "@/components/ui/card"
@@ -20,12 +20,70 @@ interface Video {
 function timeToSeconds(time: string | null | undefined): number | null {
   if (!time) return null
   const parts = time.split(":").map(Number)
-  if (parts.length === 3) {
-    return parts[0] * 3600 + parts[1] * 60 + parts[2]
-  } else if (parts.length === 2) {
-    return parts[0] * 60 + parts[1]
-  }
+  if (parts.length === 3) return parts[0] * 3600 + parts[1] * 60 + parts[2]
+  if (parts.length === 2) return parts[0] * 60 + parts[1]
   return null
+}
+
+// Check if a video ID appears to be a valid/real ID (not a placeholder)
+function isValidVideoId(video: Video): boolean {
+  const placeholderIds = ["dQw4w9WgXcQ", "7339123456789012345", "placeholder", "test", "example"]
+  if (placeholderIds.includes(video.embed_id)) return false
+  if (!video.embed_id || video.embed_id.length < 5) return false
+  return true
+}
+
+// Fetches TikTok thumbnail via oEmbed API when no thumbnail is stored
+function useTikTokThumbnail(videoId: string, username: string, existingThumbnail?: string | null): string | null {
+  const [thumbnail, setThumbnail] = useState<string | null>(existingThumbnail || null)
+
+  useEffect(() => {
+    if (existingThumbnail || !videoId) return
+
+    const tiktokUrl = `https://www.tiktok.com/@${username}/video/${videoId}`
+    const oembedUrl = `https://www.tiktok.com/oembed?url=${encodeURIComponent(tiktokUrl)}`
+
+    fetch(oembedUrl)
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.thumbnail_url) setThumbnail(data.thumbnail_url)
+      })
+      .catch(() => {
+        // oEmbed failed — fallback gradient will show
+      })
+  }, [videoId, username, existingThumbnail])
+
+  return thumbnail
+}
+
+// Separate TikTok card so each one independently fetches its thumbnail
+function TikTokVideoCard({ video, externalUrl }: { video: Video; externalUrl: string }) {
+  const username = video.tiktok_username || "TheSilentPianist"
+  const thumbnail = useTikTokThumbnail(video.embed_id, username, video.thumbnail)
+
+  return (
+    <a
+      href={externalUrl}
+      target="_blank"
+      rel="noopener noreferrer"
+      className="absolute inset-0 w-full h-full flex flex-col items-center justify-center group/tiktok"
+    >
+      {thumbnail ? (
+        <img src={thumbnail} alt={video.title} className="w-full h-full object-cover" />
+      ) : (
+        <div className="absolute inset-0 bg-gradient-to-br from-pink-500 via-red-500 to-yellow-500" />
+      )}
+      <div className="absolute inset-0 bg-black/40 flex flex-col items-center justify-center gap-4 opacity-0 group-hover/tiktok:opacity-100 transition-opacity">
+        <svg viewBox="0 0 24 24" className="w-12 h-12 text-white" fill="currentColor">
+          <path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 0 1-5.2 1.74 2.89 2.89 0 0 1 2.31-4.64 2.93 2.93 0 0 1 .88.13V9.4a6.84 6.84 0 0 0-1-.05A6.33 6.33 0 0 0 5 20.1a6.34 6.34 0 0 0 10.86-4.43v-7a8.16 8.16 0 0 0 4.77 1.52v-3.4a4.85 4.85 0 0 1-1-.1z" />
+        </svg>
+        <span className="text-white font-medium flex items-center gap-2">
+          <ExternalLink className="h-4 w-4" />
+          Watch on TikTok
+        </span>
+      </div>
+    </a>
+  )
 }
 
 interface SilentPianistProps {
@@ -34,45 +92,23 @@ interface SilentPianistProps {
   description?: string
 }
 
-
-
-// Check if a video ID appears to be a valid/real ID (not a placeholder)
-function isValidVideoId(video: Video): boolean {
-  // Filter out known placeholder IDs
-  const placeholderIds = ['dQw4w9WgXcQ', '7339123456789012345', 'placeholder', 'test', 'example']
-  if (placeholderIds.includes(video.embed_id)) return false
-  // Check if embed_id has reasonable length
-  if (!video.embed_id || video.embed_id.length < 5) return false
-  return true
-}
-
-export function SilentPianist({ 
-  videos, 
+export function SilentPianist({
+  videos,
   title = "The Silent Pianist",
-  description = "Watch performances and behind-the-scenes content from The Silent Pianist series"
+  description = "Watch performances and behind-the-scenes content from The Silent Pianist series",
 }: SilentPianistProps) {
   const [activeVideo, setActiveVideo] = useState<string | null>(null)
-  
-  // Filter to only show videos with valid IDs
+
   const validVideos = videos.filter(isValidVideoId)
-  
+
   if (validVideos.length === 0) return null
 
   function getEmbedUrl(video: Video) {
-    switch (video.platform) {
-      case "youtube":
-        // Note: YouTube's "end" parameter doesn't work in embeds (deprecated)
-        // Only "start" is reliable for controlling playback start time
-        const baseUrl = `https://www.youtube.com/embed/${video.embed_id}`
-        const startSec = timeToSeconds(video.start_time)
-        // Always return URL with ? so we can append &autoplay=1 later
-        if (startSec !== null && startSec > 0) {
-          return `${baseUrl}?start=${startSec}`
-        }
-        return `${baseUrl}?rel=0`
-      default:
-        return null
-    }
+    const baseUrl = `https://www.youtube.com/embed/${video.embed_id}`
+    const startSec = timeToSeconds(video.start_time)
+    const params = new URLSearchParams({ autoplay: "1" })
+    if (startSec !== null && startSec > 0) params.set("start", startSec.toString())
+    return `${baseUrl}?${params.toString()}`
   }
 
   function getThumbnailUrl(video: Video) {
@@ -111,9 +147,7 @@ export function SilentPianist({
             <Piano className="w-8 h-8 text-primary" />
             <h2 className="text-3xl md:text-4xl font-bold">{title}</h2>
           </div>
-          <p className="text-muted-foreground max-w-2xl mx-auto">
-            {description}
-          </p>
+          <p className="text-muted-foreground max-w-2xl mx-auto">{description}</p>
         </motion.div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -130,16 +164,7 @@ export function SilentPianist({
                   {video.platform === "youtube" ? (
                     activeVideo === video.id ? (
                       <iframe
-                        src={(() => {
-                          const baseUrl = `https://www.youtube.com/embed/${video.embed_id}`
-                          const startSec = timeToSeconds(video.start_time)
-                          const params = new URLSearchParams()
-                          params.set("autoplay", "1")
-                          if (startSec !== null && startSec > 0) {
-                            params.set("start", startSec.toString())
-                          }
-                          return `${baseUrl}?${params.toString()}`
-                        })()}
+                        src={getEmbedUrl(video)}
                         title={video.title}
                         className="w-full h-full"
                         allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
@@ -164,35 +189,17 @@ export function SilentPianist({
                             <Play className="h-8 w-8 text-primary-foreground ml-1" />
                           </div>
                         </div>
+                        {video.start_time && (
+                          <div className="absolute bottom-2 right-2 bg-black/70 text-white text-xs px-2 py-1 rounded">
+                            {video.start_time}{video.end_time ? ` – ${video.end_time}` : ""}
+                          </div>
+                        )}
                       </button>
                     )
                   ) : video.platform === "tiktok" ? (
-                    <a
-                      href={getExternalUrl(video)}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="absolute inset-0 w-full h-full flex flex-col items-center justify-center group/tiktok"
-                    >
-                      {video.thumbnail ? (
-                        <img
-                          src={video.thumbnail}
-                          alt={video.title}
-                          className="w-full h-full object-cover"
-                        />
-                      ) : (
-                        <div className="absolute inset-0 bg-gradient-to-br from-pink-500 via-red-500 to-yellow-500" />
-                      )}
-                      <div className="absolute inset-0 bg-black/40 flex flex-col items-center justify-center gap-4 opacity-0 group-hover/tiktok:opacity-100 transition-opacity">
-                        <svg viewBox="0 0 24 24" className="w-12 h-12 text-white" fill="currentColor">
-                          <path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 0 1-5.2 1.74 2.89 2.89 0 0 1 2.31-4.64 2.93 2.93 0 0 1 .88.13V9.4a6.84 6.84 0 0 0-1-.05A6.33 6.33 0 0 0 5 20.1a6.34 6.34 0 0 0 10.86-4.43v-7a8.16 8.16 0 0 0 4.77 1.52v-3.4a4.85 4.85 0 0 1-1-.1z"/>
-                        </svg>
-                        <span className="text-white font-medium flex items-center gap-2">
-                          <ExternalLink className="h-4 w-4" />
-                          Watch on TikTok
-                        </span>
-                      </div>
-                    </a>
+                    <TikTokVideoCard video={video} externalUrl={getExternalUrl(video)} />
                   ) : (
+                    // Twitter/X
                     <a
                       href={getExternalUrl(video)}
                       target="_blank"
@@ -200,11 +207,7 @@ export function SilentPianist({
                       className="w-full h-full flex flex-col items-center justify-center bg-gradient-to-br from-primary/20 to-primary/5 hover:from-primary/30 hover:to-primary/10 transition-colors"
                     >
                       {video.thumbnail ? (
-                        <img
-                          src={video.thumbnail}
-                          alt={video.title}
-                          className="w-full h-full object-cover"
-                        />
+                        <img src={video.thumbnail} alt={video.title} className="w-full h-full object-cover" />
                       ) : (
                         <>
                           <Play className="w-12 h-12 text-primary mb-2" />
