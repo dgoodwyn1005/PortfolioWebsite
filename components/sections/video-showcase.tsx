@@ -2,7 +2,7 @@
 
 import { motion } from "framer-motion"
 import { Play, ExternalLink } from "lucide-react"
-import { useState } from "react"
+import { useState, useEffect } from "react"
 
 interface Video {
   id: string
@@ -14,6 +14,89 @@ interface Video {
   category?: string
   section?: string
   platform?: string
+  start_time?: string
+  end_time?: string
+}
+
+// Converts "MM:SS" or "HH:MM:SS" to total seconds for YouTube embed params
+function timeToSeconds(time: string): number {
+  if (!time) return 0
+  const parts = time.trim().split(":").map(Number)
+  if (parts.length === 3) return parts[0] * 3600 + parts[1] * 60 + parts[2]
+  if (parts.length === 2) return parts[0] * 60 + parts[1]
+  return Number(parts[0]) || 0
+}
+
+// Builds the YouTube embed URL with autoplay and optional start/end times
+function buildYouTubeEmbedUrl(videoId: string, startTime?: string, endTime?: string): string {
+  const params = new URLSearchParams({ autoplay: "1" })
+  if (startTime) {
+    const startSeconds = timeToSeconds(startTime)
+    if (startSeconds > 0) params.set("start", String(startSeconds))
+  }
+  if (endTime) {
+    const endSeconds = timeToSeconds(endTime)
+    if (endSeconds > 0) params.set("end", String(endSeconds))
+  }
+  return `https://www.youtube.com/embed/${videoId}?${params.toString()}`
+}
+
+// Fetches TikTok thumbnail via their oEmbed API when no thumbnail_url is stored
+function useTikTokThumbnail(videoId: string, username: string, existingThumbnail?: string): string | null {
+  const [thumbnail, setThumbnail] = useState<string | null>(existingThumbnail || null)
+
+  useEffect(() => {
+    if (existingThumbnail || !videoId) return
+
+    const tiktokUrl = `https://www.tiktok.com/@${username}/video/${videoId}`
+    const oembedUrl = `https://www.tiktok.com/oembed?url=${encodeURIComponent(tiktokUrl)}`
+
+    fetch(oembedUrl)
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.thumbnail_url) setThumbnail(data.thumbnail_url)
+      })
+      .catch(() => {
+        // oEmbed failed — fallback gradient will be used
+      })
+  }, [videoId, username, existingThumbnail])
+
+  return thumbnail
+}
+
+// Wrapper so each TikTok card can independently fetch its thumbnail
+function TikTokCard({ video }: { video: Video }) {
+  const videoId = video.embed_id || video.youtube_id || ""
+  const username = video.tiktok_username || "TheSilentPianist"
+  const thumbnail = useTikTokThumbnail(videoId, username, video.thumbnail_url)
+
+  return (
+    <a
+      href={`https://www.tiktok.com/@${username}/video/${videoId}`}
+      target="_blank"
+      rel="noopener noreferrer"
+      className="relative aspect-[9/16] max-h-[400px] rounded-lg overflow-hidden bg-muted border flex flex-col items-center justify-center group-hover:scale-[1.02] transition-transform block"
+    >
+      {thumbnail ? (
+        <img
+          src={thumbnail}
+          alt={video.title}
+          className="absolute inset-0 w-full h-full object-cover"
+        />
+      ) : (
+        <div className="absolute inset-0 bg-gradient-to-br from-pink-500 via-red-500 to-yellow-500" />
+      )}
+      <div className="absolute inset-0 bg-black/40 flex flex-col items-center justify-center gap-4 opacity-0 group-hover:opacity-100 transition-opacity">
+        <svg viewBox="0 0 24 24" className="w-12 h-12 text-white" fill="currentColor">
+          <path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 0 1-5.2 1.74 2.89 2.89 0 0 1 2.31-4.64 2.93 2.93 0 0 1 .88.13V9.4a6.84 6.84 0 0 0-1-.05A6.33 6.33 0 0 0 5 20.1a6.34 6.34 0 0 0 10.86-4.43v-7a8.16 8.16 0 0 0 4.77 1.52v-3.4a4.85 4.85 0 0 1-1-.1z" />
+        </svg>
+        <span className="text-white font-medium flex items-center gap-2">
+          <ExternalLink className="h-4 w-4" />
+          Watch on TikTok
+        </span>
+      </div>
+    </a>
+  )
 }
 
 export function VideoShowcase({ videos }: { videos: Video[] }) {
@@ -23,7 +106,8 @@ export function VideoShowcase({ videos }: { videos: Video[] }) {
   if (!videos || videos.length === 0) return null
 
   const sections = [...new Set(videos.map((v) => v.section || v.category).filter(Boolean))]
-  const filteredVideos = activeFilter === "all" ? videos : videos.filter((v) => (v.section || v.category) === activeFilter)
+  const filteredVideos =
+    activeFilter === "all" ? videos : videos.filter((v) => (v.section || v.category) === activeFilter)
 
   return (
     <section id="videos" className="py-20 px-4 bg-muted/30">
@@ -74,8 +158,6 @@ export function VideoShowcase({ videos }: { videos: Video[] }) {
             const isTwitter = video.platform === "twitter"
             const isActive = activeVideo === video.id
 
-            const tiktokUsername = video.tiktok_username || "TheSilentPianist"
-
             return (
               <motion.div
                 key={video.id}
@@ -90,7 +172,7 @@ export function VideoShowcase({ videos }: { videos: Video[] }) {
                     href={`https://x.com/i/status/${videoId}`}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="relative aspect-video rounded-lg overflow-hidden bg-muted border flex flex-col items-center justify-center group-hover:scale-[1.02] transition-transform"
+                    className="relative aspect-video rounded-lg overflow-hidden bg-muted border flex flex-col items-center justify-center group-hover:scale-[1.02] transition-transform block"
                   >
                     {video.thumbnail_url ? (
                       <img
@@ -103,7 +185,7 @@ export function VideoShowcase({ videos }: { videos: Video[] }) {
                     )}
                     <div className="absolute inset-0 bg-black/40 flex flex-col items-center justify-center gap-4 opacity-0 group-hover:opacity-100 transition-opacity">
                       <svg viewBox="0 0 24 24" className="w-12 h-12 text-white" fill="currentColor">
-                        <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
+                        <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" />
                       </svg>
                       <span className="text-white font-medium flex items-center gap-2">
                         <ExternalLink className="h-4 w-4" />
@@ -112,36 +194,13 @@ export function VideoShowcase({ videos }: { videos: Video[] }) {
                     </div>
                   </a>
                 ) : isTikTok ? (
-                  <a
-                    href={`https://www.tiktok.com/@${tiktokUsername}/video/${videoId}`}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="relative aspect-[9/16] max-h-[400px] rounded-lg overflow-hidden bg-muted border flex flex-col items-center justify-center group-hover:scale-[1.02] transition-transform"
-                  >
-                    {video.thumbnail_url ? (
-                      <img
-                        src={video.thumbnail_url}
-                        alt={video.title}
-                        className="absolute inset-0 w-full h-full object-cover"
-                      />
-                    ) : (
-                      <div className="absolute inset-0 bg-gradient-to-br from-pink-500 via-red-500 to-yellow-500" />
-                    )}
-                    <div className="absolute inset-0 bg-black/40 flex flex-col items-center justify-center gap-4 opacity-0 group-hover:opacity-100 transition-opacity">
-                      <svg viewBox="0 0 24 24" className="w-12 h-12 text-white" fill="currentColor">
-                        <path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 0 1-5.2 1.74 2.89 2.89 0 0 1 2.31-4.64 2.93 2.93 0 0 1 .88.13V9.4a6.84 6.84 0 0 0-1-.05A6.33 6.33 0 0 0 5 20.1a6.34 6.34 0 0 0 10.86-4.43v-7a8.16 8.16 0 0 0 4.77 1.52v-3.4a4.85 4.85 0 0 1-1-.1z"/>
-                      </svg>
-                      <span className="text-white font-medium flex items-center gap-2">
-                        <ExternalLink className="h-4 w-4" />
-                        Watch on TikTok
-                      </span>
-                    </div>
-                  </a>
+                  <TikTokCard video={video} />
                 ) : (
+                  // YouTube
                   <div className="relative aspect-video rounded-lg overflow-hidden bg-background border">
                     {isActive ? (
                       <iframe
-                        src={`https://www.youtube.com/embed/${videoId}?autoplay=1`}
+                        src={buildYouTubeEmbedUrl(videoId!, video.start_time, video.end_time)}
                         title={video.title}
                         allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                         allowFullScreen
@@ -165,6 +224,12 @@ export function VideoShowcase({ videos }: { videos: Video[] }) {
                             <Play className="h-8 w-8 text-primary-foreground ml-1" />
                           </div>
                         </div>
+                        {/* Show time range badge if start_time is set */}
+                        {video.start_time && (
+                          <div className="absolute bottom-2 right-2 bg-black/70 text-white text-xs px-2 py-1 rounded">
+                            {video.start_time}{video.end_time ? ` – ${video.end_time}` : ""}
+                          </div>
+                        )}
                       </button>
                     )}
                   </div>
@@ -172,10 +237,14 @@ export function VideoShowcase({ videos }: { videos: Video[] }) {
                 <div className="mt-3 flex items-center gap-2">
                   <h3 className="font-medium text-sm">{video.title}</h3>
                   {isTikTok && (
-                    <span className="text-[10px] px-1.5 py-0.5 rounded bg-muted text-muted-foreground font-medium">TikTok</span>
+                    <span className="text-[10px] px-1.5 py-0.5 rounded bg-muted text-muted-foreground font-medium">
+                      TikTok
+                    </span>
                   )}
                   {isTwitter && (
-                    <span className="text-[10px] px-1.5 py-0.5 rounded bg-muted text-muted-foreground font-medium">X</span>
+                    <span className="text-[10px] px-1.5 py-0.5 rounded bg-muted text-muted-foreground font-medium">
+                      X
+                    </span>
                   )}
                 </div>
                 {(video.category || video.section) && (
