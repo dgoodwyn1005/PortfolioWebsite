@@ -1,7 +1,7 @@
 "use client"
 
 import { motion } from "framer-motion"
-import { ArrowDown } from "lucide-react"
+import { ArrowDown, ArrowRight } from "lucide-react"
 import { useEffect, useState } from "react"
 import { createClient } from "@/lib/supabase/client"
 
@@ -18,9 +18,10 @@ export function HeroSection() {
     const loadSettings = async () => {
       const supabase = createClient()
       const { data } = await supabase.from("site_settings").select("key, value")
-
-      const settings = data?.reduce((acc, { key, value }) => ({ ...acc, [key]: value }), {} as Record<string, string>)
-
+      const settings = data?.reduce(
+        (acc, { key, value }) => ({ ...acc, [key]: value }),
+        {} as Record<string, string>
+      )
       if (settings) {
         setHeroData({
           backgroundImage: settings.hero_background_image || heroData.backgroundImage,
@@ -30,7 +31,6 @@ export function HeroSection() {
         })
       }
     }
-
     loadSettings()
   }, [])
 
@@ -51,9 +51,13 @@ export function HeroSection() {
         <div className="absolute inset-0 bg-gradient-to-b from-background/50 via-background/80 to-background" />
       </div>
 
-      {/* Content - Now using dynamic heroData */}
+      {/* Content */}
       <div className="relative z-10 max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-        <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8 }}>
+        <motion.div
+          initial={{ opacity: 0, y: 30 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8 }}
+        >
           <h1 className="text-5xl sm:text-6xl lg:text-7xl font-bold tracking-tight text-foreground mb-6">
             {heroData.title}
           </h1>
@@ -65,6 +69,30 @@ export function HeroSection() {
           </p>
         </motion.div>
 
+        {/* CTA Buttons */}
+        <motion.div
+          initial={{ opacity: 0, y: 16 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.6, duration: 0.6 }}
+          className="flex flex-col sm:flex-row items-center justify-center gap-4 mt-10"
+        >
+          <a
+            href="/wyntech"
+            className="group flex items-center gap-2 px-7 py-3 rounded-full bg-primary text-primary-foreground font-medium text-sm hover:bg-primary/90 transition-colors duration-200"
+          >
+            Explore Wyntech
+            <ArrowRight className="h-4 w-4 transition-transform duration-200 group-hover:translate-x-1" />
+          </a>
+          <a
+            href="/wynora"
+            className="group flex items-center gap-2 px-7 py-3 rounded-full border border-border text-foreground font-medium text-sm hover:border-primary hover:text-primary transition-colors duration-200"
+          >
+            Explore Wynora
+            <ArrowRight className="h-4 w-4 transition-transform duration-200 group-hover:translate-x-1" />
+          </a>
+        </motion.div>
+
+        {/* Scroll indicator */}
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
