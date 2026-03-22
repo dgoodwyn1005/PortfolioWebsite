@@ -2,7 +2,6 @@ import { Navbar } from "@/components/navbar"
 import { HeroSection } from "@/components/sections/hero"
 import { AboutSection } from "@/components/sections/about"
 import { ProjectsSection } from "@/components/sections/projects"
-import { VenturesSection } from "@/components/sections/ventures"
 import { PhotoGallerySection } from "@/components/sections/photo-gallery"
 import { VideoShowcase } from "@/components/sections/video-showcase"
 import { ContactSection } from "@/components/sections/contact"
@@ -22,7 +21,6 @@ export default async function Home() {
       <HeroSection />
       <AboutSection />
       <PhotoGallerySection />
-      <VenturesSection />
       <VideoShowcase videos={videos || []} />
       <ProjectsSection />
       <ContactSection />
