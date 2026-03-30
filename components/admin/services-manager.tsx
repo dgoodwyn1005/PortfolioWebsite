@@ -52,6 +52,49 @@ export function ServicesManager({ initialServices, companies }: { initialService
   const router = useRouter()
   const supabase = createClient()
 
+  // Real-time subscription for service updates
+  useEffect(() => {
+    const channel = supabase
+      .channel('services-changes')
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'company_services',
+        },
+        async (payload) => {
+          if (payload.eventType === 'INSERT') {
+            // Fetch the full service with company data
+            const { data } = await supabase
+              .from('company_services')
+              .select('*, companies(name, slug)')
+              .eq('id', payload.new.id)
+              .single()
+            if (data) {
+              setServices((prev) => [...prev, data])
+            }
+          } else if (payload.eventType === 'UPDATE') {
+            const { data } = await supabase
+              .from('company_services')
+              .select('*, companies(name, slug)')
+              .eq('id', payload.new.id)
+              .single()
+            if (data) {
+              setServices((prev) => prev.map((s) => (s.id === payload.new.id ? data : s)))
+            }
+          } else if (payload.eventType === 'DELETE') {
+            setServices((prev) => prev.filter((s) => s.id !== payload.old.id))
+          }
+        }
+      )
+      .subscribe()
+
+    return () => {
+      supabase.removeChannel(channel)
+    }
+  }, [supabase])
+
   const filteredServices =
     selectedCompany === "all" ? services : services.filter((s) => s.company_id === selectedCompany)
 

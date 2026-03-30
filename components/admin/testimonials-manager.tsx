@@ -19,7 +19,8 @@ import {
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Label } from "@/components/ui/label"
 import { Switch } from "@/components/ui/switch"
-import { Pencil, Plus, Trash2, Star } from "lucide-react"
+import { Badge } from "@/components/ui/badge"
+import { Pencil, Plus, Trash2, Star, Check, X, Clock } from "lucide-react"
 import { useRouter } from "next/navigation"
 
 interface Company {
@@ -34,11 +35,13 @@ interface Testimonial {
   client_name: string
   client_role: string
   client_company: string
+  client_email?: string
   content: string
   rating: number
   image_url: string
   is_visible: boolean
   display_order: number
+  status: 'pending' | 'approved' | 'rejected'
   companies?: { name: string }
 }
 
@@ -51,11 +54,45 @@ export function TestimonialsManager({
   const [isDialogOpen, setIsDialogOpen] = useState(false)
   const [loading, setLoading] = useState(false)
   const [selectedCompany, setSelectedCompany] = useState<string>("all")
+  const [statusFilter, setStatusFilter] = useState<string>("all")
   const router = useRouter()
   const supabase = createClient()
 
-  const filteredTestimonials =
-    selectedCompany === "all" ? testimonials : testimonials.filter((t) => t.company_id === selectedCompany)
+  const filteredTestimonials = testimonials.filter((t) => {
+    const companyMatch = selectedCompany === "all" || t.company_id === selectedCompany
+    const statusMatch = statusFilter === "all" || t.status === statusFilter
+    return companyMatch && statusMatch
+  })
+
+  const pendingCount = testimonials.filter((t) => t.status === 'pending').length
+
+  const handleApprove = async (id: string) => {
+    const { error } = await supabase
+      .from("company_testimonials")
+      .update({ status: 'approved', is_visible: true })
+      .eq("id", id)
+
+    if (!error) {
+      setTestimonials(testimonials.map((t) => 
+        t.id === id ? { ...t, status: 'approved' as const, is_visible: true } : t
+      ))
+      router.refresh()
+    }
+  }
+
+  const handleReject = async (id: string) => {
+    const { error } = await supabase
+      .from("company_testimonials")
+      .update({ status: 'rejected', is_visible: false })
+      .eq("id", id)
+
+    if (!error) {
+      setTestimonials(testimonials.map((t) => 
+        t.id === id ? { ...t, status: 'rejected' as const, is_visible: false } : t
+      ))
+      router.refresh()
+    }
+  }
 
   const handleSave = async (testimonial: Partial<Testimonial>) => {
     setLoading(true)
@@ -103,20 +140,43 @@ export function TestimonialsManager({
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between gap-4">
-        <Select value={selectedCompany} onValueChange={setSelectedCompany}>
-          <SelectTrigger className="w-[200px]">
-            <SelectValue placeholder="Filter by company" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">All Companies</SelectItem>
-            {companies.map((company) => (
-              <SelectItem key={company.id} value={company.id}>
-                {company.name}
+      <div className="flex items-center justify-between gap-4 flex-wrap">
+        <div className="flex gap-2">
+          <Select value={selectedCompany} onValueChange={setSelectedCompany}>
+            <SelectTrigger className="w-[180px]">
+              <SelectValue placeholder="Filter by company" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All Companies</SelectItem>
+              {companies.map((company) => (
+                <SelectItem key={company.id} value={company.id}>
+                  {company.name}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+
+          <Select value={statusFilter} onValueChange={setStatusFilter}>
+            <SelectTrigger className="w-[160px]">
+              <SelectValue placeholder="Filter by status" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All Status</SelectItem>
+              <SelectItem value="pending">
+                Pending {pendingCount > 0 && `(${pendingCount})`}
               </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
+              <SelectItem value="approved">Approved</SelectItem>
+              <SelectItem value="rejected">Rejected</SelectItem>
+            </SelectContent>
+          </Select>
+
+          {pendingCount > 0 && (
+            <Badge variant="secondary" className="flex items-center gap-1">
+              <Clock className="h-3 w-3" />
+              {pendingCount} pending review
+            </Badge>
+          )}
+        </div>
 
         <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
           <DialogTrigger asChild>
@@ -144,11 +204,25 @@ export function TestimonialsManager({
 
       <div className="grid md:grid-cols-2 gap-4">
         {filteredTestimonials.map((testimonial) => (
-          <Card key={testimonial.id}>
+          <Card key={testimonial.id} className={testimonial.status === 'pending' ? 'border-amber-500/50 bg-amber-500/5' : ''}>
             <CardHeader className="pb-2">
               <div className="flex items-start justify-between">
                 <div>
-                  <CardTitle className="text-base">{testimonial.client_name}</CardTitle>
+                  <div className="flex items-center gap-2">
+                    <CardTitle className="text-base">{testimonial.client_name}</CardTitle>
+                    <Badge 
+                      variant={
+                        testimonial.status === 'approved' ? 'default' : 
+                        testimonial.status === 'pending' ? 'secondary' : 'destructive'
+                      }
+                      className="text-xs"
+                    >
+                      {testimonial.status === 'approved' && <Check className="h-3 w-3 mr-1" />}
+                      {testimonial.status === 'pending' && <Clock className="h-3 w-3 mr-1" />}
+                      {testimonial.status === 'rejected' && <X className="h-3 w-3 mr-1" />}
+                      {testimonial.status}
+                    </Badge>
+                  </div>
                   <CardDescription>
                     {testimonial.client_role}
                     {testimonial.client_company ? `, ${testimonial.client_company}` : ""} |{" "}
@@ -180,10 +254,34 @@ export function TestimonialsManager({
             </CardHeader>
             <CardContent>
               <p className="text-sm text-muted-foreground mb-3 line-clamp-3">"{testimonial.content}"</p>
-              <div className="flex gap-1">
-                {Array.from({ length: 5 }).map((_, i) => (
-                  <Star key={i} className="h-4 w-4" fill={i < testimonial.rating ? "currentColor" : "transparent"} />
-                ))}
+              <div className="flex items-center justify-between">
+                <div className="flex gap-1">
+                  {Array.from({ length: 5 }).map((_, i) => (
+                    <Star key={i} className="h-4 w-4" fill={i < testimonial.rating ? "currentColor" : "transparent"} />
+                  ))}
+                </div>
+                {testimonial.status === 'pending' && (
+                  <div className="flex gap-2">
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      className="text-green-600 border-green-600 hover:bg-green-50"
+                      onClick={() => handleApprove(testimonial.id)}
+                    >
+                      <Check className="h-4 w-4 mr-1" />
+                      Approve
+                    </Button>
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      className="text-red-600 border-red-600 hover:bg-red-50"
+                      onClick={() => handleReject(testimonial.id)}
+                    >
+                      <X className="h-4 w-4 mr-1" />
+                      Reject
+                    </Button>
+                  </div>
+                )}
               </div>
             </CardContent>
           </Card>
@@ -215,6 +313,7 @@ function TestimonialForm({
       image_url: "",
       is_visible: true,
       display_order: 0,
+      status: 'approved',
     },
   )
 
@@ -232,6 +331,7 @@ function TestimonialForm({
         image_url: "",
         is_visible: true,
         display_order: 0,
+        status: 'approved',
       })
     }
   }, [testimonial, companies])

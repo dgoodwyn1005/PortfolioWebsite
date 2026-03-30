@@ -3,6 +3,7 @@
 import { motion } from "framer-motion"
 import { Star, Quote } from "lucide-react"
 import { Card, CardContent } from "@/components/ui/card"
+import { TestimonialForm } from "./testimonial-form"
 
 interface Testimonial {
   id: string
@@ -15,14 +16,13 @@ interface Testimonial {
 }
 
 interface Company {
+  id: string
+  name: string
   primary_color: string
 }
 
 export function CompanyTestimonials({ company, testimonials }: { company: Company; testimonials: Testimonial[] }) {
-  if (testimonials.length === 0) {
-    return null
-  }
-
+  // Show section even with no testimonials so clients can submit
   return (
     <section id="testimonials" className="py-24">
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -36,6 +36,19 @@ export function CompanyTestimonials({ company, testimonials }: { company: Compan
           <p className="text-muted-foreground max-w-2xl mx-auto">Hear from our satisfied customers</p>
         </motion.div>
 
+        {testimonials.length === 0 ? (
+          <div className="max-w-xl mx-auto">
+            <p className="text-center text-muted-foreground mb-8">
+              Be the first to share your experience with {company.name}!
+            </p>
+            <TestimonialForm 
+              companyId={company.id} 
+              companyName={company.name} 
+              primaryColor={company.primary_color} 
+            />
+          </div>
+        ) : (
+          <>
         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
           {testimonials.map((testimonial, index) => (
             <motion.div
@@ -89,6 +102,22 @@ export function CompanyTestimonials({ company, testimonials }: { company: Compan
             </motion.div>
           ))}
         </div>
+
+        {/* Submission Form */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          className="mt-16 max-w-xl mx-auto"
+        >
+          <TestimonialForm 
+            companyId={company.id} 
+            companyName={company.name} 
+            primaryColor={company.primary_color} 
+          />
+        </motion.div>
+          </>
+        )}
       </div>
     </section>
   )
