@@ -57,6 +57,7 @@ export default async function WynTechPage() {
     .select("*")
     .eq("company_id", company.id)
     .eq("is_visible", true)
+    .eq("status", "approved")
     .order("display_order")
 
   const { data: faqs } = await supabase
