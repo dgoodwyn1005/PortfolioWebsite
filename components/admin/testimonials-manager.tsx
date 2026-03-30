@@ -19,7 +19,8 @@ import {
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Label } from "@/components/ui/label"
 import { Switch } from "@/components/ui/switch"
-import { Pencil, Plus, Trash2, Star } from "lucide-react"
+import { Badge } from "@/components/ui/badge"
+import { Pencil, Plus, Trash2, Star, Check, X, Clock } from "lucide-react"
 import { useRouter } from "next/navigation"
 
 interface Company {
@@ -34,11 +35,13 @@ interface Testimonial {
   client_name: string
   client_role: string
   client_company: string
+  client_email?: string
   content: string
   rating: number
   image_url: string
   is_visible: boolean
   display_order: number
+  status: 'pending' | 'approved' | 'rejected'
   companies?: { name: string }
 }
 
@@ -51,11 +54,45 @@ export function TestimonialsManager({
   const [isDialogOpen, setIsDialogOpen] = useState(false)
   const [loading, setLoading] = useState(false)
   const [selectedCompany, setSelectedCompany] = useState<string>("all")
+  const [statusFilter, setStatusFilter] = useState<string>("all")
   const router = useRouter()
   const supabase = createClient()
 
-  const filteredTestimonials =
-    selectedCompany === "all" ? testimonials : testimonials.filter((t) => t.company_id === selectedCompany)
+  const filteredTestimonials = testimonials.filter((t) => {
+    const companyMatch = selectedCompany === "all" || t.company_id === selectedCompany
+    const statusMatch = statusFilter === "all" || t.status === statusFilter
+    return companyMatch && statusMatch
+  })
+
+  const pendingCount = testimonials.filter((t) => t.status === 'pending').length
+
+  const handleApprove = async (id: string) => {
+    const { error } = await supabase
+      .from("company_testimonials")
+      .update({ status: 'approved', is_visible: true })
+      .eq("id", id)
+
+    if (!error) {
+      setTestimonials(testimonials.map((t) => 
+        t.id === id ? { ...t, status: 'approved' as const, is_visible: true } : t
+      ))
+      router.refresh()
+    }
+  }
+
+  const handleReject = async (id: string) => {
+    const { error } = await supabase
+      .from("company_testimonials")
+      .update({ status: 'rejected', is_visible: false })
+      .eq("id", id)
+
+    if (!error) {
+      setTestimonials(testimonials.map((t) => 
+        t.id === id ? { ...t, status: 'rejected' as const, is_visible: false } : t
+      ))
+      router.refresh()
+    }
+  }
 
   const handleSave = async (testimonial: Partial<Testimonial>) => {
     setLoading(true)
