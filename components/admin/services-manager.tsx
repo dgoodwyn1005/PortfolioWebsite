@@ -102,10 +102,16 @@ export function ServicesManager({ initialServices, companies }: { initialService
     setLoading(true)
     try {
       if (editingService?.id) {
-        const { error } = await supabase.from("company_services").update(service).eq("id", editingService.id)
+        // Update and fetch the updated data with company relationship
+        const { data, error } = await supabase
+          .from("company_services")
+          .update(service)
+          .eq("id", editingService.id)
+          .select("*, companies(name, slug)")
+          .single()
 
-        if (!error) {
-          setServices(services.map((s) => (s.id === editingService.id ? ({ ...s, ...service } as Service) : s)))
+        if (!error && data) {
+          setServices(services.map((s) => (s.id === editingService.id ? data : s)))
         }
       } else {
         const { data, error } = await supabase
