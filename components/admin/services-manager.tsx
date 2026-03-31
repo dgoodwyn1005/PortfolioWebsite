@@ -101,38 +101,36 @@ export function ServicesManager({ initialServices, companies }: { initialService
   const handleSave = async (service: Partial<Service>) => {
     setLoading(true)
     try {
+      // Remove id and companies from the data we send to Supabase
+      const { id, companies, ...updateData } = service as Service
+      
       if (editingService?.id) {
-        console.log("[v0] Updating service:", editingService.id, service)
         // Update and fetch the updated data with company relationship
         const { data, error } = await supabase
           .from("company_services")
-          .update(service)
+          .update(updateData)
           .eq("id", editingService.id)
           .select("*, companies(name, slug)")
           .single()
 
-        console.log("[v0] Update result:", { data, error })
-
         if (error) {
-          console.error("[v0] Update error:", error)
+          console.error("Update error:", error)
+          alert("Failed to update service: " + error.message)
         } else if (data) {
-          console.log("[v0] Updating local state with:", data)
           setServices((prevServices) => 
             prevServices.map((s) => (s.id === editingService.id ? data : s))
           )
         }
       } else {
-        console.log("[v0] Creating new service:", service)
         const { data, error } = await supabase
           .from("company_services")
-          .insert(service)
+          .insert(updateData)
           .select("*, companies(name, slug)")
           .single()
 
-        console.log("[v0] Insert result:", { data, error })
-
         if (error) {
-          console.error("[v0] Insert error:", error)
+          console.error("Insert error:", error)
+          alert("Failed to create service: " + error.message)
         } else if (data) {
           setServices((prevServices) => [...prevServices, data])
         }
