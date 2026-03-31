@@ -102,6 +102,7 @@ export function ServicesManager({ initialServices, companies }: { initialService
     setLoading(true)
     try {
       if (editingService?.id) {
+        console.log("[v0] Updating service:", editingService.id, service)
         // Update and fetch the updated data with company relationship
         const { data, error } = await supabase
           .from("company_services")
@@ -110,18 +111,30 @@ export function ServicesManager({ initialServices, companies }: { initialService
           .select("*, companies(name, slug)")
           .single()
 
-        if (!error && data) {
-          setServices(services.map((s) => (s.id === editingService.id ? data : s)))
+        console.log("[v0] Update result:", { data, error })
+
+        if (error) {
+          console.error("[v0] Update error:", error)
+        } else if (data) {
+          console.log("[v0] Updating local state with:", data)
+          setServices((prevServices) => 
+            prevServices.map((s) => (s.id === editingService.id ? data : s))
+          )
         }
       } else {
+        console.log("[v0] Creating new service:", service)
         const { data, error } = await supabase
           .from("company_services")
           .insert(service)
           .select("*, companies(name, slug)")
           .single()
 
-        if (!error && data) {
-          setServices([...services, data])
+        console.log("[v0] Insert result:", { data, error })
+
+        if (error) {
+          console.error("[v0] Insert error:", error)
+        } else if (data) {
+          setServices((prevServices) => [...prevServices, data])
         }
       }
       setIsDialogOpen(false)
