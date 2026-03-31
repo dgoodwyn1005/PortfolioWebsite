@@ -101,27 +101,38 @@ export function ServicesManager({ initialServices, companies }: { initialService
   const handleSave = async (service: Partial<Service>) => {
     setLoading(true)
     try {
+      // Remove id and companies from the data we send to Supabase
+      const { id, companies, ...updateData } = service as Service
+      
       if (editingService?.id) {
         // Update and fetch the updated data with company relationship
         const { data, error } = await supabase
           .from("company_services")
-          .update(service)
+          .update(updateData)
           .eq("id", editingService.id)
           .select("*, companies(name, slug)")
           .single()
 
-        if (!error && data) {
-          setServices(services.map((s) => (s.id === editingService.id ? data : s)))
+        if (error) {
+          console.error("Update error:", error)
+          alert("Failed to update service: " + error.message)
+        } else if (data) {
+          setServices((prevServices) => 
+            prevServices.map((s) => (s.id === editingService.id ? data : s))
+          )
         }
       } else {
         const { data, error } = await supabase
           .from("company_services")
-          .insert(service)
+          .insert(updateData)
           .select("*, companies(name, slug)")
           .single()
 
-        if (!error && data) {
-          setServices([...services, data])
+        if (error) {
+          console.error("Insert error:", error)
+          alert("Failed to create service: " + error.message)
+        } else if (data) {
+          setServices((prevServices) => [...prevServices, data])
         }
       }
       setIsDialogOpen(false)
