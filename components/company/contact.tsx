@@ -54,7 +54,12 @@ export function CompanyContact({ company, faqs }: { company: Company; faqs: FAQ[
             className="bg-card border border-border rounded-2xl p-8"
           >
             <h3 className="text-xl font-semibold text-foreground mb-6">Send us a message</h3>
-            <ContactForm companySlug={company.slug} submissionType="quote" buttonText="Request Quote" />
+            <ContactForm 
+              companySlug={company.slug} 
+              submissionType="quote" 
+              buttonText="Request Quote"
+              showOnboarding={company.slug === "wyntech"}
+            />
 
             <div className="mt-8 pt-8 border-t border-border space-y-4">
               {company.contact_email && (

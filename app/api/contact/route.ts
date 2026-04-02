@@ -4,7 +4,19 @@ import { type NextRequest, NextResponse } from "next/server"
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json()
-    const { name, email, subject, message, companySlug, submissionType } = body
+    const { 
+      name, 
+      email, 
+      subject, 
+      message, 
+      companySlug, 
+      submissionType,
+      projectType,
+      hasExistingWebsite,
+      budgetRange,
+      timeline,
+      referralSource,
+    } = body
 
     if (!name || !email || !message) {
       return NextResponse.json({ error: "Name, email, and message are required" }, { status: 400 })
@@ -23,6 +35,11 @@ export async function POST(request: NextRequest) {
         company_slug: companySlug || null,
         submission_type: submissionType || "contact",
         status: "new",
+        project_type: projectType || null,
+        has_existing_website: hasExistingWebsite || null,
+        budget_range: budgetRange || null,
+        timeline: timeline || null,
+        referral_source: referralSource || null,
       })
       .select()
       .single()
