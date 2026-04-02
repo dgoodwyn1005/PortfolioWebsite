@@ -11,11 +11,23 @@ export async function POST(request: NextRequest) {
       message, 
       companySlug, 
       submissionType,
+      // Wyntech fields
       projectType,
       hasExistingWebsite,
       budgetRange,
       timeline,
       referralSource,
+      // Wynora fields
+      eventType,
+      eventDate,
+      eventLocation,
+      eventStartTime,
+      eventEndTime,
+      serviceInterest,
+      durationNeeded,
+      pianoAvailable,
+      within50Miles,
+      songRequests,
     } = body
 
     if (!name || !email || !message) {
@@ -40,6 +52,17 @@ export async function POST(request: NextRequest) {
         budget_range: budgetRange || null,
         timeline: timeline || null,
         referral_source: referralSource || null,
+        // Wynora fields
+        event_type: eventType || null,
+        event_date: eventDate || null,
+        event_location: eventLocation || null,
+        event_start_time: eventStartTime || null,
+        event_end_time: eventEndTime || null,
+        service_interest: serviceInterest || null,
+        duration_needed: durationNeeded || null,
+        piano_available: pianoAvailable || null,
+        within_50_miles: within50Miles || null,
+        song_requests: songRequests || null,
       })
       .select()
       .single()

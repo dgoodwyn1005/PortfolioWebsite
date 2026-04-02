@@ -57,8 +57,9 @@ export function CompanyContact({ company, faqs }: { company: Company; faqs: FAQ[
             <ContactForm 
               companySlug={company.slug} 
               submissionType="quote" 
-              buttonText="Request Quote"
+              buttonText={company.slug === "wynora" ? "Request Booking" : "Request Quote"}
               showOnboarding={company.slug === "wyntech"}
+              showWynoraOnboarding={company.slug === "wynora"}
             />
 
             <div className="mt-8 pt-8 border-t border-border space-y-4">
