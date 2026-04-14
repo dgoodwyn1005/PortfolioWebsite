@@ -15,13 +15,15 @@ import { Plus, Edit, Trash2, GripVertical, ExternalLink, Users } from "lucide-re
 interface DigitalProduct {
   id: string
   company_id: string
-  name: string
+  title: string
   description: string
   price: number
   image_url: string | null
   gumroad_url: string | null
   product_type: string
-  status: "available" | "coming_soon" | "sold_out"
+  is_available: boolean
+  is_coming_soon: boolean
+  waitlist_enabled: boolean
   features: string[] | null
   display_order: number
 }
@@ -47,13 +49,15 @@ export function DigitalProductsManager({ companyId }: { companyId: string }) {
   const [featuresText, setFeaturesText] = useState("")
 
   const [formData, setFormData] = useState({
-    name: "",
+    title: "",
     description: "",
     price: 0,
     image_url: "",
     gumroad_url: "",
     product_type: "chord_pack",
-    status: "coming_soon" as "available" | "coming_soon" | "sold_out",
+    is_available: false,
+    is_coming_soon: true,
+    waitlist_enabled: true,
   })
 
   useEffect(() => {
@@ -86,25 +90,29 @@ export function DigitalProductsManager({ companyId }: { companyId: string }) {
     if (product) {
       setEditingProduct(product)
       setFormData({
-        name: product.name,
+        title: product.title,
         description: product.description,
         price: product.price,
         image_url: product.image_url || "",
         gumroad_url: product.gumroad_url || "",
         product_type: product.product_type,
-        status: product.status,
+        is_available: product.is_available,
+        is_coming_soon: product.is_coming_soon,
+        waitlist_enabled: product.waitlist_enabled,
       })
       setFeaturesText(product.features?.join("\n") || "")
     } else {
       setEditingProduct(null)
       setFormData({
-        name: "",
+        title: "",
         description: "",
         price: 0,
         image_url: "",
         gumroad_url: "",
         product_type: "chord_pack",
-        status: "coming_soon",
+        is_available: false,
+        is_coming_soon: true,
+        waitlist_enabled: true,
       })
       setFeaturesText("")
     }
@@ -146,10 +154,14 @@ export function DigitalProductsManager({ companyId }: { companyId: string }) {
     fetchWaitlist(productId)
   }
 
-  const statusColors = {
-    available: "bg-green-500/20 text-green-600",
-    coming_soon: "bg-yellow-500/20 text-yellow-600",
-    sold_out: "bg-red-500/20 text-red-600",
+  function getStatusBadge(product: DigitalProduct) {
+    if (product.is_available) {
+      return <Badge className="bg-green-500/20 text-green-600">Available</Badge>
+    }
+    if (product.is_coming_soon) {
+      return <Badge className="bg-yellow-500/20 text-yellow-600">Coming Soon</Badge>
+    }
+    return <Badge className="bg-red-500/20 text-red-600">Unavailable</Badge>
   }
 
   return (
@@ -179,9 +191,9 @@ export function DigitalProductsManager({ companyId }: { companyId: string }) {
                 
                 <div className="flex-1">
                   <div className="flex items-center gap-2 mb-1">
-                    <h3 className="font-semibold">{product.name}</h3>
+                    <h3 className="font-semibold">{product.title}</h3>
                     <Badge variant="outline">{product.product_type}</Badge>
-                    <Badge className={statusColors[product.status]}>{product.status.replace("_", " ")}</Badge>
+                    {getStatusBadge(product)}
                   </div>
                   <p className="text-sm text-muted-foreground line-clamp-1">{product.description}</p>
                   <div className="flex items-center gap-4 mt-1 text-sm">
@@ -200,11 +212,11 @@ export function DigitalProductsManager({ companyId }: { companyId: string }) {
                 </div>
 
                 <div className="flex items-center gap-2">
-                  {product.status === "coming_soon" && (
+                  {product.is_coming_soon && product.waitlist_enabled && (
                     <Button
                       variant="outline"
                       size="sm"
-                      onClick={() => openWaitlistDialog(product.id, product.name)}
+                      onClick={() => openWaitlistDialog(product.id, product.title)}
                     >
                       <Users className="h-4 w-4 mr-1" />
                       Waitlist
@@ -241,8 +253,8 @@ export function DigitalProductsManager({ companyId }: { companyId: string }) {
             <div className="space-y-2">
               <Label>Product Name</Label>
               <Input
-                value={formData.name}
-                onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                value={formData.title}
+                onChange={(e) => setFormData({ ...formData, title: e.target.value })}
                 placeholder="e.g., Gospel Chord Pack Vol. 1"
               />
             </div>
@@ -292,10 +304,16 @@ export function DigitalProductsManager({ companyId }: { companyId: string }) {
             <div className="space-y-2">
               <Label>Status</Label>
               <Select
-                value={formData.status}
-                onValueChange={(value: "available" | "coming_soon" | "sold_out") =>
-                  setFormData({ ...formData, status: value })
-                }
+                value={formData.is_available ? "available" : formData.is_coming_soon ? "coming_soon" : "unavailable"}
+                onValueChange={(value) => {
+                  if (value === "available") {
+                    setFormData({ ...formData, is_available: true, is_coming_soon: false })
+                  } else if (value === "coming_soon") {
+                    setFormData({ ...formData, is_available: false, is_coming_soon: true })
+                  } else {
+                    setFormData({ ...formData, is_available: false, is_coming_soon: false })
+                  }
+                }}
               >
                 <SelectTrigger>
                   <SelectValue />
@@ -303,7 +321,7 @@ export function DigitalProductsManager({ companyId }: { companyId: string }) {
                 <SelectContent>
                   <SelectItem value="coming_soon">Coming Soon (Waitlist)</SelectItem>
                   <SelectItem value="available">Available</SelectItem>
-                  <SelectItem value="sold_out">Sold Out</SelectItem>
+                  <SelectItem value="unavailable">Unavailable</SelectItem>
                 </SelectContent>
               </Select>
             </div>

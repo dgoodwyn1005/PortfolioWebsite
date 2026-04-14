@@ -11,15 +11,18 @@ import { Music, Download, Bell, CheckCircle, ExternalLink, Loader2 } from "lucid
 interface DigitalProduct {
   id: string
   company_id: string
-  name: string
+  title: string
   description: string
   price: number
   image_url: string | null
   gumroad_url: string | null
   product_type: string
-  status: "available" | "coming_soon" | "sold_out"
+  is_available: boolean
+  is_coming_soon: boolean
+  waitlist_enabled: boolean
   features: string[] | null
   display_order: number
+  is_visible: boolean
 }
 
 interface DigitalProductsProps {
@@ -44,6 +47,7 @@ export function DigitalProducts({ companyId, primaryColor = "#D4AF37" }: Digital
       .from("digital_products")
       .select("*")
       .eq("company_id", companyId)
+      .eq("is_visible", true)
       .order("display_order", { ascending: true })
 
     if (data) {
@@ -117,10 +121,10 @@ export function DigitalProducts({ companyId, primaryColor = "#D4AF37" }: Digital
                 <div className="relative aspect-video overflow-hidden bg-muted">
                   <img
                     src={product.image_url}
-                    alt={product.name}
+                    alt={product.title}
                     className="object-cover w-full h-full"
                   />
-                  {product.status === "coming_soon" && (
+                  {product.is_coming_soon && (
                     <div className="absolute inset-0 bg-black/60 flex items-center justify-center">
                       <Badge variant="secondary" className="text-sm px-4 py-1">
                         Coming Soon
@@ -132,7 +136,7 @@ export function DigitalProducts({ companyId, primaryColor = "#D4AF37" }: Digital
               
               <CardHeader className="flex-1">
                 <div className="flex items-start justify-between gap-2">
-                  <CardTitle className="text-xl">{product.name}</CardTitle>
+                  <CardTitle className="text-xl">{product.title}</CardTitle>
                   <Badge 
                     variant="outline"
                     className="shrink-0"
@@ -164,7 +168,7 @@ export function DigitalProducts({ companyId, primaryColor = "#D4AF37" }: Digital
               </CardContent>
 
               <CardFooter className="mt-auto pt-4 border-t border-border/50">
-                {product.status === "available" && product.gumroad_url ? (
+                {product.is_available && product.gumroad_url ? (
                   <div className="w-full flex items-center justify-between">
                     <span className="text-2xl font-bold" style={{ color: primaryColor }}>
                       ${product.price.toFixed(2)}
@@ -181,7 +185,7 @@ export function DigitalProducts({ companyId, primaryColor = "#D4AF37" }: Digital
                       </a>
                     </Button>
                   </div>
-                ) : product.status === "coming_soon" ? (
+                ) : product.is_coming_soon ? (
                   <div className="w-full space-y-3">
                     <div className="flex items-center justify-between">
                       <span className="text-lg font-semibold text-muted-foreground">
