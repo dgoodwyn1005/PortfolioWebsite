@@ -11,6 +11,7 @@ import { MusicSection } from "@/components/company/music-section"
 import { SilentPianist } from "@/components/company/silent-pianist"
 import { AudioSamples } from "@/components/company/audio-samples"
 import { BookingSection } from "@/components/company/booking-section"
+import { DigitalProducts } from "@/components/company/digital-products"
 import { VideoShowcase } from "@/components/sections/video-showcase"
 import { notFound } from "next/navigation"
 
@@ -122,6 +123,7 @@ export default async function WynoraPage() {
       {musicVideosWithThumbnails && musicVideosWithThumbnails.length > 0 && (
         <VideoShowcase videos={musicVideosWithThumbnails} />
       )}
+      <DigitalProducts companyId={company.id} primaryColor={company.primary_color} />
       <CompanyServices company={company} services={services || []} />
       <CompanyPortfolio company={company} portfolio={portfolio || []} />
       <CompanyTestimonials company={company} testimonials={testimonials || []} />
