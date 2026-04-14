@@ -30,6 +30,7 @@ import {
   CreditCard,
   Music,
   Package,
+  Download,
 } from "lucide-react"
 import { useState } from "react"
 
@@ -60,6 +61,7 @@ const companyNavItems = [
   { name: "FAQs", href: "/admin/companies/faqs", icon: HelpCircle },
   { name: "Audio Samples", href: "/admin/companies/audio-samples", icon: Music },
   { name: "Silent Pianist", href: "/admin/companies/silent-pianist", icon: Video },
+  { name: "Digital Products", href: "/admin/companies/digital-products", icon: Download },
 ]
 
 export function AdminSidebar() {
