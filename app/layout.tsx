@@ -13,18 +13,18 @@ const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://deshawngoodwyn.com"
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
   title: {
-    default: "Deshawn Goodwyn | D2 Basketball · WynTech Founder · Gospel Pianist · Full-Stack Developer",
+    default: "Deshawn Goodwyn | NCAA Athlete · Wyntech Founder · Pianist · Tech Developer",
     template: "%s | Deshawn Goodwyn",
   },
   description:
-    "Former Virginia HS 3-point record holder, 4.56 GPA student-athlete, full-stack developer, and gospel pianist. Explore my projects, music, and basketball journey.",
+    "Former Virginia HS 3-point record holder, 4.56 GPA student-athlete, full-stack developer, and pianist. Explore my projects, music, and basketball journey.",
   keywords: [
     "Deshawn Goodwyn",
-    "D2 Basketball",
-    "WynTech Solutions",
+    "NCAA Basketball",
+    "Wyntech",
     "Wynora Music",
     "Full-Stack Developer",
-    "Gospel Pianist",
+    "Pianist",
     "Virginia Basketball",
     "Student Athlete",
     "Web Development",
@@ -50,9 +50,9 @@ export const metadata: Metadata = {
     locale: "en_US",
     url: siteUrl,
     siteName: "Deshawn Goodwyn",
-    title: "Deshawn Goodwyn | D2 Basketball · WynTech Founder · Gospel Pianist",
+    title: "Deshawn Goodwyn | NCAA Athlete · Wyntech Founder · Pianist · Tech Developer",
     description:
-      "Former Virginia HS 3-point record holder, 4.56 GPA student-athlete, full-stack developer, and gospel pianist.",
+      "Former Virginia HS 3-point record holder, 4.56 GPA student-athlete, full-stack developer, and pianist.",
     images: [
       {
         url: "/og-image.jpg",
@@ -64,9 +64,9 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "Deshawn Goodwyn | D2 Basketball · WynTech Founder · Gospel Pianist",
+    title: "Deshawn Goodwyn | NCAA Athlete · Wyntech Founder · Pianist · Tech Developer",
     description:
-      "Former Virginia HS 3-point record holder, 4.56 GPA student-athlete, full-stack developer, and gospel pianist.",
+      "Former Virginia HS 3-point record holder, 4.56 GPA student-athlete, full-stack developer, and pianist.",
     images: ["/og-image.jpg"],
     creator: "@dgoodwyn",
   },
