@@ -13,7 +13,7 @@ const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://deshawngoodwyn.com"
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
   title: {
-    default: "Deshawn Goodwyn | NCAA Athlete · Wyntech Founder · Pianist · Tech Developer",
+    default: "Deshawn Goodwyn | NCAA Athlete · Wyntech & Wynora · Pianist · Comp Sci"
     template: "%s | Deshawn Goodwyn",
   },
   description:
@@ -50,14 +50,14 @@ export const metadata: Metadata = {
     locale: "en_US",
     url: siteUrl,
     siteName: "Deshawn Goodwyn",
-    title: "Deshawn Goodwyn | NCAA Athlete · Wyntech Founder · Pianist · Tech Developer",
+    title: "Deshawn Goodwyn | NCAA Athlete · Wyntech & Wynora · Pianist · Comp Sci",
     description:
       "Former Virginia HS 3-point record holder, 4.56 GPA student-athlete, full-stack developer, and pianist.",
     images: ['https://www.deshawngoodwyn.com/og-image'],
   },
   twitter: {
     card: "summary_large_image",
-    title: "Deshawn Goodwyn | NCAA Athlete · Wyntech Founder · Pianist · Tech Developer",
+    title: "Deshawn Goodwyn | NCAA Athlete · Wyntech & Wynora · Pianist · Comp Sci",
     description:
       "Former Virginia HS 3-point record holder, 4.56 GPA student-athlete, full-stack developer, and pianist.",
     images: ['https://www.deshawngoodwyn.com/og-image'],
