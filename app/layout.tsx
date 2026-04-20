@@ -17,7 +17,7 @@ export const metadata: Metadata = {
     template: "%s | Deshawn Goodwyn",
   },
   description:
-    "Former Virginia HS 3-point record holder, 4.56 GPA student-athlete, full-stack developer, and pianist. Explore my projects, music, and basketball journey.",
+    "Virginia HS 3-point record holder, 4.56 GPA student-athlete, full-stack developer, and pianist. Explore my projects, music, and basketball journey.",
   keywords: [
     "Deshawn Goodwyn",
     "NCAA Basketball",
@@ -52,14 +52,14 @@ export const metadata: Metadata = {
     siteName: "Deshawn Goodwyn",
     title: "Deshawn Goodwyn | NCAA Athlete · Wyntech & Wynora · Pianist · Comp Sci",
     description:
-      "Former Virginia HS 3-point record holder, 4.56 GPA student-athlete, full-stack developer, and pianist.",
+      "Virginia HS 3-point record holder, 4.56 GPA student-athlete, full-stack developer, and pianist.",
     images: ['https://www.deshawngoodwyn.com/og-image'],
   },
   twitter: {
     card: "summary_large_image",
     title: "Deshawn Goodwyn | NCAA Athlete · Wyntech & Wynora · Pianist · Comp Sci",
     description:
-      "Former Virginia HS 3-point record holder, 4.56 GPA student-athlete, full-stack developer, and pianist.",
+      "Virginia HS 3-point record holder, 4.56 GPA student-athlete, full-stack developer, and pianist.",
     images: ['https://www.deshawngoodwyn.com/og-image'],
     creator: "@dgoodwyn",
   },
