@@ -53,21 +53,14 @@ export const metadata: Metadata = {
     title: "Deshawn Goodwyn | NCAA Athlete · Wyntech Founder · Pianist · Tech Developer",
     description:
       "Former Virginia HS 3-point record holder, 4.56 GPA student-athlete, full-stack developer, and pianist.",
-    images: [
-      {
-        url: "/og-image.jpg",
-        width: 1200,
-        height: 630,
-        alt: "Deshawn Goodwyn - Athlete, Developer, Musician",
-      },
-    ],
+    images: ['https://www.deshawngoodwyn.com/og-image'],
   },
   twitter: {
     card: "summary_large_image",
     title: "Deshawn Goodwyn | NCAA Athlete · Wyntech Founder · Pianist · Tech Developer",
     description:
       "Former Virginia HS 3-point record holder, 4.56 GPA student-athlete, full-stack developer, and pianist.",
-    images: ["/og-image.jpg"],
+    images: ['https://www.deshawngoodwyn.com/og-image'],
     creator: "@dgoodwyn",
   },
   alternates: {
@@ -106,19 +99,19 @@ export default function RootLayout({
     worksFor: [
       {
         "@type": "Organization",
-        name: "WynTech Solutions",
+        name: "Wyntech",
         url: `${siteUrl}/wyntech`,
       },
       {
         "@type": "Organization",
-        name: "Wynora Music Services",
+        name: "Wynora",
         url: `${siteUrl}/wynora`,
       },
     ],
     knowsAbout: ["Web Development", "Basketball", "Piano", "Music Production", "Software Engineering"],
     alumniOf: {
       "@type": "EducationalOrganization",
-      name: "Virginia High School",
+      name: ["Franklin Military Academy, American University, Gardner-Webb University, Virginia State University"],
     },
   }
 
