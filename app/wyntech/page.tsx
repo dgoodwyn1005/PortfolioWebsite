@@ -13,18 +13,18 @@ import { notFound } from "next/navigation"
 import type { Metadata } from "next"
 
 export const metadata: Metadata = {
-  title: "WynTech Solutions | Web Development & Automation",
+  title: "Wyntech | Making Ideas Reality",
   description: "Custom website development, automation tools, and software solutions for students and small businesses. Starter websites, portfolio sites, e-commerce, and study automation tools.",
-  keywords: ["Web Development", "Website Design", "Custom Software", "Automation Tools", "Portfolio Website", "E-Commerce", "WynTech"],
+  keywords: ["Web Development", "Website Design", "Custom Software", "Automation Tools", "Portfolio Website", "E-Commerce", "Wyntech"],
   openGraph: {
-    title: "WynTech Solutions | Web Development & Automation",
+    title: "Wyntech | Making Ideas Reality",
     description: "Custom website development, automation tools, and software solutions for students and small businesses.",
     type: "website",
-    images: [{ url: "/og-wyntech.jpg", width: 1200, height: 630, alt: "WynTech Solutions" }],
+    images: [{ url: "/og-wyntech.jpg", width: 1200, height: 630, alt: "Wyntech" }],
   },
   twitter: {
     card: "summary_large_image",
-    title: "WynTech Solutions",
+    title: "Wyntech",
     description: "Custom website development, automation tools, and software solutions.",
   },
 }
