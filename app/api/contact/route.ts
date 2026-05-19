@@ -62,7 +62,7 @@ export async function POST(request: NextRequest) {
         referral_source: referralSource || null,
         // Wynora fields
         event_type: eventType || null,
-        event_date: eventDate || null,
+        event_date: eventDate && eventDate.trim() !== "" ? eventDate : null,
         event_location: eventLocation || null,
         event_start_time: eventStartTime || null,
         event_end_time: eventEndTime || null,
