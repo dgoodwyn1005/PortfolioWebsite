@@ -36,6 +36,14 @@ export async function POST(request: NextRequest) {
 
     const supabase = await createClient()
 
+    // Convert hasExistingWebsite string to boolean for database
+    let hasExistingWebsiteBoolean: boolean | null = null
+    if (hasExistingWebsite === "yes" || hasExistingWebsite === "redesign") {
+      hasExistingWebsiteBoolean = true
+    } else if (hasExistingWebsite === "no") {
+      hasExistingWebsiteBoolean = false
+    }
+
     // Save to database
     const { data, error } = await supabase
       .from("contact_submissions")
@@ -48,7 +56,7 @@ export async function POST(request: NextRequest) {
         submission_type: submissionType || "contact",
         status: "new",
         project_type: projectType || null,
-        has_existing_website: hasExistingWebsite || null,
+        has_existing_website: hasExistingWebsiteBoolean,
         budget_range: budgetRange || null,
         timeline: timeline || null,
         referral_source: referralSource || null,
