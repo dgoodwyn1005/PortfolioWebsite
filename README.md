@@ -1,4 +1,4 @@
-Welcome to the source behind deshawngoodwyn.com — a personal website built to showcase my work, ideas, and growth as a developer.
+Welcome to the source code behind deshawngoodwyn.com — a personal website built to showcase my work, ideas, and growth as a developer.
 
 This website serves as a central hub for:
 
