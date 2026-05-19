@@ -72,8 +72,6 @@ export async function POST(request: NextRequest) {
         within_50_miles: within50Miles || null,
         song_requests: songRequests || null,
       })
-      .select()
-      .single()
 
     if (error) {
       console.error("Error saving submission:", error)
