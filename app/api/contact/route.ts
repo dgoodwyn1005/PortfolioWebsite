@@ -2,6 +2,21 @@ import { createAdminClient } from "@/lib/supabase/server"
 import { type NextRequest, NextResponse } from "next/server"
 
 export async function POST(request: NextRequest) {
+// TEMPORARY DEBUG - remove after fixing
+  console.log("=== CONTACT API DEBUG ===")
+  console.log("SUPABASE_URL:", process.env.NEXT_PUBLIC_SUPABASE_URL ?? "MISSING")
+  console.log("SERVICE_KEY exists:", !!process.env.SUPABASE_SERVICE_ROLE_KEY)
+  console.log("SERVICE_KEY prefix:", process.env.SUPABASE_SERVICE_ROLE_KEY?.slice(0, 25) ?? "MISSING")
+  console.log("SERVICE_KEY length:", process.env.SUPABASE_SERVICE_ROLE_KEY?.length ?? 0)
+  
+  // Check if it looks like a service role key (should start with "eyJ" and be long)
+  const key = process.env.SUPABASE_SERVICE_ROLE_KEY ?? ""
+  console.log("Looks like service key (long + eyJ):", key.startsWith("eyJ") && key.length > 200)
+  
+  // Check if it accidentally has the anon key instead
+  console.log("ANON_KEY prefix:", process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY?.slice(0, 25) ?? "MISSING")
+  console.log("Keys are different:", process.env.SUPABASE_SERVICE_ROLE_KEY !== process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY)
+  
   try {
     const body = await request.json()
     const { 
