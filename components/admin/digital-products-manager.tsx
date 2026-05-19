@@ -124,18 +124,36 @@ export function DigitalProductsManager({ companyId }: { companyId: string }) {
     const features = featuresText.split("\n").filter((f) => f.trim())
 
     const productData = {
-      ...formData,
+      title: formData.title,
+      description: formData.description,
+      price: formData.price,
+      product_type: formData.product_type,
+      is_available: formData.is_available,
+      is_coming_soon: formData.is_coming_soon,
+      waitlist_enabled: formData.waitlist_enabled,
       company_id: companyId,
       image_url: formData.image_url || null,
       gumroad_url: formData.gumroad_url || null,
-      features: features.length > 0 ? features : null,
+      features: features.length > 0 ? JSON.stringify(features) : null,
     }
 
+    console.log("[v0] Saving product data:", productData)
+
     if (editingProduct) {
-      await supabase.from("digital_products").update(productData).eq("id", editingProduct.id)
+      const { error } = await supabase.from("digital_products").update(productData).eq("id", editingProduct.id)
+      if (error) {
+        console.error("[v0] Update error:", error)
+        alert(`Failed to update product: ${error.message}`)
+        return
+      }
     } else {
       const maxOrder = Math.max(...products.map((p) => p.display_order), 0)
-      await supabase.from("digital_products").insert({ ...productData, display_order: maxOrder + 1 })
+      const { error } = await supabase.from("digital_products").insert({ ...productData, display_order: maxOrder + 1 })
+      if (error) {
+        console.error("[v0] Insert error:", error)
+        alert(`Failed to create product: ${error.message}`)
+        return
+      }
     }
 
     setIsDialogOpen(false)
