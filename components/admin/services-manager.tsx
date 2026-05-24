@@ -52,6 +52,17 @@ export function ServicesManager({ initialServices, companies }: { initialService
   const router = useRouter()
   const supabase = createClient()
 
+  // Fix sevice safely
+  const fetchService = async (id: string) => {
+    const { data, error } = await supabase
+      .from("company_services")
+      .select("*")
+      .eq("id", id)
+      .maybeSingle()
+    if (error) console.error("Fetch service error:", error)
+      return data
+  }
+  
   // Real-time subscription for service updates
   useEffect(() => {
     const channel = supabase
