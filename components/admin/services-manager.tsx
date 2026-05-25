@@ -81,7 +81,7 @@ export function ServicesManager({ initialServices, companies }: { initialService
               .from('company_services')
               .select('*, companies(name, slug)')
               .eq('id', payload.new.id)
-              .single()
+              .maybeSingle()
             if (data) {
               setServices((prev) => [...prev, data])
             }
@@ -90,7 +90,7 @@ export function ServicesManager({ initialServices, companies }: { initialService
               .from('company_services')
               .select('*, companies(name, slug)')
               .eq('id', payload.new.id)
-              .single()
+              .maybeSingle()
             if (data) {
               setServices((prev) => prev.map((s) => (s.id === payload.new.id ? data : s)))
             }
@@ -122,7 +122,7 @@ export function ServicesManager({ initialServices, companies }: { initialService
           .update(updateData)
           .eq("id", editingService.id)
           .select("*, companies(name, slug)")
-          .single()
+          .maybeSingle()
 
         if (error) {
           console.error("Update error:", error)
@@ -137,7 +137,7 @@ export function ServicesManager({ initialServices, companies }: { initialService
           .from("company_services")
           .insert(updateData)
           .select("*, companies(name, slug)")
-          .single()
+          .maybeSingle()
 
         if (error) {
           console.error("Insert error:", error)
