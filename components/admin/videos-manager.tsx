@@ -153,6 +153,7 @@ export function VideosManager({ initialVideos }: { initialVideos: VideoItem[] })
       if (data) setVideos(data)
     } catch (err) {
       console.error(err)
+      alert("Failed to save video: " + (err?.message || "Unknown error"))
     } finally {
       setIsLoading(false)
     }
