@@ -113,8 +113,16 @@ export function TestimonialsManager({
           .from("company_testimonials")
           .insert(testimonial)
           .select("*, companies(name)")
-          .single()
+          .maybeSingle()
 
+        if (error) {
+          console.error("INSERT failed", {
+            message: error.message,
+            details: (error as any).details,
+            hint: (error as any).hint,
+            status: (error as any).status
+        })
+        
         if (!error && data) {
           setTestimonials([...testimonials, data])
         }
