@@ -1,30 +1,31 @@
-import { createAdminClient } from "@/lib/supabase/server"
+import { createClient } from "@/lib/supabase/server"
 import { type NextRequest, NextResponse } from "next/server"
 
+// TODO: Add rate limiting (e.g. @upstash/ratelimit) to prevent spam
+// TODO: Replace console.log email stub with real provider (Resend, SendGrid, etc.)
+
+// Safe boolean coercion — prevents `false || null` evaluating to null
+function toBoolOrNull(value: unknown): boolean | null {
+  if (value === true || value === "true") return true
+  if (value === false || value === "false") return false
+  return null
+}
+
+// Safe string coercion — returns null for empty/nullish values
+function toStrOrNull(value: unknown): string | null {
+  if (typeof value === "string" && value.trim() !== "") return value.trim()
+  return null
+}
+
 export async function POST(request: NextRequest) {
-// TEMPORARY DEBUG - remove after fixing
-  console.log("=== CONTACT API DEBUG ===")
-  console.log("SUPABASE_URL:", process.env.NEXT_PUBLIC_SUPABASE_URL ?? "MISSING")
-  console.log("SERVICE_KEY exists:", !!process.env.SUPABASE_SERVICE_ROLE_KEY)
-  console.log("SERVICE_KEY prefix:", process.env.SUPABASE_SERVICE_ROLE_KEY?.slice(0, 25) ?? "MISSING")
-  console.log("SERVICE_KEY length:", process.env.SUPABASE_SERVICE_ROLE_KEY?.length ?? 0)
-  
-  // Check if it looks like a service role key (should start with "eyJ" and be long)
-  const key = process.env.SUPABASE_SERVICE_ROLE_KEY ?? ""
-  console.log("Looks like service key (long + eyJ):", key.startsWith("eyJ") && key.length > 200)
-  
-  // Check if it accidentally has the anon key instead
-  console.log("ANON_KEY prefix:", process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY?.slice(0, 25) ?? "MISSING")
-  console.log("Keys are different:", process.env.SUPABASE_SERVICE_ROLE_KEY !== process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY)
-  
   try {
     const body = await request.json()
-    const { 
-      name, 
-      email, 
-      subject, 
-      message, 
-      companySlug, 
+    const {
+      name,
+      email,
+      subject,
+      message,
+      companySlug,
       submissionType,
       // Wyntech fields
       projectType,
@@ -46,10 +47,13 @@ export async function POST(request: NextRequest) {
     } = body
 
     if (!name || !email || !message) {
-      return NextResponse.json({ error: "Name, email, and message are required" }, { status: 400 })
+      return NextResponse.json(
+        { error: "Name, email, and message are required" },
+        { status: 400 }
+      )
     }
 
-    const supabase = createAdminClient()
+    const supabase = await createClient()
 
     // Convert hasExistingWebsite string to boolean for database
     let hasExistingWebsiteBoolean: boolean | null = null
@@ -65,28 +69,31 @@ export async function POST(request: NextRequest) {
       .insert({
         name,
         email,
-        subject: subject || null,
+        subject: toStrOrNull(subject),
         message,
-        company_slug: companySlug || null,
-        submission_type: submissionType || "contact",
+        company_slug: toStrOrNull(companySlug),
+        submission_type: toStrOrNull(submissionType) ?? "contact",
         status: "new",
-        project_type: projectType || null,
+        // Wyntech fields
+        project_type: toStrOrNull(projectType),
         has_existing_website: hasExistingWebsiteBoolean,
-        budget_range: budgetRange || null,
-        timeline: timeline || null,
-        referral_source: referralSource || null,
+        budget_range: toStrOrNull(budgetRange),
+        timeline: toStrOrNull(timeline),
+        referral_source: toStrOrNull(referralSource),
         // Wynora fields
-        event_type: eventType || null,
-        event_date: eventDate && eventDate.trim() !== "" ? eventDate : null,
-        event_location: eventLocation || null,
-        event_start_time: eventStartTime || null,
-        event_end_time: eventEndTime || null,
-        service_interest: serviceInterest || null,
-        duration_needed: durationNeeded || null,
-        piano_available: pianoAvailable || null,
-        within_50_miles: within50Miles || null,
-        song_requests: songRequests || null,
+        event_type: toStrOrNull(eventType),
+        event_date: toStrOrNull(eventDate),
+        event_location: toStrOrNull(eventLocation),
+        event_start_time: toStrOrNull(eventStartTime),
+        event_end_time: toStrOrNull(eventEndTime),
+        service_interest: toStrOrNull(serviceInterest),
+        duration_needed: toStrOrNull(durationNeeded),
+        piano_available: toBoolOrNull(pianoAvailable),   // fixed: false no longer becomes null
+        within_50_miles: toBoolOrNull(within50Miles),    // fixed: false no longer becomes null
+        song_requests: toStrOrNull(songRequests),
       })
+      .select()
+      .single()
 
     if (error) {
       console.error("Error saving submission:", error)
@@ -103,8 +110,14 @@ export async function POST(request: NextRequest) {
 
     if (adminEmail) {
       try {
-        // Use a simple email service or log for now
-        // In production, integrate with SendGrid, Resend, or similar
+        // TODO: Replace with real email provider
+        // Example with Resend:
+        //   await resend.emails.send({
+        //     from: "noreply@yourdomain.com",
+        //     to: adminEmail,
+        //     subject: `New contact form submission from ${name}`,
+        //     html: `...`,
+        //   })
         console.log(`[Contact Form] New submission from ${name} <${email}>`)
         console.log(`Subject: ${subject || "No subject"}`)
         console.log(`Message: ${message}`)
@@ -112,8 +125,8 @@ export async function POST(request: NextRequest) {
         console.log(`Type: ${submissionType}`)
         console.log(`Admin email would be sent to: ${adminEmail}`)
       } catch (emailError) {
+        // Email failure is non-fatal — submission is already saved
         console.error("Failed to send email notification:", emailError)
-        // Don't fail the request if email fails
       }
     }
 
