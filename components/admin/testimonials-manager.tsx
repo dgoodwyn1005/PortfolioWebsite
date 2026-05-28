@@ -131,6 +131,8 @@ export function TestimonialsManager({
             details: (error as any).details,
             hint: (error as any).hint,
             status: (error as any).status,
+            payloadKeys: Object.keys(testimonial ?? {}),
+            payload: testimonial,
           })
         } else if (data) {
           // FIX: was unreachable (nested inside if(error)); now correctly in else branch
