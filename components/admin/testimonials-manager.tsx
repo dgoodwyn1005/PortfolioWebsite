@@ -121,8 +121,8 @@ export function TestimonialsManager({
         const { data, error } = await supabase
           .from("company_testimonials")
           .insert(testimonial)
-          .select("*, companies(name)")
-          .maybeSingle()
+          .select("*")
+          .single()
 
         if (error) {
           // FIX: if(error) block is now properly closed before checking for data
