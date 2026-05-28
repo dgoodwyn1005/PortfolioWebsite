@@ -41,14 +41,17 @@ interface Testimonial {
   image_url: string
   is_visible: boolean
   display_order: number
-  status: 'pending' | 'approved' | 'rejected'
+  status: "pending" | "approved" | "rejected"
   companies?: { name: string }
 }
 
 export function TestimonialsManager({
   initialTestimonials,
   companies,
-}: { initialTestimonials: Testimonial[]; companies: Company[] }) {
+}: {
+  initialTestimonials: Testimonial[]
+  companies: Company[]
+}) {
   const [testimonials, setTestimonials] = useState(initialTestimonials)
   const [editingTestimonial, setEditingTestimonial] = useState<Testimonial | null>(null)
   const [isDialogOpen, setIsDialogOpen] = useState(false)
@@ -64,18 +67,20 @@ export function TestimonialsManager({
     return companyMatch && statusMatch
   })
 
-  const pendingCount = testimonials.filter((t) => t.status === 'pending').length
+  const pendingCount = testimonials.filter((t) => t.status === "pending").length
 
   const handleApprove = async (id: string) => {
     const { error } = await supabase
       .from("company_testimonials")
-      .update({ status: 'approved', is_visible: true })
+      .update({ status: "approved", is_visible: true })
       .eq("id", id)
 
     if (!error) {
-      setTestimonials(testimonials.map((t) => 
-        t.id === id ? { ...t, status: 'approved' as const, is_visible: true } : t
-      ))
+      setTestimonials(
+        testimonials.map((t) =>
+          t.id === id ? { ...t, status: "approved" as const, is_visible: true } : t
+        )
+      )
       router.refresh()
     }
   }
@@ -83,13 +88,15 @@ export function TestimonialsManager({
   const handleReject = async (id: string) => {
     const { error } = await supabase
       .from("company_testimonials")
-      .update({ status: 'rejected', is_visible: false })
+      .update({ status: "rejected", is_visible: false })
       .eq("id", id)
 
     if (!error) {
-      setTestimonials(testimonials.map((t) => 
-        t.id === id ? { ...t, status: 'rejected' as const, is_visible: false } : t
-      ))
+      setTestimonials(
+        testimonials.map((t) =>
+          t.id === id ? { ...t, status: "rejected" as const, is_visible: false } : t
+        )
+      )
       router.refresh()
     }
   }
@@ -105,7 +112,9 @@ export function TestimonialsManager({
 
         if (!error) {
           setTestimonials(
-            testimonials.map((t) => (t.id === editingTestimonial.id ? ({ ...t, ...testimonial } as Testimonial) : t)),
+            testimonials.map((t) =>
+              t.id === editingTestimonial.id ? ({ ...t, ...testimonial } as Testimonial) : t
+            )
           )
         }
       } else {
@@ -116,17 +125,19 @@ export function TestimonialsManager({
           .maybeSingle()
 
         if (error) {
+          // FIX: if(error) block is now properly closed before checking for data
           console.error("INSERT failed", {
             message: error.message,
             details: (error as any).details,
             hint: (error as any).hint,
-            status: (error as any).status
-        })
-        
-        if (!error && data) {
+            status: (error as any).status,
+          })
+        } else if (data) {
+          // FIX: was unreachable (nested inside if(error)); now correctly in else branch
           setTestimonials([...testimonials, data])
         }
       }
+
       setIsDialogOpen(false)
       setEditingTestimonial(null)
       router.refresh()
@@ -212,22 +223,28 @@ export function TestimonialsManager({
 
       <div className="grid md:grid-cols-2 gap-4">
         {filteredTestimonials.map((testimonial) => (
-          <Card key={testimonial.id} className={testimonial.status === 'pending' ? 'border-amber-500/50 bg-amber-500/5' : ''}>
+          <Card
+            key={testimonial.id}
+            className={testimonial.status === "pending" ? "border-amber-500/50 bg-amber-500/5" : ""}
+          >
             <CardHeader className="pb-2">
               <div className="flex items-start justify-between">
                 <div>
                   <div className="flex items-center gap-2">
                     <CardTitle className="text-base">{testimonial.client_name}</CardTitle>
-                    <Badge 
+                    <Badge
                       variant={
-                        testimonial.status === 'approved' ? 'default' : 
-                        testimonial.status === 'pending' ? 'secondary' : 'destructive'
+                        testimonial.status === "approved"
+                          ? "default"
+                          : testimonial.status === "pending"
+                          ? "secondary"
+                          : "destructive"
                       }
                       className="text-xs"
                     >
-                      {testimonial.status === 'approved' && <Check className="h-3 w-3 mr-1" />}
-                      {testimonial.status === 'pending' && <Clock className="h-3 w-3 mr-1" />}
-                      {testimonial.status === 'rejected' && <X className="h-3 w-3 mr-1" />}
+                      {testimonial.status === "approved" && <Check className="h-3 w-3 mr-1" />}
+                      {testimonial.status === "pending" && <Clock className="h-3 w-3 mr-1" />}
+                      {testimonial.status === "rejected" && <X className="h-3 w-3 mr-1" />}
                       {testimonial.status}
                     </Badge>
                   </div>
@@ -265,10 +282,14 @@ export function TestimonialsManager({
               <div className="flex items-center justify-between">
                 <div className="flex gap-1">
                   {Array.from({ length: 5 }).map((_, i) => (
-                    <Star key={i} className="h-4 w-4" fill={i < testimonial.rating ? "currentColor" : "transparent"} />
+                    <Star
+                      key={i}
+                      className="h-4 w-4"
+                      fill={i < testimonial.rating ? "currentColor" : "transparent"}
+                    />
                   ))}
                 </div>
-                {testimonial.status === 'pending' && (
+                {testimonial.status === "pending" && (
                   <div className="flex gap-2">
                     <Button
                       size="sm"
@@ -321,8 +342,8 @@ function TestimonialForm({
       image_url: "",
       is_visible: true,
       display_order: 0,
-      status: 'approved',
-    },
+      status: "approved",
+    }
   )
 
   useEffect(() => {
@@ -339,7 +360,7 @@ function TestimonialForm({
         image_url: "",
         is_visible: true,
         display_order: 0,
-        status: 'approved',
+        status: "approved",
       })
     }
   }, [testimonial, companies])
@@ -353,7 +374,10 @@ function TestimonialForm({
     <form onSubmit={handleSubmit} className="space-y-4">
       <div className="space-y-2">
         <Label>Company</Label>
-        <Select value={formData.company_id} onValueChange={(value) => setFormData({ ...formData, company_id: value })}>
+        <Select
+          value={formData.company_id}
+          onValueChange={(value) => setFormData({ ...formData, company_id: value })}
+        >
           <SelectTrigger>
             <SelectValue placeholder="Select company" />
           </SelectTrigger>
