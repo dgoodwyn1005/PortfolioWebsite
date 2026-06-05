@@ -31,7 +31,7 @@ export const metadata: Metadata = {
     "Music Production",
 		"Live Performance",
 		"Entrepreneur",
-		"Richmond, VA"
+		"Richmond, VA",
 		"East Coast",
   ],
   authors: [{ name: "Deshawn Goodwyn", url: siteUrl }],
