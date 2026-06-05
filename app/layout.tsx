@@ -29,6 +29,10 @@ export const metadata: Metadata = {
     "Student Athlete",
     "Web Development",
     "Music Production",
+		"Live Performance",
+		"Entrepreneur",
+		"Richmond, VA"
+		"East Coast",
   ],
   authors: [{ name: "Deshawn Goodwyn", url: siteUrl }],
   creator: "Deshawn Goodwyn",
