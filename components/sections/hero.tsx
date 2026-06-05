@@ -7,7 +7,7 @@ import { createClient } from "@/lib/supabase/client"
 
 export function HeroSection() {
   const [heroData, setHeroData] = useState({
-    backgroundImage: "/basketball-player-silhouette-dramatic-lighting-dar.jpg",
+    backgroundImage: "",
     title: "Deshawn Goodwyn",
     subtitle: "D2 Basketball Starter · Wyntech Founder · Gospel Pianist · Full-Stack Developer",
     description:
