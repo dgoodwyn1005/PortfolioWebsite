@@ -136,7 +136,14 @@ export function SettingsForm({ settings }: SettingsFormProps) {
       setMessage({ type: "success", text: "Settings saved successfully! Changes will appear on refresh." })
       router.refresh()
     } catch (err) {
-      setMessage({ type: "error", text: err instanceof Error ? err.message : "Failed to save settings" })
+      // Extract the real Supabase error message
+      const actualError = err?.message || err?.error_description || JSON.stringify(err);
+      
+      // Force an iPad pop-up so you can't miss it
+      alert(`SUPABASE ERROR: ${actualError}`);
+      
+      // Update the red text with the real error too
+      setMessage({ type: "error", text: `Database rejected save: ${actualError}` })
     } finally {
       setIsLoading(false)
     }
