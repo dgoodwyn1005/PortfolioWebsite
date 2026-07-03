@@ -108,8 +108,18 @@ export default async function WynoraPage() {
 
   return (
     <main className="min-h-screen">
-      <CompanyNavbar company={company} />
-      <CompanyHero company={company} />
+      {/* Top Segment Wrapper */}
+      <div className="relative bg-[url('/wynora-hero-background.jpg')] bg-cover bg-center bg-no-repeat">
+        {/* Optional dark overlay to make your Navbar/Hero text easier to read */}
+        <div className="absolute inset-0 bg-black/60 z-0"></div>
+        
+        {/* Wrap the components in a relative container so they sit above the overlay */}
+        <div className="relative z-10">
+          <CompanyNavbar company={company} />
+          <CompanyHero company={company} />
+        </div>
+      </div>
+      
       <CompanyAbout company={company} />
       {audioSamples && audioSamples.length > 0 && (
         <AudioSamples samples={audioSamples} />
