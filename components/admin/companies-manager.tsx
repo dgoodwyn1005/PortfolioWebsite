@@ -51,6 +51,13 @@ export function CompaniesManager({ initialCompanies }: { initialCompanies: Compa
   const handleSave = async (company: Partial<Company>) => {
     setLoading(true)
     try {
+      const sanitizedCompany = {
+        ...company,
+        hero_background_image: company.hero_background_image && company.hero_background_image.startsWith('http') 
+          ? company.hero_background_image 
+          : null
+      };
+      
       if (editingCompany?.id) {
         const { error } = await supabase.from("companies").update(company).eq("id", editingCompany.id)
 
