@@ -51,29 +51,27 @@ export function CompaniesManager({ initialCompanies }: { initialCompanies: Compa
   const handleSave = async (company: Partial<Company>) => {
     setLoading(true)
     try {
-      const sanitizedCompany = {
-        ...company,
-        hero_background_image: company.hero_background_image && company.hero_background_image.startsWith('http') 
-          ? company.hero_background_image 
-          : null
-      };
-      
       if (editingCompany?.id) {
         const { error } = await supabase.from("companies").update(company).eq("id", editingCompany.id)
-
-        if (!error) {
-          setCompanies(companies.map((c) => (c.id === editingCompany.id ? ({ ...c, ...company } as Company) : c)))
-        }
+        if (error) throw error // Force it into the catch block if Supabase complains
+        
+        setCompanies(companies.map((c) => (c.id === editingCompany.id ? ({ ...c, ...company } as Company) : c)))
       } else {
         const { data, error } = await supabase.from("companies").insert(company).select().single()
-
-        if (!error && data) {
-          setCompanies([...companies, data])
-        }
+        if (error) throw error // Force it into the catch block if Supabase complains
+        
+        if (data) setCompanies([...companies, data])
       }
       setIsDialogOpen(false)
       setEditingCompany(null)
       router.refresh()
+    } catch (err: any) {
+      // The iPad Debugger Magic
+      const actualError = err?.message || err?.error_description || JSON.stringify(err);
+      
+      // Pop up the exact database complaint!
+      alert(`COMPANY SAVE ERROR:\n\n${actualError}`);
+      
     } finally {
       setLoading(false)
     }
