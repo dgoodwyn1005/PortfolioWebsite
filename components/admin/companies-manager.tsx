@@ -7,6 +7,7 @@ import { createClient } from "@/lib/supabase/client"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
+import { ImagePicker } from "@/components/admin/image-picker"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import {
   Dialog,
@@ -204,7 +205,7 @@ function CompanyForm({
           <Input
             value={formData.name || ""}
             onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-            placeholder="WynTech Solutions"
+            placeholder="Wyntech"
             required
           />
         </div>
@@ -266,19 +267,15 @@ function CompanyForm({
       </div>
 
       <div className="space-y-2">
-        <Label>Hero Background Image URL</Label>
-        <Input
-          value={formData.hero_background_image || ""}
-          onChange={(e) => setFormData({ ...formData, hero_background_image: e.target.value })}
-          placeholder="https://..."
+        <Label>Hero Background Image</Label>
+        <ImagePicker 
+          value={formData.hero_background_image || ""} 
+          onChange={(url) => setFormData({ ...formData, hero_background_image: url })} 
+          label="Choose Background Image"
         />
         {formData.hero_background_image && (
-          <div className="mt-2 p-2 border rounded-md">
-            <img
-              src={formData.hero_background_image}
-              alt="Preview"
-              className="w-full h-20 object-cover rounded"
-            />
+          <div className="mt-2">
+            <img src={formData.hero_background_image} className="h-20 w-full object-cover rounded" />
           </div>
         )}
       </div>
