@@ -29,6 +29,7 @@ interface Company {
   tagline: string
   hero_title: string
   hero_subtitle: string
+  hero_background_image: string | null
   about_text: string
   mission_text: string
   contact_email: string
@@ -262,6 +263,24 @@ function CompanyForm({
           placeholder="We transform ideas into powerful applications..."
           rows={2}
         />
+      </div>
+
+      <div className="space-y-2">
+        <Label>Hero Background Image URL</Label>
+        <Input
+          value={formData.hero_background_image || ""}
+          onChange={(e) => setFormData({ ...formData, hero_background_image: e.target.value })}
+          placeholder="https://..."
+        />
+        {formData.hero_background_image && (
+          <div className="mt-2 p-2 border rounded-md">
+            <img
+              src={formData.hero_background_image}
+              alt="Preview"
+              className="w-full h-20 object-cover rounded"
+            />
+          </div>
+        )}
       </div>
 
       <div className="space-y-2">
