@@ -11,12 +11,26 @@ interface Company {
   hero_subtitle: string
   primary_color: string
   logo_url?: string
+  hero_background_image?: string | null
 }
 
 export function CompanyHero({ company }: { company: Company }) {
   return (
-    <section className="min-h-screen flex items-center justify-center relative overflow-hidden">
-      {/* Background gradient */}
+    <section 
+      className="min-h-screen flex items-center justify-center relative overflow-hidden bg-cover bg-center"
+      style={{
+        backgroundImage: company.hero_background_image 
+          ? `url('${company.hero_background_image}')` 
+          : 'none',
+        backgroundColor: !company.hero_background_image ? 'var(--background)' : 'transparent'
+      }}
+    >
+      {/* Dark Overlay (only visible if an image exists) */}
+      {company.hero_background_image && (
+        <div className="absolute inset-0 bg-black/60 z-0" />
+      )}
+
+      {/* Background gradient (Keep this for extra branding) */}
       <div
         className="absolute inset-0 opacity-10"
         style={{
