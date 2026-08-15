@@ -1,9 +1,11 @@
-import { MetadataRoute } from "next"
+import type { MetadataRoute } from "next"
 
-const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://deshawngoodwyn.com"
+const siteUrl = (
+  process.env.NEXT_PUBLIC_SITE_URL || "https://deshawngoodwyn.com"
+).replace(/\/$/, "")
 
 export default function sitemap(): MetadataRoute.Sitemap {
-  const currentDate = new Date().toISOString()
+  const currentDate = new Date()
 
   return [
     {
