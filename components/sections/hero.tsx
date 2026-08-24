@@ -35,7 +35,7 @@ export function HeroSection() {
   }, [])
 
   return (
-    <section className="relative min-h-screen flex items-center justify-center overflow-hidden">
+    <section className="relative min-h-[100svh] flex items-center justify-center overflow-hidden">
       {/* Background Image */}
       <div className="absolute inset-0 z-0">
         {heroData.backgroundImage && (
@@ -61,7 +61,7 @@ export function HeroSection() {
           <h1 className="text-5xl sm:text-6xl lg:text-7xl font-bold tracking-tight text-foreground mb-6">
             {heroData.title}
           </h1>
-          <p className="text-primary text-sm sm:text-base font-medium tracking-widest uppercase mb-6">
+          <p className="text-primary text-xs sm:text-base font-medium tracking-wide sm:tracking-widest uppercase mb-6 px-2">
             {heroData.subtitle}
           </p>
           <p className="text-lg sm:text-xl text-muted-foreground max-w-2xl mx-auto leading-relaxed text-balance">
