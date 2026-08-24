@@ -74,7 +74,7 @@ function TikTokCard({ video }: { video: Video }) {
       className="relative aspect-[9/16] max-h-[400px] rounded-lg overflow-hidden bg-muted border flex flex-col items-center justify-center group-hover:scale-[1.02] transition-transform block"
     >
       {thumbnail ? (
-        <img src={thumbnail} alt={video.title} className="absolute inset-0 w-full h-full object-cover" />
+        <img src={thumbnail} alt={video.title} loading="lazy" className="absolute inset-0 w-full h-full object-cover" />
       ) : (
         <div className="absolute inset-0 bg-gradient-to-br from-pink-500 via-red-500 to-yellow-500" />
       )}
@@ -114,7 +114,7 @@ export function VideoShowcase({ videos }: { videos: Video[] }) {
   const allTabs = ["all", ...sections] as string[]
 
   return (
-    <section id="videos" className="py-20 px-4 bg-muted/30">
+    <section id="videos" className="py-12 md:py-20 px-4 bg-muted/30">
       <div className="max-w-6xl mx-auto">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -129,8 +129,8 @@ export function VideoShowcase({ videos }: { videos: Video[] }) {
 
         {/* Sleek underline indicator filter tabs */}
         {sections.length > 1 && (
-          <div className="flex justify-center mb-10">
-            <div className="relative flex items-center gap-0 border-b border-border">
+          <div className="flex justify-start md:justify-center mb-10 overflow-x-auto no-scrollbar -mx-4 px-4">
+            <div className="relative flex items-center gap-0 border-b border-border flex-nowrap">
               {allTabs.map((tab) => (
                 <button
                   key={tab}
@@ -192,7 +192,7 @@ export function VideoShowcase({ videos }: { videos: Video[] }) {
                       className="relative aspect-video rounded-lg overflow-hidden bg-muted border flex flex-col items-center justify-center group-hover:scale-[1.02] transition-transform block"
                     >
                       {video.thumbnail_url ? (
-                        <img src={video.thumbnail_url} alt={video.title} className="absolute inset-0 w-full h-full object-cover" />
+                        <img src={video.thumbnail_url} alt={video.title} loading="lazy" className="absolute inset-0 w-full h-full object-cover" />
                       ) : (
                         <div className="absolute inset-0 bg-black" />
                       )}
@@ -223,14 +223,15 @@ export function VideoShowcase({ videos }: { videos: Video[] }) {
                           <img
                             src={video.thumbnail_url || `https://img.youtube.com/vi/${videoId}/maxresdefault.jpg`}
                             alt={video.title}
+                            loading="lazy"
                             className="w-full h-full object-cover"
                             onError={(e) => {
                               const target = e.target as HTMLImageElement
                               if (!video.thumbnail_url) target.src = `https://img.youtube.com/vi/${videoId}/hqdefault.jpg`
                             }}
                           />
-                          <div className="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
-                            <div className="w-16 h-16 rounded-full bg-primary flex items-center justify-center">
+                          <div className="absolute inset-0 bg-black/20 md:bg-black/0 flex items-center justify-center opacity-100 md:opacity-0 md:group-hover:opacity-100 group-active:opacity-100 transition-opacity">
+                            <div className="w-16 h-16 rounded-full bg-primary/90 flex items-center justify-center">
                               <Play className="h-8 w-8 text-primary-foreground ml-1" />
                             </div>
                           </div>
