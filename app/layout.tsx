@@ -1,12 +1,22 @@
 import type React from "react"
 import type { Metadata, Viewport } from "next"
-import { Inter, Geist_Mono } from "next/font/google"
+import { GeistSans } from "geist/font/sans"
+import { GeistMono } from "geist/font/mono"
 import { Analytics } from "@vercel/analytics/next"
 import { ThemeProvider } from "@/components/theme-provider"
 import "./globals.css"
 
-const inter = Inter({ subsets: ["latin"] })
-const _geistMono = Geist_Mono({ subsets: ["latin"] })
+const inter = Inter({
+  subsets: ["latin"],
+  variable: "--font-inter",
+  display: "swap",
+})
+
+const geistMono = Geist_Mono({
+  subsets: ["latin"],
+  variable: "--font-geist-mono",
+  display: "swap",
+})
 
 const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://deshawngoodwyn.com"
 
@@ -29,10 +39,10 @@ export const metadata: Metadata = {
     "Student Athlete",
     "Web Development",
     "Music Production",
-		"Live Performance",
-		"Entrepreneur",
-		"Richmond, VA",
-		"East Coast",
+    "Live Performance",
+    "Entrepreneur",
+    "Richmond, VA",
+    "East Coast",
   ],
   authors: [{ name: "Deshawn Goodwyn", url: siteUrl }],
   creator: "Deshawn Goodwyn",
@@ -57,14 +67,14 @@ export const metadata: Metadata = {
     title: "Deshawn Goodwyn | NCAA Athlete · Wyntech & Wynora · Pianist · Comp Sci",
     description:
       "Virginia HS 3-point record holder, 4.56 GPA student-athlete, full-stack developer, and pianist.",
-    images: ['https://www.deshawngoodwyn.com/og-image'],
+    images: ["https://www.deshawngoodwyn.com/og-image"],
   },
   twitter: {
     card: "summary_large_image",
     title: "Deshawn Goodwyn | NCAA Athlete · Wyntech & Wynora · Pianist · Comp Sci",
     description:
       "Virginia HS 3-point record holder, 4.56 GPA student-athlete, full-stack developer, and pianist.",
-    images: ['https://www.deshawngoodwyn.com/og-image'],
+    images: ["https://www.deshawngoodwyn.com/og-image"],
     creator: "@dgoodwyn",
   },
   alternates: {
@@ -81,6 +91,7 @@ export const viewport: Viewport = {
   width: "device-width",
   initialScale: 1,
   maximumScale: 5,
+  viewportFit: "cover",
 }
 
 export default function RootLayout({
@@ -120,14 +131,14 @@ export default function RootLayout({
   }
 
   return (
-    <html lang="en" suppressHydrationWarning>
+    <html lang="en" suppressHydrationWarning className={`${inter.variable} ${geistMono.variable}`}>
       <head>
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
         />
       </head>
-      <body className={`font-sans antialiased`}>
+      <body className={`${GeistSans.variable} ${GeistMono.variable} font-sans antialiased`}>
         <ThemeProvider attribute="class" defaultTheme="dark" enableSystem disableTransitionOnChange>
           {children}
         </ThemeProvider>
