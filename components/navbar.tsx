@@ -18,7 +18,7 @@ const navLinks = [
 ]
 
 const companyLinks = [
-  { name: "Wyntech", href: "/wyntech" }, // Changed WynTech to Wyntech (lowercase t)
+  { name: "Wyntech", href: "/wyntech" },
   { name: "Wynora", href: "/wynora" },
 ]
 
@@ -114,7 +114,7 @@ export function Navbar() {
                 href={linkedinUrl}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="text-muted-foreground hover:text-primary transition-colors"
+                className="p-2 -m-2 text-muted-foreground hover:text-primary transition-colors"
                 aria-label="LinkedIn"
               >
                 <Linkedin className="h-5 w-5" />
