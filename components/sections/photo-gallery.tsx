@@ -15,7 +15,7 @@ export async function PhotoGallerySection() {
   }
 
   return (
-    <section id="gallery" className="py-24 bg-background">
+    <section id="gallery" className="py-14 md:py-24 bg-background">
       <div className="container mx-auto px-4">
         <div className="text-center mb-16">
           <h2 className="text-4xl md:text-5xl font-bold mb-4">Gallery</h2>
