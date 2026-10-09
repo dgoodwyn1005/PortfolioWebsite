@@ -74,7 +74,7 @@ export function ServicesManager({ initialServices, companies }: { initialService
           schema: 'public',
           table: 'company_services',
         },
-        async (payload) => {
+        async (payload: any) => {
           if (payload.eventType === 'INSERT') {
             // Fetch the full service with company data
             const { data } = await supabase

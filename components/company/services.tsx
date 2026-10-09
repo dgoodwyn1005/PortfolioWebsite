@@ -73,7 +73,14 @@ export function CompanyServices({ company, services }: { company: Company; servi
                       className="w-12 h-12 rounded-xl flex items-center justify-center mb-4"
                       style={{ backgroundColor: `${company.primary_color}20` }}
                     >
-                      <Icon className="h-6 w-6" style={{ color: company.primary_color }} />
+                      <span
+                        style={{
+                          color:
+                            company.primary_color,
+                        }}
+                      >
+                        <Icon className="h-6 w-6" />
+                      </span>
                     </div>
                     <CardTitle>{service.title}</CardTitle>
                     <CardDescription>{service.description}</CardDescription>

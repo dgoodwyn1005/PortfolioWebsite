@@ -26,10 +26,14 @@ async function getStripeKey(): Promise<string> {
 // Create Stripe instance with custom or env key
 export async function getStripe(): Promise<Stripe> {
   const key = await getStripeKey()
-  return new Stripe(key, { apiVersion: "2024-12-18.acacia" })
+  return new Stripe(key)
 }
 
 // Legacy export for backwards compatibility (uses env var only)
-export const stripe = process.env.STRIPE_SECRET_KEY
-  ? new Stripe(process.env.STRIPE_SECRET_KEY, { apiVersion: "2024-12-18.acacia" })
-  : null
+export const stripe =
+  process.env.STRIPE_SECRET_KEY
+    ? new Stripe(
+        process.env
+          .STRIPE_SECRET_KEY,
+      )
+    : null

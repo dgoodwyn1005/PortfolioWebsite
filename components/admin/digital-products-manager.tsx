@@ -202,7 +202,7 @@ export function DigitalProductsManager({ companyId }: { companyId: string }) {
                 {product.image_url && (
                   <img
                     src={product.image_url}
-                    alt={product.name}
+                    alt={product.title}
                     className="w-16 h-16 object-cover rounded"
                   />
                 )}

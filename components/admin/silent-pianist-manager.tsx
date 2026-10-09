@@ -65,15 +65,30 @@ export function SilentPianistManager() {
   }, [selectedCompany])
 
   const fetchCompanies = async () => {
-    const { data } = await supabase.from("companies").select("id, name, slug").order("name")
-    if (data) {
-      setCompanies(data)
-      if (data.length > 0) {
-        const wynora = data.find(c => c.slug === "wynora")
-        setSelectedCompany(wynora?.id || data[0].id)
-      }
+    const { data, error } = await supabase
+      .from("companies")
+      .select("id, name, slug")
+      .order("name")
+
+    if (error) {
+      console.error("Failed to fetch companies:", error)
+      setIsLoading(false)
+      return
     }
-    setIsLoading(false)
+
+    const companyData = (data ?? []) as Company[]
+
+    setCompanies(companyData)
+
+    if (companyData.length > 0) {
+      const wynora = companyData.find(
+        (company) => company.slug === "wynora",
+      )
+
+      setSelectedCompany(
+        wynora?.id ?? companyData[0].id,
+      )
+    }
   }
 
   const fetchVideos = async () => {

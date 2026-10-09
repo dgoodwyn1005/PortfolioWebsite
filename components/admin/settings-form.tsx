@@ -137,7 +137,17 @@ export function SettingsForm({ settings }: SettingsFormProps) {
       router.refresh()
     } catch (err) {
       // Extract the real Supabase error message
-      const actualError = err?.message || err?.error_description || JSON.stringify(err);
+      const actualError =
+        err instanceof Error
+          ? err.message
+          : typeof err === "object" &&
+              err !== null &&
+              "error_description" in err
+            ? String(
+                (err as { error_description?: unknown })
+                  .error_description,
+              )
+            : JSON.stringify(err)
       
       // Force an iPad pop-up so you can't miss it
       alert(`SUPABASE ERROR: ${actualError}`);
