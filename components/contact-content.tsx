@@ -1,11 +1,36 @@
 "use client"
 
-import { motion } from "framer-motion"
-import { Github, Instagram, Linkedin, Mail, Twitter, Youtube } from "lucide-react"
+import Link from "next/link"
+
+import {
+  motion,
+  useReducedMotion,
+} from "framer-motion"
+
+import type { LucideIcon } from "lucide-react"
+
+import {
+  ArrowDown,
+  ArrowUpRight,
+  Github,
+  Instagram,
+  Linkedin,
+  Mail,
+  Twitter,
+  Youtube,
+} from "lucide-react"
+
 import { ContactForm } from "@/components/contact-form"
 import { SchedulingButton } from "@/components/scheduling-button"
 
-const iconMap: Record<string, any> = {
+import type {
+  SocialLink,
+} from "@/lib/content/site"
+
+const iconMap: Record<
+  string,
+  LucideIcon
+> = {
   Mail,
   Linkedin,
   Github,
@@ -14,69 +39,228 @@ const iconMap: Record<string, any> = {
   Youtube,
 }
 
-interface SocialLink {
-  id: string
-  platform: string
-  url: string
-  icon: string
-}
-
 interface ContactContentProps {
   settings: Record<string, string>
   socialLinks: SocialLink[]
 }
 
-export function ContactContent({ settings, socialLinks }: ContactContentProps) {
-  const schedulingUrl = settings.scheduling_url || settings.calendly_url
-  const schedulingButtonText = settings.scheduling_button_text || "Schedule a Call"
+const paths = [
+  {
+    number: "01",
+    title: "Build something",
+    description:
+      "Websites, products, software, and technology work.",
+    href: "/wyntech",
+  },
+  {
+    number: "02",
+    title: "Music & performance",
+    description:
+      "Piano, performance, arranging, and music opportunities.",
+    href: "/wynora",
+  },
+  {
+    number: "03",
+    title: "Hire or collaborate",
+    description:
+      "Recruiting, partnerships, creative work, speaking, or something else.",
+    href: "#contact-form",
+  },
+]
+
+export function ContactContent({
+  settings,
+  socialLinks,
+}: ContactContentProps) {
+  const shouldReduceMotion =
+    useReducedMotion()
+
+  const schedulingUrl =
+    settings.scheduling_url ||
+    settings.calendly_url
+
+  const schedulingButtonText =
+    settings.scheduling_button_text ||
+    "Schedule a Call"
+
+  const heading =
+    settings.contact_heading ||
+    "Start with why you're here."
+
+  const description =
+    settings.contact_description ||
+    "Different work calls for different conversations. Choose the direction that fits, or send me a message directly."
 
   return (
-    <section id="contact" className="py-24 sm:py-32">
-      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+    <section
+      id="contact"
+      aria-labelledby="contact-heading"
+      className="scroll-mt-20 border-t border-border/60 py-16 sm:py-24 lg:py-32"
+    >
+      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.6 }}
+          initial={
+            shouldReduceMotion
+              ? false
+              : {
+                  opacity: 0,
+                  y: 20,
+                }
+          }
+          whileInView={{
+            opacity: 1,
+            y: 0,
+          }}
+          viewport={{
+            once: true,
+            amount: 0.15,
+          }}
+          transition={{
+            duration:
+              shouldReduceMotion
+                ? 0
+                : 0.6,
+          }}
         >
-          <div className="flex items-center gap-4 mb-8">
-            <div className="h-px flex-1 bg-border" />
-            <h2 className="text-sm font-medium tracking-widest uppercase text-muted-foreground">Contact</h2>
-            <div className="h-px flex-1 bg-border" />
-          </div>
+          <div className="grid gap-8 lg:grid-cols-12">
+            <div className="lg:col-span-4">
+              <p className="text-xs font-medium uppercase tracking-[0.22em] text-muted-foreground">
+                05 / Work With Me
+              </p>
+            </div>
 
-          <div className="text-center mb-12">
-            <h3 className="text-2xl font-bold text-foreground mb-2">{settings.contact_heading || "Let's Connect"}</h3>
-            <p className="text-xl text-muted-foreground mb-6">
-              {settings.contact_description || "Let's connect and create something great together."}
-            </p>
+            <div className="lg:col-span-8">
+              <h2
+                id="contact-heading"
+                className="max-w-3xl text-4xl font-medium leading-[0.95] tracking-[-0.05em] text-foreground sm:text-5xl lg:text-6xl"
+              >
+                {heading}
+              </h2>
 
-            <div className="flex flex-wrap justify-center gap-4 items-center">
-              {schedulingUrl && <SchedulingButton url={schedulingUrl} buttonText={schedulingButtonText} />}
-              {socialLinks && socialLinks.length > 0 && (
-                <div className="flex gap-2">
-                  {socialLinks.map((link) => {
-                    const Icon = iconMap[link.icon] || Mail
-                    return (
-                      <a
-                        key={link.id}
-                        href={link.url}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="p-3 rounded-lg bg-card border border-border text-muted-foreground hover:text-primary hover:border-primary/50 transition-colors"
-                        aria-label={link.platform}
-                      >
-                        <Icon className="h-5 w-5" />
-                      </a>
-                    )
-                  })}
-                </div>
-              )}
+              <p className="mt-5 max-w-2xl text-base leading-relaxed text-muted-foreground sm:text-lg">
+                {description}
+              </p>
             </div>
           </div>
 
-          <div className="bg-card border border-border rounded-lg p-6 sm:p-8">
-            <ContactForm submissionType="contact" buttonText="Send Message" />
+          {/* Intent routing */}
+          <div className="mt-12 grid border-t border-border/70 sm:mt-16 lg:grid-cols-3">
+            {paths.map((path) => {
+              const content = (
+                <>
+                  <div className="flex items-start justify-between gap-4">
+                    <span className="font-mono text-xs text-muted-foreground">
+                      {path.number}
+                    </span>
+
+                    {path.href.startsWith(
+                      "#",
+                    ) ? (
+                      <ArrowDown className="size-4 text-muted-foreground transition-transform group-hover:translate-y-1" />
+                    ) : (
+                      <ArrowUpRight className="size-4 text-muted-foreground transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
+                    )}
+                  </div>
+
+                  <div className="mt-10">
+                    <h3 className="text-2xl font-medium tracking-tight text-foreground">
+                      {path.title}
+                    </h3>
+
+                    <p className="mt-2 max-w-sm text-sm leading-relaxed text-muted-foreground">
+                      {path.description}
+                    </p>
+                  </div>
+                </>
+              )
+
+              return path.href.startsWith(
+                "#",
+              ) ? (
+                <a
+                  key={path.number}
+                  href={path.href}
+                  className="group min-h-48 border-b border-border/70 py-6 lg:border-b-0 lg:border-l lg:px-6 lg:first:border-l-0 lg:first:pl-0"
+                >
+                  {content}
+                </a>
+              ) : (
+                <Link
+                  key={path.number}
+                  href={path.href}
+                  className="group min-h-48 border-b border-border/70 py-6 lg:border-b-0 lg:border-l lg:px-6 lg:first:border-l-0 lg:first:pl-0"
+                >
+                  {content}
+                </Link>
+              )
+            })}
+          </div>
+
+          {/* Direct contact */}
+          <div
+            id="contact-form"
+            className="scroll-mt-24 border-t border-border/70 pt-12 sm:pt-16 lg:pt-20"
+          >
+            <div className="grid gap-10 lg:grid-cols-12 lg:gap-12">
+              <div className="lg:col-span-4">
+                <h3 className="text-2xl font-medium tracking-tight text-foreground sm:text-3xl">
+                  Send a message.
+                </h3>
+
+                <p className="mt-3 max-w-sm text-sm leading-relaxed text-muted-foreground sm:text-base">
+                  For opportunities,
+                  questions, collaborations,
+                  or anything that doesn't
+                  fit neatly into a category.
+                </p>
+
+                {schedulingUrl && (
+                  <div className="mt-6">
+                    <SchedulingButton
+                      url={schedulingUrl}
+                      buttonText={
+                        schedulingButtonText
+                      }
+                    />
+                  </div>
+                )}
+
+                {socialLinks.length > 0 && (
+                  <div className="mt-8 flex flex-wrap gap-1">
+                    {socialLinks.map(
+                      (link) => {
+                        const Icon =
+                          iconMap[
+                            link.icon
+                          ] || Mail
+
+                        return (
+                          <a
+                            key={link.id}
+                            href={link.url}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            aria-label={
+                              link.name
+                            }
+                            className="flex size-11 items-center justify-center rounded-full text-muted-foreground transition-colors hover:bg-foreground/5 hover:text-foreground"
+                          >
+                            <Icon className="size-5" />
+                          </a>
+                        )
+                      },
+                    )}
+                  </div>
+                )}
+              </div>
+
+              <div className="lg:col-span-8">
+                <ContactForm
+                  submissionType="contact"
+                  buttonText="Send Message"
+                />
+              </div>
+            </div>
           </div>
         </motion.div>
       </div>

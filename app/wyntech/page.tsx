@@ -1,4 +1,6 @@
-import { createClient } from "@/lib/supabase/server"
+import type { Metadata } from "next"
+import { notFound } from "next/navigation"
+
 import { CompanyNavbar } from "@/components/company/navbar"
 import { CompanyHero } from "@/components/company/hero"
 import { CompanyAbout } from "@/components/company/about"
@@ -8,80 +10,138 @@ import { CompanyTestimonials } from "@/components/company/testimonials"
 import { CompanyContact } from "@/components/company/contact"
 import { CompanyFooter } from "@/components/company/footer"
 import { BookingSection } from "@/components/company/booking-section"
-import { notFound } from "next/navigation"
 
-import type { Metadata } from "next"
+import {
+  getCompanyPageData,
+} from "@/lib/content/companies"
+
+const description =
+  "Websites, software, automation, and digital products built through Wyntech by Deshawn Goodwyn."
 
 export const metadata: Metadata = {
-  title: "Wyntech | Making Ideas Reality",
-  description: "Custom website development, automation tools, and software solutions for students and small businesses. Starter websites, portfolio sites, e-commerce, and study automation tools.",
-  keywords: ["Web Development", "Website Design", "Custom Software", "Automation Tools", "Portfolio Website", "E-Commerce", "Wyntech"],
-  openGraph: {
-    title: "Wyntech | Making Ideas Reality",
-    description: "Custom website development, automation tools, and software solutions for students and small businesses.",
-    type: "website",
-    images: [{ url: "/og-wyntech.jpg", width: 1200, height: 630, alt: "Wyntech" }],
+  title: {
+    absolute:
+      "Wyntech | Websites, Software & Digital Products",
   },
+
+  description,
+
+  alternates: {
+    canonical: "/wyntech",
+  },
+
+  openGraph: {
+    title:
+      "Wyntech | Websites, Software & Digital Products",
+
+    description,
+
+    type: "website",
+
+    images: [
+      {
+        url: "/og-wyntech.jpg",
+        width: 1200,
+        height: 630,
+        alt: "Wyntech",
+      },
+    ],
+  },
+
   twitter: {
     card: "summary_large_image",
-    title: "Wyntech",
-    description: "Custom website development, automation tools, and software solutions.",
+
+    title:
+      "Wyntech | Websites, Software & Digital Products",
+
+    description,
   },
 }
 
 export default async function WynTechPage() {
-  const supabase = await createClient()
+  const data =
+    await getCompanyPageData(
+      "wyntech",
+    )
 
-  const { data: company } = await supabase.from("companies").select("*").eq("slug", "wyntech").single()
-
-  if (!company) {
+  if (!data) {
     notFound()
   }
 
-  const { data: services } = await supabase
-    .from("company_services")
-    .select("*")
-    .eq("company_id", company.id)
-    .eq("is_visible", true)
-    .order("display_order")
-
-  const { data: portfolio } = await supabase
-    .from("company_portfolio")
-    .select("*")
-    .eq("company_id", company.id)
-    .eq("is_visible", true)
-    .order("display_order")
-
-  const { data: testimonials } = await supabase
-    .from("company_testimonials")
-    .select("*")
-    .eq("company_id", company.id)
-    .eq("is_visible", true)
-    .eq("status", "approved")
-    .order("display_order")
-
-  const { data: faqs } = await supabase
-    .from("company_faqs")
-    .select("*")
-    .eq("company_id", company.id)
-    .eq("is_visible", true)
-    .order("display_order")
+  const {
+    company,
+    services,
+    portfolio,
+    testimonials,
+    faqs,
+  } = data
 
   return (
-    <main className="min-h-screen">
-      <CompanyNavbar company={company} />
-      <CompanyHero company={company} />
-      <CompanyAbout company={company} />
-      <CompanyServices company={company} services={services || []} />
-      <CompanyPortfolio company={company} portfolio={portfolio || []} />
-      <CompanyTestimonials company={company} testimonials={testimonials || []} />
-      <BookingSection 
-        companyName={company.name} 
-        primaryColor={company.primary_color} 
-        schedulingUrl={company.scheduling_url} 
+    <>
+      <CompanyNavbar
+        company={company}
       />
-      <CompanyContact company={company} faqs={faqs || []} />
-      <CompanyFooter company={company} />
-    </main>
+
+      <main
+        id="main-content"
+        className="min-h-screen"
+      >
+        {/* Promise */}
+        <CompanyHero
+          company={company}
+        />
+
+        {/* What can I hire you for? */}
+        <CompanyServices
+          company={company}
+          services={services}
+        />
+
+        {/* Show me that you can do it */}
+        <CompanyPortfolio
+          company={company}
+          portfolio={portfolio}
+        />
+
+        {/* What did other people think? */}
+        {testimonials.length >
+          0 && (
+          <CompanyTestimonials
+            company={company}
+            testimonials={
+              testimonials
+            }
+          />
+        )}
+
+        {/* Who am I actually hiring? */}
+        <CompanyAbout
+          company={company}
+        />
+
+        {/* Make the next action obvious */}
+        <BookingSection
+          companyName={
+            company.name
+          }
+          primaryColor={
+            company.primary_color
+          }
+          schedulingUrl={
+            company.scheduling_url
+          }
+        />
+
+        {/* Lower-intent questions + inquiry */}
+        <CompanyContact
+          company={company}
+          faqs={faqs}
+        />
+      </main>
+
+      <CompanyFooter
+        company={company}
+      />
+    </>
   )
 }

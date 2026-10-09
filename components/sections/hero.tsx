@@ -1,113 +1,198 @@
 "use client"
 
-import { motion } from "framer-motion"
-import { ArrowDown, ArrowRight } from "lucide-react"
-import { useEffect, useState } from "react"
-import { createClient } from "@/lib/supabase/client"
+import Link from "next/link"
+import {
+  ArrowDown,
+  ArrowUpRight,
+} from "lucide-react"
+import {
+  motion,
+  useReducedMotion,
+} from "framer-motion"
 
-export function HeroSection() {
-  const [heroData, setHeroData] = useState({
-    backgroundImage: "",
-    title: "Deshawn Goodwyn",
-    subtitle: "D2 Basketball Starter · Wyntech Founder · Gospel Pianist · Full-Stack Developer",
-    description:
-      "Former Virginia HS 3-point record holder (107 + 105 threes) → 4.56 GPA → Now building web apps and playing keys.",
-  })
+const worlds = [
+  {
+    number: "01",
+    name: "Build",
+    description: "Technology, products, ventures, and the ideas behind them.",
+    href: "/wyntech",
+  },
+  {
+    number: "02",
+    name: "Music",
+    description: "Piano, performance, arranging, and musical creation.",
+    href: "/wynora",
+  },
+  {
+    number: "03",
+    name: "Life",
+    description: "Athletics, education, experiences, and the story in between.",
+    href: "/#about",
+  },
+]
 
-  useEffect(() => {
-    const loadSettings = async () => {
-      const supabase = createClient()
-      const { data } = await supabase.from("site_settings").select("key, value")
-      const settings = data?.reduce(
-        (acc, { key, value }) => ({ ...acc, [key]: value }),
-        {} as Record<string, string>
-      )
-      if (settings) {
-        setHeroData({
-          backgroundImage: settings.hero_background_image || heroData.backgroundImage,
-          title: settings.hero_title || heroData.title,
-          subtitle: settings.hero_subtitle || heroData.subtitle,
-          description: settings.hero_description || heroData.description,
-        })
-      }
-    }
-    loadSettings()
-  }, [])
+interface HeroSectionProps {
+  backgroundImage?: string | null
+  description?: string | null
+}
+
+export function HeroSection({
+  backgroundImage = null,
+  description = "I build digital products, make music, compete, and document the work and life connecting it all.",
+}: HeroSectionProps) {
+  const shouldReduceMotion = useReducedMotion()
+
+  const transition = {
+    duration: shouldReduceMotion ? 0 : 0.8,
+    ease: [0.22, 1, 0.36, 1] as const,
+  }
 
   return (
-    <section className="relative min-h-[100svh] flex items-center justify-center overflow-hidden">
-      {/* Background Image */}
-      <div className="absolute inset-0 z-0">
-        {heroData.backgroundImage && (
+    <section
+      aria-labelledby="home-heading"
+      className="relative isolate min-h-[100svh] overflow-hidden"
+    >
+      {/* Photography / background layer */}
+      <div
+        aria-hidden="true"
+        className="absolute inset-0 -z-20"
+      >
+        {backgroundImage && (
           <img
-            src={heroData.backgroundImage || "/placeholder.svg"}
-            alt="Background"
-            className="w-full h-full object-cover opacity-30"
-            onError={(e) => {
-              e.currentTarget.src = "/placeholder.svg?height=1080&width=1920"
-            }}
+            src={backgroundImage}
+            alt=""
+            className="h-full w-full object-cover object-center opacity-30"
           />
         )}
-        <div className="absolute inset-0 bg-gradient-to-b from-background/50 via-background/80 to-background" />
       </div>
 
-      {/* Content */}
-      <div className="relative z-10 max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-        <motion.div
-          initial={{ opacity: 0, y: 30 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8 }}
-        >
-          <h1 className="text-5xl sm:text-6xl lg:text-7xl font-bold tracking-tight text-foreground mb-6">
-            {heroData.title}
-          </h1>
-          <p className="text-primary text-xs sm:text-base font-medium tracking-wide sm:tracking-widest uppercase mb-6 px-2">
-            {heroData.subtitle}
-          </p>
-          <p className="text-lg sm:text-xl text-muted-foreground max-w-2xl mx-auto leading-relaxed text-balance">
-            {heroData.description}
-          </p>
-        </motion.div>
+      {/* Contrast treatment */}
+      <div
+        aria-hidden="true"
+        className="absolute inset-0 -z-10 bg-gradient-to-b from-background/60 via-background/80 to-background"
+      />
 
-        {/* CTA Buttons */}
-        <motion.div
-          initial={{ opacity: 0, y: 16 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.6, duration: 0.6 }}
-          className="flex flex-col sm:flex-row items-center justify-center gap-4 mt-10"
-        >
-          <a
-            href="/wyntech"
-            className="group flex items-center gap-2 px-7 py-3 rounded-full bg-primary text-primary-foreground font-medium text-sm hover:bg-primary/90 transition-colors duration-200"
-          >
-            Explore Wyntech
-            <ArrowRight className="h-4 w-4 transition-transform duration-200 group-hover:translate-x-1" />
-          </a>
-          <a
-            href="/wynora"
-            className="group flex items-center gap-2 px-7 py-3 rounded-full border border-border text-foreground font-medium text-sm hover:border-primary hover:text-primary transition-colors duration-200"
-          >
-            Explore Wynora
-            <ArrowRight className="h-4 w-4 transition-transform duration-200 group-hover:translate-x-1" />
-          </a>
-        </motion.div>
+      <div className="mx-auto flex min-h-[100svh] max-w-7xl flex-col px-4 pb-8 pt-28 sm:px-6 sm:pb-10 sm:pt-32 lg:px-8 lg:pb-12">
+        {/* Main identity */}
+        <div className="flex flex-1 items-center">
+          <div className="w-full">
+            <motion.p
+              initial={
+                shouldReduceMotion
+                  ? false
+                  : { opacity: 0, y: 16 }
+              }
+              animate={{
+                opacity: 1,
+                y: 0,
+              }}
+              transition={transition}
+              className="mb-5 text-xs font-medium uppercase tracking-[0.24em] text-muted-foreground sm:text-sm"
+            >
+              Build · Music · Life
+            </motion.p>
 
-        {/* Scroll indicator */}
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 1, duration: 0.5 }}
-          className="absolute bottom-12 left-1/2 -translate-x-1/2"
-        >
-          <a
-            href="#about"
-            className="flex flex-col items-center gap-2 text-muted-foreground hover:text-primary transition-colors"
-          >
-            <span className="text-sm">Scroll</span>
-            <motion.div animate={{ y: [0, 8, 0] }} transition={{ duration: 1.5, repeat: Number.POSITIVE_INFINITY }}>
-              <ArrowDown className="h-5 w-5" />
+            <motion.h1
+              id="home-heading"
+              initial={
+                shouldReduceMotion
+                  ? false
+                  : { opacity: 0, y: 28 }
+              }
+              animate={{
+                opacity: 1,
+                y: 0,
+              }}
+              transition={{
+                ...transition,
+                delay: shouldReduceMotion ? 0 : 0.08,
+              }}
+              className="max-w-6xl text-[clamp(3.6rem,15vw,9.5rem)] font-semibold leading-[0.82] tracking-[-0.07em] text-foreground"
+            >
+              <span className="block">Deshawn</span>
+              <span className="block">Goodwyn</span>
+            </motion.h1>
+
+            <motion.div
+              initial={
+                shouldReduceMotion
+                  ? false
+                  : { opacity: 0, y: 18 }
+              }
+              animate={{
+                opacity: 1,
+                y: 0,
+              }}
+              transition={{
+                ...transition,
+                delay: shouldReduceMotion ? 0 : 0.18,
+              }}
+              className="mt-8 max-w-2xl sm:mt-10"
+            >
+              <p className="text-base leading-relaxed text-muted-foreground sm:text-lg lg:text-xl">
+                {description}
+              </p>
+
+              <Link
+                href="/#projects"
+                className="group mt-6 inline-flex min-h-11 items-center gap-2 text-sm font-medium text-foreground"
+              >
+                Selected work
+                <ArrowDown className="size-4 transition-transform group-hover:translate-y-1" />
+              </Link>
             </motion.div>
-          </a>
+          </div>
+        </div>
+
+        {/* Three-world gateway */}
+        <motion.div
+          initial={
+            shouldReduceMotion
+              ? false
+              : { opacity: 0, y: 24 }
+          }
+          animate={{
+            opacity: 1,
+            y: 0,
+          }}
+          transition={{
+            ...transition,
+            delay: shouldReduceMotion ? 0 : 0.35,
+          }}
+          className="mt-12 grid border-t border-border/70 md:grid-cols-3"
+        >
+          {worlds.map((world) => (
+            <Link
+              key={world.name}
+              href={world.href}
+              className={[
+                "group relative flex min-h-36 flex-col justify-between",
+                "border-b border-border/70 py-5",
+                "transition-colors hover:bg-foreground/[0.03]",
+                "md:min-h-44 md:border-b-0 md:px-6 md:py-6",
+                "md:first:pl-0",
+                "md:not-first:border-l md:not-first:border-border/70",
+              ].join(" ")}
+            >
+              <div className="flex items-start justify-between gap-4">
+                <span className="font-mono text-xs text-muted-foreground">
+                  {world.number}
+                </span>
+
+                <ArrowUpRight className="size-4 text-muted-foreground transition-transform duration-200 group-hover:translate-x-1 group-hover:-translate-y-1 group-hover:text-foreground" />
+              </div>
+
+              <div className="mt-8">
+                <h2 className="text-2xl font-medium tracking-tight text-foreground sm:text-3xl">
+                  {world.name}
+                </h2>
+
+                <p className="mt-2 max-w-xs text-sm leading-relaxed text-muted-foreground">
+                  {world.description}
+                </p>
+              </div>
+            </Link>
+          ))}
         </motion.div>
       </div>
     </section>

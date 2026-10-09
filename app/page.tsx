@@ -1,30 +1,87 @@
+import type { Metadata } from "next"
+
 import { Navbar } from "@/components/navbar"
+import { Footer } from "@/components/footer"
+
 import { HeroSection } from "@/components/sections/hero"
 import { AboutSection } from "@/components/sections/about"
 import { ProjectsSection } from "@/components/sections/projects"
 import { PhotoGallerySection } from "@/components/sections/photo-gallery"
 import { VideoShowcase } from "@/components/sections/video-showcase"
 import { ContactSection } from "@/components/sections/contact"
-import { Footer } from "@/components/footer"
-import { createClient } from "@/lib/supabase/server"
 
-export const dynamic = "force-dynamic"
+import {
+  getHomePageData,
+} from "@/lib/content/home"
+
+const homeDescription =
+  "Deshawn Goodwyn's official website — exploring technology, music, athletics, and the work connecting them."
+
+export const metadata: Metadata = {
+  title: {
+    absolute:
+      "Deshawn Goodwyn | Build · Music · Life",
+  },
+
+  description: homeDescription,
+
+  alternates: {
+    canonical: "/",
+  },
+}
 
 export default async function Home() {
-  const supabase = await createClient()
-
-  const { data: videos } = await supabase.from("videos").select("*").eq("is_visible", true).order("display_order")
+  const {
+    navigation,
+    hero,
+    projects,
+    about,
+    videos,
+    photos,
+    contact,
+  } = await getHomePageData()
 
   return (
-    <main className="min-h-screen">
-      <Navbar />
-      <HeroSection />
-      <AboutSection />
-      <PhotoGallerySection />
-      <VideoShowcase videos={videos || []} />
-      <ProjectsSection />
-      <ContactSection />
+    <>
+      <Navbar
+        logo={navigation.logo}
+        linkedinUrl={
+          navigation.linkedinUrl
+        }
+      />
+
+      <main id="main-content">
+        <HeroSection
+          backgroundImage={
+            hero.backgroundImage
+          }
+          description={
+            hero.description
+          }
+        />
+
+        <ProjectsSection
+          projects={projects}
+        />
+
+        <AboutSection
+          {...about}
+        />
+
+        <PhotoGallerySection
+          photos={photos}
+        />
+
+        <VideoShowcase
+          videos={videos}
+        />
+
+        <ContactSection
+          {...contact}
+        />
+      </main>
+
       <Footer />
-    </main>
+    </>
   )
 }

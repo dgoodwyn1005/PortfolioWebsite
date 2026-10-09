@@ -1,28 +1,54 @@
-import { createClient } from "@/lib/supabase/server"
 import { PhotoGalleryClient } from "@/components/photo-gallery-client"
 
-export async function PhotoGallerySection() {
-  const supabase = await createClient()
+import type {
+  Photo,
+} from "@/lib/content/media"
 
-  const { data: photos } = await supabase
-    .from("photo_gallery")
-    .select("*")
-    .eq("is_visible", true)
-    .order("display_order", { ascending: true })
+interface PhotoGallerySectionProps {
+  photos: Photo[]
+}
 
-  if (!photos || photos.length === 0) {
+export function PhotoGallerySection({
+  photos,
+}: PhotoGallerySectionProps) {
+  if (!photos.length) {
     return null
   }
 
   return (
-    <section id="gallery" className="py-14 md:py-24 bg-background">
-      <div className="container mx-auto px-4">
-        <div className="text-center mb-16">
-          <h2 className="text-4xl md:text-5xl font-bold mb-4">Gallery</h2>
-          <p className="text-muted-foreground text-lg max-w-2xl mx-auto">A glimpse into my world</p>
+    <section
+      id="gallery"
+      aria-labelledby="gallery-heading"
+      className="scroll-mt-20 border-t border-border/60 py-16 sm:py-24 lg:py-32"
+    >
+      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+        <div className="mb-10 grid gap-6 sm:mb-14 lg:mb-16 lg:grid-cols-12">
+          <div className="lg:col-span-4">
+            <p className="text-xs font-medium uppercase tracking-[0.22em] text-muted-foreground">
+              03 / Selected Frames
+            </p>
+          </div>
+
+          <div className="lg:col-span-8">
+            <h2
+              id="gallery-heading"
+              className="max-w-3xl text-3xl font-medium tracking-[-0.04em] text-foreground sm:text-4xl lg:text-5xl"
+            >
+              Different rooms. Same
+              story.
+            </h2>
+
+            <p className="mt-4 max-w-2xl text-base leading-relaxed text-muted-foreground sm:text-lg">
+              A few moments across
+              athletics, music, work,
+              and everything in between.
+            </p>
+          </div>
         </div>
 
-        <PhotoGalleryClient photos={photos} />
+        <PhotoGalleryClient
+          photos={photos}
+        />
       </div>
     </section>
   )

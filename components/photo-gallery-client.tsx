@@ -1,137 +1,357 @@
 "use client"
 
-import { useState } from "react"
-import Image from "next/image"
-import { motion, AnimatePresence } from "framer-motion"
-import { X, ChevronLeft, ChevronRight } from "lucide-react"
-import { Button } from "@/components/ui/button"
+import {
+  useEffect,
+  useRef,
+  useState,
+} from "react"
 
-interface Photo {
-  id: string
-  image_url: string
-  caption: string | null
-  display_order: number
-}
+import Image from "next/image"
+
+import {
+  AnimatePresence,
+  motion,
+  useReducedMotion,
+} from "framer-motion"
+
+import {
+  ChevronLeft,
+  ChevronRight,
+  X,
+} from "lucide-react"
+
+import type { Photo } from "@/lib/content/media"
 
 interface PhotoGalleryClientProps {
   photos: Photo[]
 }
 
-export function PhotoGalleryClient({ photos }: PhotoGalleryClientProps) {
-  const [selectedIndex, setSelectedIndex] = useState<number | null>(null)
+const imageLayouts = [
+  {
+    wrapper:
+      "sm:col-span-2 lg:col-span-7 lg:row-span-2",
+    aspect:
+      "aspect-[4/5] sm:aspect-[16/10] lg:aspect-[5/6]",
+  },
+  {
+    wrapper:
+      "sm:col-span-1 lg:col-span-5",
+    aspect: "aspect-[4/3]",
+  },
+  {
+    wrapper:
+      "sm:col-span-1 lg:col-span-5",
+    aspect: "aspect-[4/3]",
+  },
+  {
+    wrapper:
+      "sm:col-span-1 lg:col-span-6",
+    aspect: "aspect-[4/3]",
+  },
+  {
+    wrapper:
+      "sm:col-span-1 lg:col-span-6",
+    aspect: "aspect-[4/3]",
+  },
+]
 
-  const openLightbox = (index: number) => setSelectedIndex(index)
-  const closeLightbox = () => setSelectedIndex(null)
+export function PhotoGalleryClient({
+  photos,
+}: PhotoGalleryClientProps) {
+  const shouldReduceMotion = useReducedMotion()
+
+  const [selectedIndex, setSelectedIndex] =
+    useState<number | null>(null)
+
+  const closeButtonRef =
+    useRef<HTMLButtonElement>(null)
+
+  const closeLightbox = () => {
+    setSelectedIndex(null)
+  }
 
   const goToPrevious = () => {
-    if (selectedIndex !== null) {
-      setSelectedIndex(selectedIndex === 0 ? photos.length - 1 : selectedIndex - 1)
-    }
+    setSelectedIndex((current) => {
+      if (current === null) return null
+
+      return current === 0
+        ? photos.length - 1
+        : current - 1
+    })
   }
 
   const goToNext = () => {
-    if (selectedIndex !== null) {
-      setSelectedIndex(selectedIndex === photos.length - 1 ? 0 : selectedIndex + 1)
-    }
+    setSelectedIndex((current) => {
+      if (current === null) return null
+
+      return current === photos.length - 1
+        ? 0
+        : current + 1
+    })
   }
+
+  useEffect(() => {
+    if (selectedIndex === null) {
+      return
+    }
+
+    const previousOverflow =
+      document.body.style.overflow
+
+    document.body.style.overflow = "hidden"
+
+    const handleKeyDown = (
+      event: KeyboardEvent,
+    ) => {
+      if (event.key === "Escape") {
+        closeLightbox()
+      }
+
+      if (event.key === "ArrowLeft") {
+        goToPrevious()
+      }
+
+      if (event.key === "ArrowRight") {
+        goToNext()
+      }
+    }
+
+    window.addEventListener(
+      "keydown",
+      handleKeyDown,
+    )
+
+    requestAnimationFrame(() => {
+      closeButtonRef.current?.focus()
+    })
+
+    return () => {
+      document.body.style.overflow =
+        previousOverflow
+
+      window.removeEventListener(
+        "keydown",
+        handleKeyDown,
+      )
+    }
+  }, [selectedIndex])
 
   return (
     <>
-      {/* Masonry-style grid */}
-      <div className="columns-2 md:columns-3 lg:columns-4 gap-4 space-y-4">
-        {photos.map((photo, index) => (
-          <motion.div
-            key={photo.id}
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ delay: index * 0.1 }}
-            className="break-inside-avoid cursor-pointer group"
-            onClick={() => openLightbox(index)}
-          >
-            <div className="relative overflow-hidden rounded-xl bg-muted">
-              <Image
-                src={photo.image_url || "/placeholder.svg"}
-                alt={photo.caption || "Gallery photo"}
-                width={400}
-                height={500}
-                className="w-full h-auto object-cover transition-transform duration-500 group-hover:scale-110"
-                onError={(e) => {
-                  const target = e.target as HTMLImageElement
-                  target.src = "/abstract-colorful-photo.png"
-                }}
-              />
-              <div className="absolute inset-0 bg-black/0 group-hover:bg-black/30 transition-colors duration-300" />
-              {photo.caption && (
-                <div className="absolute bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-black/70 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                  <p className="text-white text-sm">{photo.caption}</p>
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-12 lg:gap-5">
+        {photos.map((photo, index) => {
+          const layout =
+            imageLayouts[index] ??
+            imageLayouts[
+              imageLayouts.length - 1
+            ]
+
+          return (
+            <motion.figure
+              key={photo.id}
+              initial={
+                shouldReduceMotion
+                  ? false
+                  : {
+                      opacity: 0,
+                      y: 20,
+                    }
+              }
+              whileInView={{
+                opacity: 1,
+                y: 0,
+              }}
+              viewport={{
+                once: true,
+                amount: 0.15,
+              }}
+              transition={{
+                duration:
+                  shouldReduceMotion
+                    ? 0
+                    : 0.6,
+                delay:
+                  shouldReduceMotion
+                    ? 0
+                    : Math.min(
+                        index * 0.06,
+                        0.18,
+                      ),
+                ease: [
+                  0.22,
+                  1,
+                  0.36,
+                  1,
+                ],
+              }}
+              className={layout.wrapper}
+            >
+              <button
+                type="button"
+                onClick={() =>
+                  setSelectedIndex(index)
+                }
+                aria-label={
+                  photo.caption
+                    ? `View ${photo.caption}`
+                    : `View photo ${
+                        index + 1
+                      }`
+                }
+                className="group block w-full text-left"
+              >
+                <div
+                  className={[
+                    "relative overflow-hidden bg-muted",
+                    layout.aspect,
+                  ].join(" ")}
+                >
+                  <Image
+                    src={photo.image_url}
+                    alt={
+                      photo.caption ||
+                      "Deshawn Goodwyn"
+                    }
+                    fill
+                    sizes={
+                      index === 0
+                        ? "(max-width: 640px) 100vw, (max-width: 1024px) 100vw, 58vw"
+                        : "(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 42vw"
+                    }
+                    className="object-cover transition-transform duration-700 ease-out group-hover:scale-[1.025]"
+                  />
+
+                  <div
+                    aria-hidden="true"
+                    className="absolute inset-0 bg-black/0 transition-colors duration-300 group-hover:bg-black/10"
+                  />
                 </div>
+              </button>
+
+              {photo.caption && (
+                <figcaption className="mt-2 text-xs leading-relaxed text-muted-foreground sm:text-sm">
+                  {photo.caption}
+                </figcaption>
               )}
-            </div>
-          </motion.div>
-        ))}
+            </motion.figure>
+          )
+        })}
       </div>
 
-      {/* Lightbox */}
       <AnimatePresence>
         {selectedIndex !== null && (
           <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="fixed inset-0 z-50 bg-black/95 flex items-center justify-center"
+            role="dialog"
+            aria-modal="true"
+            aria-label="Photo viewer"
+            initial={{
+              opacity: 0,
+            }}
+            animate={{
+              opacity: 1,
+            }}
+            exit={{
+              opacity: 0,
+            }}
+            transition={{
+              duration:
+                shouldReduceMotion
+                  ? 0
+                  : 0.2,
+            }}
             onClick={closeLightbox}
+            className="fixed inset-0 z-[100] flex items-center justify-center bg-black/95 px-3 py-16 sm:px-6"
           >
-            <Button
-              variant="ghost"
-              size="icon"
-              className="absolute top-4 right-4 text-white hover:bg-white/20"
-              onClick={closeLightbox}
-            >
-              <X className="w-6 h-6" />
-            </Button>
-
-            <Button
-              variant="ghost"
-              size="icon"
-              className="absolute left-4 top-1/2 -translate-y-1/2 text-white hover:bg-white/20"
-              onClick={(e) => {
-                e.stopPropagation()
-                goToPrevious()
+            <button
+              ref={closeButtonRef}
+              type="button"
+              onClick={(event) => {
+                event.stopPropagation()
+                closeLightbox()
               }}
+              aria-label="Close photo viewer"
+              className="absolute right-3 top-3 flex size-12 items-center justify-center rounded-full text-white transition-colors hover:bg-white/10 sm:right-5 sm:top-5"
             >
-              <ChevronLeft className="w-8 h-8" />
-            </Button>
+              <X className="size-6" />
+            </button>
 
-            <Button
-              variant="ghost"
-              size="icon"
-              className="absolute right-4 top-1/2 -translate-y-1/2 text-white hover:bg-white/20"
-              onClick={(e) => {
-                e.stopPropagation()
-                goToNext()
-              }}
-            >
-              <ChevronRight className="w-8 h-8" />
-            </Button>
+            {photos.length > 1 && (
+              <>
+                <button
+                  type="button"
+                  onClick={(event) => {
+                    event.stopPropagation()
+                    goToPrevious()
+                  }}
+                  aria-label="Previous photo"
+                  className="absolute bottom-4 left-4 flex size-12 items-center justify-center rounded-full bg-white/10 text-white backdrop-blur-sm transition-colors hover:bg-white/20 sm:bottom-auto sm:left-5 sm:top-1/2 sm:-translate-y-1/2"
+                >
+                  <ChevronLeft className="size-6" />
+                </button>
+
+                <button
+                  type="button"
+                  onClick={(event) => {
+                    event.stopPropagation()
+                    goToNext()
+                  }}
+                  aria-label="Next photo"
+                  className="absolute bottom-4 right-4 flex size-12 items-center justify-center rounded-full bg-white/10 text-white backdrop-blur-sm transition-colors hover:bg-white/20 sm:bottom-auto sm:right-5 sm:top-1/2 sm:-translate-y-1/2"
+                >
+                  <ChevronRight className="size-6" />
+                </button>
+              </>
+            )}
 
             <motion.div
               key={selectedIndex}
-              initial={{ scale: 0.9, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              exit={{ scale: 0.9, opacity: 0 }}
-              className="max-w-4xl max-h-[80vh] relative"
-              onClick={(e) => e.stopPropagation()}
+              initial={
+                shouldReduceMotion
+                  ? false
+                  : {
+                      opacity: 0,
+                      scale: 0.97,
+                    }
+              }
+              animate={{
+                opacity: 1,
+                scale: 1,
+              }}
+              transition={{
+                duration:
+                  shouldReduceMotion
+                    ? 0
+                    : 0.25,
+              }}
+              onClick={(event) =>
+                event.stopPropagation()
+              }
+              className="relative flex max-h-full max-w-6xl flex-col items-center"
             >
               <Image
-                src={photos[selectedIndex].image_url || "/placeholder.svg"}
-                alt={photos[selectedIndex].caption || "Gallery photo"}
-                width={1200}
-                height={800}
-                className="max-h-[80vh] w-auto object-contain rounded-lg"
+                src={
+                  photos[selectedIndex]
+                    .image_url
+                }
+                alt={
+                  photos[selectedIndex]
+                    .caption ||
+                  "Deshawn Goodwyn"
+                }
+                width={1600}
+                height={1200}
+                priority
+                className="max-h-[72svh] w-auto max-w-full object-contain"
               />
-              {photos[selectedIndex].caption && (
-                <p className="text-white text-center mt-4 text-lg">{photos[selectedIndex].caption}</p>
+
+              {photos[selectedIndex]
+                .caption && (
+                <p className="mt-4 max-w-2xl text-center text-sm leading-relaxed text-white/70 sm:text-base">
+                  {
+                    photos[selectedIndex]
+                      .caption
+                  }
+                </p>
               )}
             </motion.div>
           </motion.div>

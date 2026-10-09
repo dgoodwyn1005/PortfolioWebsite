@@ -1,8 +1,10 @@
-import type React from "react"
 import type { Metadata, Viewport } from "next"
+import type { ReactNode } from "react"
 import { Inter, Geist_Mono } from "next/font/google"
 import { Analytics } from "@vercel/analytics/next"
+
 import { ThemeProvider } from "@/components/theme-provider"
+
 import "./globals.css"
 
 const inter = Inter({
@@ -17,36 +19,35 @@ const geistMono = Geist_Mono({
   display: "swap",
 })
 
-const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://deshawngoodwyn.com"
+const siteUrl =
+  process.env.NEXT_PUBLIC_SITE_URL?.replace(/\/$/, "") ||
+  "https://deshawngoodwyn.com"
+
+const siteDescription =
+  "The official website of Deshawn Goodwyn — work, music, life, and the ideas connecting them."
 
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
+
+  applicationName: "Deshawn Goodwyn",
+
   title: {
-    default: "Deshawn Goodwyn | NCAA Athlete · Wyntech & Wynora · Pianist · Comp Sci",
+    default: "Deshawn Goodwyn",
     template: "%s | Deshawn Goodwyn",
   },
-  description:
-    "Virginia HS 3-point record holder, 4.56 GPA student-athlete, full-stack developer, and pianist. Explore my projects, music, and basketball journey.",
-  keywords: [
-    "Deshawn Goodwyn",
-    "NCAA Basketball",
-    "Wyntech",
-    "Wynora Music",
-    "Full-Stack Developer",
-    "Pianist",
-    "Virginia Basketball",
-    "Student Athlete",
-    "Web Development",
-    "Music Production",
-    "Live Performance",
-    "Entrepreneur",
-    "Richmond, VA",
-    "East Coast",
+
+  description: siteDescription,
+
+  authors: [
+    {
+      name: "Deshawn Goodwyn",
+      url: siteUrl,
+    },
   ],
-  authors: [{ name: "Deshawn Goodwyn", url: siteUrl }],
+
   creator: "Deshawn Goodwyn",
   publisher: "Deshawn Goodwyn",
-  generator: "v0.app",
+
   robots: {
     index: true,
     follow: true,
@@ -58,89 +59,150 @@ export const metadata: Metadata = {
       "max-snippet": -1,
     },
   },
+
   openGraph: {
     type: "website",
     locale: "en_US",
-    url: siteUrl,
     siteName: "Deshawn Goodwyn",
-    title: "Deshawn Goodwyn | NCAA Athlete · Wyntech & Wynora · Pianist · Comp Sci",
-    description:
-      "Virginia HS 3-point record holder, 4.56 GPA student-athlete, full-stack developer, and pianist.",
-    images: ["https://www.deshawngoodwyn.com/og-image"],
+    title: "Deshawn Goodwyn",
+    description: siteDescription,
+    images: [
+      {
+        url: "/og-image",
+        width: 1200,
+        height: 630,
+        alt: "Deshawn Goodwyn",
+      },
+    ],
   },
+
   twitter: {
     card: "summary_large_image",
-    title: "Deshawn Goodwyn | NCAA Athlete · Wyntech & Wynora · Pianist · Comp Sci",
-    description:
-      "Virginia HS 3-point record holder, 4.56 GPA student-athlete, full-stack developer, and pianist.",
-    images: ["https://www.deshawngoodwyn.com/og-image"],
+    title: "Deshawn Goodwyn",
+    description: siteDescription,
+    images: ["/og-image"],
     creator: "@dgoodwyn",
   },
-  alternates: {
-    canonical: siteUrl,
-  },
-  category: "portfolio",
 }
 
 export const viewport: Viewport = {
-  themeColor: [
-    { media: "(prefers-color-scheme: light)", color: "#ffffff" },
-    { media: "(prefers-color-scheme: dark)", color: "#0a0a0a" },
-  ],
   width: "device-width",
   initialScale: 1,
   maximumScale: 5,
   viewportFit: "cover",
+
+  colorScheme: "dark light",
+
+  themeColor: [
+    {
+      media: "(prefers-color-scheme: light)",
+      color: "#ffffff",
+    },
+    {
+      media: "(prefers-color-scheme: dark)",
+      color: "#0a0a0a",
+    },
+  ],
 }
+
+const structuredData = {
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "Person",
+      "@id": `${siteUrl}/#person`,
+
+      name: "Deshawn Goodwyn",
+      url: siteUrl,
+      image: `${siteUrl}/og-image`,
+      description: siteDescription,
+
+      sameAs: [
+        "https://twitter.com/dgoodwyn",
+        "https://linkedin.com/in/deshawngoodwyn",
+        "https://github.com/dgoodwyn",
+      ],
+
+      knowsAbout: [
+        "Software Engineering",
+        "Web Development",
+        "Product Development",
+        "Piano",
+        "Music",
+        "Basketball",
+      ],
+
+      affiliation: [
+        {
+          "@type": "Organization",
+          name: "Wyntech",
+          url: `${siteUrl}/wyntech`,
+        },
+        {
+          "@type": "Organization",
+          name: "Wynora",
+          url: `${siteUrl}/wynora`,
+        },
+      ],
+    },
+
+    {
+      "@type": "WebSite",
+      "@id": `${siteUrl}/#website`,
+
+      url: siteUrl,
+      name: "Deshawn Goodwyn",
+      description: siteDescription,
+
+      publisher: {
+        "@id": `${siteUrl}/#person`,
+      },
+    },
+  ],
+}
+
+const serializedStructuredData = JSON.stringify(structuredData).replace(
+  /</g,
+  "\\u003c",
+)
 
 export default function RootLayout({
   children,
 }: Readonly<{
-  children: React.ReactNode
+  children: ReactNode
 }>) {
-  const jsonLd = {
-    "@context": "https://schema.org",
-    "@type": "Person",
-    name: "Deshawn Goodwyn",
-    url: siteUrl,
-    image: `${siteUrl}/og-image.jpg`,
-    sameAs: [
-      "https://twitter.com/dgoodwyn",
-      "https://linkedin.com/in/deshawngoodwyn",
-      "https://github.com/dgoodwyn",
-    ],
-    jobTitle: "Full-Stack Developer & Entrepreneur",
-    worksFor: [
-      {
-        "@type": "Organization",
-        name: "Wyntech",
-        url: `${siteUrl}/wyntech`,
-      },
-      {
-        "@type": "Organization",
-        name: "Wynora",
-        url: `${siteUrl}/wynora`,
-      },
-    ],
-    knowsAbout: ["Web Development", "Basketball", "Piano", "Music Production", "Software Engineering"],
-    alumniOf: {
-      "@type": "EducationalOrganization",
-      name: ["Franklin Military Academy, American University, Gardner-Webb University, Virginia State University"],
-    },
-  }
-
   return (
-    <html lang="en" suppressHydrationWarning className={`${inter.variable} ${geistMono.variable}`}>
+    <html
+      lang="en"
+      suppressHydrationWarning
+      className={`${inter.variable} ${geistMono.variable}`}
+    >
       <head>
         <script
           type="application/ld+json"
-          dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+          dangerouslySetInnerHTML={{
+            __html: serializedStructuredData,
+          }}
         />
       </head>
-      <body className="font-sans antialiased">
-        <ThemeProvider attribute="class" defaultTheme="dark" enableSystem disableTransitionOnChange>
+
+      <body className="min-h-screen font-sans antialiased">
+        <a
+          href="#main-content"
+          className="fixed left-4 top-4 z-[200] -translate-y-24 bg-foreground px-4 py-3 text-sm font-medium text-background transition-transform focus:translate-y-0"
+        >
+          Skip to content
+        </a>
+        
+        <ThemeProvider
+          attribute="class"
+          defaultTheme="dark"
+          enableSystem
+          disableTransitionOnChange
+        >
           {children}
         </ThemeProvider>
+
         <Analytics />
       </body>
     </html>
