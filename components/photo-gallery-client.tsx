@@ -25,6 +25,7 @@ import type { Photo } from "@/lib/content/media"
 
 interface PhotoGalleryClientProps {
   photos: Photo[]
+  variant?: "default" | "life"
 }
 
 const imageLayouts = [
@@ -56,8 +57,17 @@ const imageLayouts = [
   },
 ]
 
+const lifeTilts = [
+  "lg:rotate-[-0.7deg]",
+  "lg:translate-y-5 lg:rotate-[0.6deg]",
+  "lg:translate-x-2 lg:rotate-[-0.45deg]",
+  "lg:-translate-y-2 lg:rotate-[0.5deg]",
+  "lg:translate-x-1 lg:rotate-[-0.35deg]",
+]
+
 export function PhotoGalleryClient({
   photos,
+  variant = "default",
 }: PhotoGalleryClientProps) {
   const shouldReduceMotion = useReducedMotion()
 
@@ -147,6 +157,11 @@ export function PhotoGalleryClient({
               imageLayouts.length - 1
             ]
 
+          const lifeTilt =
+            lifeTilts[
+              index % lifeTilts.length
+            ]
+
           return (
             <motion.figure
               key={photo.id}
@@ -187,53 +202,71 @@ export function PhotoGalleryClient({
               }}
               className={layout.wrapper}
             >
-              <button
-                type="button"
-                onClick={() =>
-                  setSelectedIndex(index)
+              <div
+                className={
+                  variant === "life"
+                    ? lifeTilt
+                    : ""
                 }
-                aria-label={
-                  photo.caption
-                    ? `View ${photo.caption}`
-                    : `View photo ${
-                        index + 1
-                      }`
-                }
-                className="group block w-full text-left"
               >
-                <div
-                  className={[
-                    "relative overflow-hidden bg-muted",
-                    layout.aspect,
-                  ].join(" ")}
+                <button
+                  type="button"
+                  onClick={() =>
+                    setSelectedIndex(index)
+                  }
+                  aria-label={
+                    photo.caption
+                      ? `View ${photo.caption}`
+                      : `View photo ${
+                          index + 1
+                        }`
+                  }
+                  className="group block w-full text-left"
                 >
-                  <Image
-                    src={photo.image_url}
-                    alt={
-                      photo.caption ||
-                      "Deshawn Goodwyn"
-                    }
-                    fill
-                    sizes={
-                      index === 0
-                        ? "(max-width: 640px) 100vw, (max-width: 1024px) 100vw, 58vw"
-                        : "(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 42vw"
-                    }
-                    className="object-cover transition-transform duration-700 ease-out group-hover:scale-[1.025]"
-                  />
-
                   <div
-                    aria-hidden="true"
-                    className="absolute inset-0 bg-black/0 transition-colors duration-300 group-hover:bg-black/10"
-                  />
-                </div>
-              </button>
+                    className={[
+                      "relative overflow-hidden bg-muted",
+                      layout.aspect,
+                      variant === "life"
+                        ? "rounded-[1.5rem] shadow-xl shadow-black/5 ring-1 ring-border/30"
+                        : "",
+                    ].join(" ")}
+                  >
+                    <Image
+                      src={photo.image_url}
+                      alt={
+                        photo.caption ||
+                        "Deshawn Goodwyn"
+                      }
+                      fill
+                      sizes={
+                        index === 0
+                          ? "(max-width: 640px) 100vw, (max-width: 1024px) 100vw, 58vw"
+                          : "(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 42vw"
+                      }
+                      className="object-cover transition-transform duration-700 ease-out group-hover:scale-[1.025]"
+                    />
 
-              {photo.caption && (
-                <figcaption className="mt-2 text-xs leading-relaxed text-muted-foreground sm:text-sm">
-                  {photo.caption}
-                </figcaption>
-              )}
+                    <div
+                      aria-hidden="true"
+                      className="absolute inset-0 bg-black/0 transition-colors duration-300 group-hover:bg-black/10"
+                    />
+                  </div>
+                </button>
+
+                {photo.caption && (
+                  <figcaption
+                    className={[
+                      "mt-2 text-xs leading-relaxed text-muted-foreground sm:text-sm",
+                      variant === "life"
+                        ? "px-1"
+                        : "",
+                    ].join(" ")}
+                  >
+                    {photo.caption}
+                  </figcaption>
+                )}
+              </div>
             </motion.figure>
           )
         })}
