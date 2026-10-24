@@ -1,16 +1,8 @@
-import { createClient } from "@/lib/supabase/server"
-import { redirect } from "next/navigation"
 import { PricingManager } from "@/components/admin/pricing-manager"
+import { requireAdmin } from "@/lib/admin/require-admin"
 
 export default async function PricingPage() {
-  const supabase = await createClient()
-  const {
-    data: { user },
-  } = await supabase.auth.getUser()
-
-  if (!user || !user.user_metadata?.is_admin) {
-    redirect("/admin/login")
-  }
+  const { supabase } = await requireAdmin()
 
   const { data: pricing } = await supabase.from("pricing").select("*").order("service_type")
 
