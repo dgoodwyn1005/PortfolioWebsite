@@ -2,11 +2,33 @@
 
 import type React from "react"
 
-import { motion } from "framer-motion"
-import { Check, Code, Palette, Smartphone, Server, Megaphone, PenTool } from "lucide-react"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Badge } from "@/components/ui/badge"
-import { Button } from "@/components/ui/button"
+import {
+  motion,
+} from "framer-motion"
+
+import {
+  Check,
+  Code,
+  Megaphone,
+  Palette,
+  PenTool,
+  Server,
+  Smartphone,
+} from "lucide-react"
+
+import {
+  Badge,
+} from "@/components/ui/badge"
+import {
+  Button,
+} from "@/components/ui/button"
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card"
 
 interface Service {
   id: string
@@ -18,95 +40,218 @@ interface Service {
 }
 
 interface Company {
+  slug: string
   name: string
   primary_color: string
 }
 
-const iconMap: Record<string, React.ComponentType<{ className?: string }>> = {
+const iconMap: Record<
+  string,
+  React.ComponentType<{
+    className?: string
+  }>
+> = {
   "Web Development": Code,
   "Mobile Apps": Smartphone,
   "API Development": Server,
   "Brand Identity": PenTool,
   "UI/UX Design": Palette,
-  "Digital Marketing": Megaphone,
+  "Digital Marketing":
+    Megaphone,
 }
 
-export function CompanyServices({ company, services }: { company: Company; services: Service[] }) {
+export function CompanyServices({
+  company,
+  services,
+}: {
+  company: Company
+  services: Service[]
+}) {
+  const actionLabel =
+    company.slug === "wynora"
+      ? "Request Booking"
+      : "Get Quote"
+
   return (
-    <section id="services" className="py-24">
-      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+    <section
+      id="services"
+      className="py-24"
+    >
+      <div className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
         <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          className="text-center mb-16"
+          initial={{
+            opacity: 0,
+            y: 20,
+          }}
+          whileInView={{
+            opacity: 1,
+            y: 0,
+          }}
+          viewport={{
+            once: true,
+          }}
+          className="mb-16 text-center"
         >
-          <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4">Our Services</h2>
-          <p className="text-muted-foreground max-w-2xl mx-auto">Comprehensive solutions tailored to your needs</p>
+          <h2 className="mb-4 text-3xl font-bold text-foreground md:text-4xl">
+            Services & Pricing
+          </h2>
+
+          <p className="mx-auto max-w-2xl text-muted-foreground">
+            Clear starting points.
+            Custom work is quoted
+            after scope is understood.
+          </p>
         </motion.div>
 
-        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {services.map((service, index) => {
-            const Icon = iconMap[service.title] || Code
-            return (
-              <motion.div
-                key={service.id}
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ delay: index * 0.1 }}
-              >
-                <Card
-                  className={`h-full relative overflow-hidden ${service.is_featured ? "border-2" : ""}`}
-                  style={service.is_featured ? { borderColor: company.primary_color } : {}}
+        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+          {services.map(
+            (
+              service,
+              index,
+            ) => {
+              const Icon =
+                iconMap[
+                  service.title
+                ] || Code
+
+              const href =
+                `/${company.slug}` +
+                `?service=${encodeURIComponent(
+                  service.title,
+                )}` +
+                "#contact"
+
+              return (
+                <motion.div
+                  key={service.id}
+                  initial={{
+                    opacity: 0,
+                    y: 20,
+                  }}
+                  whileInView={{
+                    opacity: 1,
+                    y: 0,
+                  }}
+                  viewport={{
+                    once: true,
+                  }}
+                  transition={{
+                    delay:
+                      index * 0.1,
+                  }}
                 >
-                  {service.is_featured && (
-                    <Badge
-                      className="absolute top-4 right-4 text-white"
-                      style={{ backgroundColor: company.primary_color }}
-                    >
-                      Popular
-                    </Badge>
-                  )}
-                  <CardHeader>
-                    <div
-                      className="w-12 h-12 rounded-xl flex items-center justify-center mb-4"
-                      style={{ backgroundColor: `${company.primary_color}20` }}
-                    >
-                      <span
+                  <Card
+                    className={[
+                      "relative h-full overflow-hidden",
+                      service.is_featured
+                        ? "border-2"
+                        : "",
+                    ].join(" ")}
+                    style={
+                      service.is_featured
+                        ? {
+                            borderColor:
+                              company.primary_color,
+                          }
+                        : {}
+                    }
+                  >
+                    {service.is_featured && (
+                      <Badge
+                        className="absolute right-4 top-4 text-white"
                         style={{
-                          color:
+                          backgroundColor:
                             company.primary_color,
                         }}
                       >
-                        <Icon className="h-6 w-6" />
-                      </span>
-                    </div>
-                    <CardTitle>{service.title}</CardTitle>
-                    <CardDescription>{service.description}</CardDescription>
-                  </CardHeader>
-                  <CardContent>
-                    <p className="text-2xl font-bold text-foreground mb-4">{service.price}</p>
-                    <ul className="space-y-2 mb-6">
-                      {service.features?.map((feature, i) => (
-                        <li key={i} className="flex items-center gap-2 text-sm text-muted-foreground">
-                          <Check className="h-4 w-4" style={{ color: company.primary_color }} />
-                          {feature}
-                        </li>
-                      ))}
-                    </ul>
-                    <Button 
-                      className="w-full text-white" 
-                      style={{ backgroundColor: company.primary_color }} 
-                      asChild
-                    >
-                      <a href={`#contact?service=${encodeURIComponent(service.title)}`}>Get Quote</a>
-                    </Button>
-                  </CardContent>
-                </Card>
-              </motion.div>
-            )
-          })}
+                        Popular
+                      </Badge>
+                    )}
+
+                    <CardHeader>
+                      <div
+                        className="mb-4 flex h-12 w-12 items-center justify-center rounded-xl"
+                        style={{
+                          backgroundColor:
+                            `${company.primary_color}20`,
+                        }}
+                      >
+                        <span
+                          style={{
+                            color:
+                              company.primary_color,
+                          }}
+                        >
+                          <Icon className="h-6 w-6" />
+                        </span>
+                      </div>
+
+                      <CardTitle>
+                        {
+                          service.title
+                        }
+                      </CardTitle>
+
+                      <CardDescription>
+                        {
+                          service.description
+                        }
+                      </CardDescription>
+                    </CardHeader>
+
+                    <CardContent>
+                      <p className="mb-4 text-2xl font-bold text-foreground">
+                        {service.price}
+                      </p>
+
+                      <ul className="mb-6 space-y-2">
+                        {service.features?.map(
+                          (
+                            feature,
+                            i,
+                          ) => (
+                            <li
+                              key={i}
+                              className="flex items-start gap-2 text-sm text-muted-foreground"
+                            >
+                              <Check
+                                className="mt-0.5 h-4 w-4 shrink-0"
+                                style={{
+                                  color:
+                                    company.primary_color,
+                                }}
+                              />
+
+                              <span>
+                                {
+                                  feature
+                                }
+                              </span>
+                            </li>
+                          ),
+                        )}
+                      </ul>
+
+                      <Button
+                        className="w-full text-white"
+                        style={{
+                          backgroundColor:
+                            company.primary_color,
+                        }}
+                        asChild
+                      >
+                        <a href={href}>
+                          {
+                            actionLabel
+                          }
+                        </a>
+                      </Button>
+                    </CardContent>
+                  </Card>
+                </motion.div>
+              )
+            },
+          )}
         </div>
       </div>
     </section>

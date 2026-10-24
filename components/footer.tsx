@@ -3,15 +3,15 @@ import Link from "next/link"
 const footerLinks = [
   {
     name: "Build",
-    href: "/wyntech",
+    href: "/build",
   },
   {
     name: "Music",
-    href: "/wynora",
+    href: "/music",
   },
   {
     name: "Life",
-    href: "/#about",
+    href: "/life",
   },
   {
     name: "Work",

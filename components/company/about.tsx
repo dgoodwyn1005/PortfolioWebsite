@@ -25,8 +25,8 @@ export function CompanyAbout({ company }: { company: Company }) {
 
         <div className="grid md:grid-cols-2 gap-8">
           <motion.div
-            initial={{ opacity: 0, x: -20 }}
-            whileInView={{ opacity: 1, x: 0 }}
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             className="bg-card border border-border rounded-2xl p-8"
           >
@@ -41,8 +41,8 @@ export function CompanyAbout({ company }: { company: Company }) {
           </motion.div>
 
           <motion.div
-            initial={{ opacity: 0, x: 20 }}
-            whileInView={{ opacity: 1, x: 0 }}
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             className="bg-card border border-border rounded-2xl p-8"
           >

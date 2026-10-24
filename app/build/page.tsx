@@ -1,4 +1,6 @@
-import type { Metadata } from "next"
+import type {
+  Metadata,
+} from "next"
 
 import Link from "next/link"
 
@@ -7,9 +9,15 @@ import {
   ArrowUpRight,
 } from "lucide-react"
 
-import { Navbar } from "@/components/navbar"
-import { Footer } from "@/components/footer"
-import { ProjectCard } from "@/components/project-card"
+import {
+  Footer,
+} from "@/components/footer"
+import {
+  Navbar,
+} from "@/components/navbar"
+import {
+  ProjectCard,
+} from "@/components/project-card"
 
 import {
   getBuildPageData,
@@ -43,7 +51,6 @@ export default async function BuildPage() {
       />
 
       <main id="main-content">
-        {/* Hero */}
         <section className="min-h-[80svh] border-b border-border/60">
           <div className="mx-auto flex min-h-[80svh] max-w-7xl flex-col justify-between px-4 pb-10 pt-32 sm:px-6 sm:pb-14 lg:px-8 lg:pb-16 lg:pt-40">
             <div className="grid gap-8 lg:grid-cols-12">
@@ -77,7 +84,6 @@ export default async function BuildPage() {
           </div>
         </section>
 
-        {/* Real projects */}
         {projects.length > 0 && (
           <section className="border-b border-border/60 py-16 sm:py-24 lg:py-32">
             <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
@@ -115,7 +121,6 @@ export default async function BuildPage() {
           </section>
         )}
 
-        {/* Real Wyntech data */}
         {wyntech && (
           <section className="border-b border-border/60 py-16 sm:py-24 lg:py-32">
             <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
@@ -153,17 +158,21 @@ export default async function BuildPage() {
                           </p>
                         )}
 
-                        {wyntech
-                          .company
-                          .description && (
-                          <p className="mt-4 max-w-2xl leading-relaxed text-muted-foreground">
-                            {
-                              wyntech
-                                .company
-                                .description
-                            }
-                          </p>
-                        )}
+                        <p className="mt-4 max-w-2xl leading-relaxed text-muted-foreground">
+                          Websites,
+                          software, and
+                          automation for
+                          people who want
+                          to turn an idea
+                          into something
+                          useful.
+                        </p>
+
+                        <span className="mt-6 inline-flex items-center gap-2 text-sm font-medium text-foreground">
+                          View Wyntech
+                          services
+                          <ArrowUpRight className="size-4" />
+                        </span>
                       </div>
 
                       <ArrowUpRight className="mt-2 size-6 shrink-0 transition-transform group-hover:translate-x-1 group-hover:-translate-y-1" />
@@ -175,7 +184,6 @@ export default async function BuildPage() {
           </section>
         )}
 
-        {/* Process */}
         <section className="border-b border-border/60 py-16 sm:py-24 lg:py-32">
           <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
             <div className="grid gap-8 lg:grid-cols-12">
@@ -200,13 +208,25 @@ export default async function BuildPage() {
         <section className="py-20 sm:py-28 lg:py-36">
           <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
             <Link
-              href="/#contact"
+              href="/wyntech#services"
               className="group flex items-end justify-between gap-8 border-t border-border/70 pt-8"
             >
-              <h2 className="max-w-4xl text-4xl font-medium tracking-[-0.05em] sm:text-6xl lg:text-7xl">
-                Have something worth
-                building?
-              </h2>
+              <div>
+                <p className="mb-3 text-xs font-medium uppercase tracking-[0.2em] text-muted-foreground">
+                  Work with me through
+                  Wyntech
+                </p>
+
+                <h2 className="max-w-4xl text-4xl font-medium tracking-[-0.05em] sm:text-6xl lg:text-7xl">
+                  Have something worth
+                  building?
+                </h2>
+
+                <p className="mt-5 text-sm font-medium text-muted-foreground">
+                  View services and
+                  start a project.
+                </p>
+              </div>
 
               <ArrowUpRight className="mb-2 size-7 shrink-0 transition-transform group-hover:translate-x-1 group-hover:-translate-y-1" />
             </Link>
