@@ -1,16 +1,8 @@
-import { createClient } from "@/lib/supabase/server"
-import { redirect } from "next/navigation"
 import { SettingsForm } from "@/components/admin/settings-form"
+import { requireAdmin } from "@/lib/admin/require-admin"
 
 export default async function SettingsPage() {
-  const supabase = await createClient()
-  const {
-    data: { user },
-  } = await supabase.auth.getUser()
-
-  if (!user || !user.user_metadata?.is_admin) {
-    redirect("/admin/login")
-  }
+  const { supabase } = await requireAdmin()
 
   const { data: settings } = await supabase.from("site_settings").select("*").order("key")
 
