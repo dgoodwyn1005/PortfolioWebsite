@@ -34,11 +34,11 @@ export function ProjectCard({
   const isFeatured =
     index === 0
 
+  // The first project in a curated collection is the flagship.
+  // Ordering stays content-driven so a future flagship does not
+  // require changing this component.
   const isFlagship =
-    project.title
-      .trim()
-      .toLowerCase() ===
-    "sonisphere"
+    isFeatured
 
   const number = String(
     index + 1,
