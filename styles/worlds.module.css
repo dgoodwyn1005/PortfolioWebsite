@@ -1,0 +1,184 @@
+.buildGrid {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+}
+
+.buildGrid::before {
+  position: absolute;
+  inset: 0;
+  z-index: -2;
+  content: "";
+  pointer-events: none;
+  background-image:
+    linear-gradient(to right, var(--border) 1px, transparent 1px),
+    linear-gradient(to bottom, var(--border) 1px, transparent 1px);
+  background-size: 72px 72px;
+  opacity: 0.45;
+  -webkit-mask-image: linear-gradient(to bottom, black 0%, black 58%, transparent 100%);
+  mask-image: linear-gradient(to bottom, black 0%, black 58%, transparent 100%);
+}
+
+.buildGrid::after {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 33.333%;
+  z-index: -1;
+  width: 1px;
+  content: "";
+  pointer-events: none;
+  background: linear-gradient(
+    to bottom,
+    transparent,
+    color-mix(in oklab, var(--primary) 58%, transparent) 28%,
+    color-mix(in oklab, var(--primary) 58%, transparent) 72%,
+    transparent
+  );
+  opacity: 0.75;
+}
+
+.buildPanel {
+  background: color-mix(in oklab, var(--background) 88%, transparent);
+  backdrop-filter: blur(14px);
+}
+
+.musicStage {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  background:
+    radial-gradient(
+      circle at 50% 7%,
+      oklch(0.82 0.11 78 / 0.24),
+      transparent 34%
+    ),
+    radial-gradient(
+      circle at 88% 72%,
+      oklch(0.72 0.12 190 / 0.14),
+      transparent 34%
+    );
+}
+
+.musicStage::before {
+  position: absolute;
+  top: 8%;
+  left: 50%;
+  z-index: -1;
+  width: min(78vw, 980px);
+  height: min(70vw, 760px);
+  content: "";
+  pointer-events: none;
+  border-radius: 50%;
+  background: radial-gradient(
+    ellipse,
+    oklch(0.93 0.06 78 / 0.42) 0%,
+    oklch(0.88 0.05 78 / 0.14) 34%,
+    transparent 70%
+  );
+  filter: blur(26px);
+  transform: translateX(-50%);
+}
+
+.musicCard {
+  background:
+    linear-gradient(
+      145deg,
+      color-mix(in oklab, var(--card) 94%, oklch(0.86 0.08 76) 6%),
+      color-mix(in oklab, var(--card) 96%, transparent)
+    );
+  box-shadow:
+    0 22px 70px color-mix(in oklab, var(--foreground) 7%, transparent),
+    inset 0 1px 0 color-mix(in oklab, white 65%, transparent);
+}
+
+.musicRule {
+  background: linear-gradient(
+    to right,
+    transparent,
+    oklch(0.72 0.12 76 / 0.8) 20%,
+    oklch(0.72 0.12 76 / 0.8) 80%,
+    transparent
+  );
+}
+
+.lifeCanvas {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  background:
+    radial-gradient(circle at 12% 18%, oklch(0.76 0.14 330 / 0.18), transparent 28%),
+    radial-gradient(circle at 88% 22%, oklch(0.78 0.13 175 / 0.18), transparent 27%),
+    radial-gradient(circle at 62% 86%, oklch(0.82 0.12 75 / 0.18), transparent 30%);
+}
+
+.lifeCanvas::before,
+.lifeCanvas::after {
+  position: absolute;
+  z-index: -1;
+  content: "";
+  pointer-events: none;
+  border-radius: 999px;
+  filter: blur(70px);
+}
+
+.lifeCanvas::before {
+  top: 18%;
+  left: -12%;
+  width: 34rem;
+  height: 20rem;
+  background: oklch(0.72 0.15 320 / 0.12);
+  transform: rotate(-16deg);
+}
+
+.lifeCanvas::after {
+  right: -10%;
+  bottom: 12%;
+  width: 38rem;
+  height: 18rem;
+  background: oklch(0.78 0.13 165 / 0.12);
+  transform: rotate(14deg);
+}
+
+.lifePaper {
+  background: color-mix(in oklab, var(--card) 84%, transparent);
+  box-shadow:
+    0 30px 90px color-mix(in oklab, var(--foreground) 9%, transparent),
+    inset 0 1px 0 color-mix(in oklab, white 60%, transparent);
+  backdrop-filter: blur(18px);
+}
+
+.lifePhotoFrame {
+  background:
+    linear-gradient(
+      135deg,
+      oklch(0.78 0.12 330 / 0.12),
+      transparent 30%,
+      transparent 70%,
+      oklch(0.76 0.12 170 / 0.12)
+    ),
+    color-mix(in oklab, var(--muted) 52%, transparent);
+}
+
+:global(.dark) .musicStage {
+  background:
+    radial-gradient(circle at 50% 8%, oklch(0.72 0.11 78 / 0.16), transparent 34%),
+    radial-gradient(circle at 88% 72%, oklch(0.62 0.1 190 / 0.14), transparent 34%);
+}
+
+:global(.dark) .musicCard,
+:global(.dark) .lifePaper {
+  box-shadow:
+    0 28px 90px rgb(0 0 0 / 0.22),
+    inset 0 1px 0 rgb(255 255 255 / 0.05);
+}
+
+@media (max-width: 1023px) {
+  .buildGrid::before {
+    background-size: 48px 48px;
+  }
+
+  .buildGrid::after {
+    display: none;
+  }
+}
