@@ -1,6 +1,7 @@
 "use client"
 
 import { useReducedMotion } from "@/lib/use-reduced-motion"
+import { ResilientImage } from "@/components/resilient-image"
 
 import {
   useEffect,
@@ -217,9 +218,7 @@ export function PhotoGalleryClient({
                   aria-label={
                     photo.caption
                       ? `View ${photo.caption}`
-                      : `View photo ${
-                          index + 1
-                        }`
+                      : `View photo ${index + 1}`
                   }
                   className="group block w-full text-left"
                 >
@@ -232,18 +231,32 @@ export function PhotoGalleryClient({
                         : "",
                     ].join(" ")}
                   >
-                    <Image
-                      src={photo.image_url}
+                    <ResilientImage
+                      sources={[photo.image_url]}
                       alt={
                         photo.caption ||
                         "Deshawn Goodwyn"
                       }
-                      fill
-                      sizes={
+                      loading={
                         index === 0
-                          ? "(max-width: 640px) 100vw, (max-width: 1024px) 100vw, 58vw"
-                          : "(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 42vw"
+                          ? "eager"
+                          : "lazy"
                       }
+                      fetchPriority={
+                        index === 0
+                          ? "high"
+                          : "auto"
+                      }
+                      fallbackTone={
+                        variant === "life"
+                          ? "life"
+                          : "neutral"
+                      }
+                      fallbackLabel={
+                        photo.caption ||
+                        `Moment ${String(index + 1).padStart(2, "0")}`
+                      }
+                      fallbackDetail="Photo temporarily unavailable"
                       className="object-cover transition-transform duration-700 ease-out group-hover:scale-[1.025]"
                     />
 
@@ -251,6 +264,12 @@ export function PhotoGalleryClient({
                       aria-hidden="true"
                       className="absolute inset-0 bg-black/0 transition-colors duration-300 group-hover:bg-black/10"
                     />
+
+                    {variant === "life" && (
+                      <div className="pointer-events-none absolute bottom-3 left-3 rounded-full border border-white/20 bg-black/25 px-2.5 py-1 font-mono text-[10px] tracking-[0.15em] text-white backdrop-blur-sm">
+                        {String(index + 1).padStart(2, "0")}
+                      </div>
+                    )}
                   </div>
                 </button>
 
@@ -278,15 +297,9 @@ export function PhotoGalleryClient({
             role="dialog"
             aria-modal="true"
             aria-label="Photo viewer"
-            initial={{
-              opacity: 0,
-            }}
-            animate={{
-              opacity: 1,
-            }}
-            exit={{
-              opacity: 0,
-            }}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
             transition={{
               duration:
                 shouldReduceMotion
@@ -363,13 +376,9 @@ export function PhotoGalleryClient({
               className="relative flex max-h-full max-w-6xl flex-col items-center"
             >
               <Image
-                src={
-                  photos[selectedIndex]
-                    .image_url
-                }
+                src={photos[selectedIndex].image_url}
                 alt={
-                  photos[selectedIndex]
-                    .caption ||
+                  photos[selectedIndex].caption ||
                   "Deshawn Goodwyn"
                 }
                 width={1600}
@@ -378,13 +387,9 @@ export function PhotoGalleryClient({
                 className="max-h-[72svh] w-auto max-w-full object-contain"
               />
 
-              {photos[selectedIndex]
-                .caption && (
+              {photos[selectedIndex].caption && (
                 <p className="mt-4 max-w-2xl text-center text-sm leading-relaxed text-white/70 sm:text-base">
-                  {
-                    photos[selectedIndex]
-                      .caption
-                  }
+                  {photos[selectedIndex].caption}
                 </p>
               )}
             </motion.div>
