@@ -7,7 +7,8 @@
     "dev": "next dev",
     "lint": "eslint .",
     "start": "next start",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "test": "node --experimental-test-module-mocks --import tsx --test tests/*.test.mts"
   },
   "dependencies": {
     "@emotion/is-prop-valid": "latest",
