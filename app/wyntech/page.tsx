@@ -15,13 +15,13 @@ import {
   getCompanyPageData,
 } from "@/lib/content/companies"
 
+const title = "Wyntech | Web Design, Software & Automation"
 const description =
-  "Websites, software, automation, and digital products built through Wyntech by Deshawn Goodwyn."
+  "Web design, website development, software, automation, e-commerce, and digital products built through Wyntech by Deshawn Goodwyn."
 
 export const metadata: Metadata = {
   title: {
-    absolute:
-      "Wyntech | Websites, Software & Digital Products",
+    absolute: title,
   },
 
   description,
@@ -31,30 +31,25 @@ export const metadata: Metadata = {
   },
 
   openGraph: {
-    title:
-      "Wyntech | Websites, Software & Digital Products",
-
+    title,
     description,
-
+    url: "/wyntech",
     type: "website",
-
     images: [
       {
         url: "/og-wyntech.jpg",
         width: 1200,
         height: 630,
-        alt: "Wyntech",
+        alt: "Wyntech — Web Design, Software & Automation",
       },
     ],
   },
 
   twitter: {
     card: "summary_large_image",
-
-    title:
-      "Wyntech | Websites, Software & Digital Products",
-
+    title,
     description,
+    images: ["/og-wyntech.jpg"],
   },
 }
 

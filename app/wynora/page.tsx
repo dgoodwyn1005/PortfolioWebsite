@@ -23,13 +23,13 @@ import {
   getWynoraMediaData,
 } from "@/lib/content/companies"
 
+const title = "Wynora | Live Pianist, Performance & Music Services"
 const description =
-  "Piano performance, accompaniment, arrangements, recording, and professional music services through Wynora by Deshawn Goodwyn."
+  "Live piano for weddings, church services, private events, accompaniment, recordings, and arrangements through Wynora by Deshawn Goodwyn."
 
 export const metadata: Metadata = {
   title: {
-    absolute:
-      "Wynora | Piano, Performance & Music Services",
+    absolute: title,
   },
 
   description,
@@ -39,30 +39,25 @@ export const metadata: Metadata = {
   },
 
   openGraph: {
-    title:
-      "Wynora | Piano, Performance & Music Services",
-
+    title,
     description,
-
+    url: "/wynora",
     type: "website",
-
     images: [
       {
         url: "/og-wynora.jpg",
         width: 1200,
         height: 630,
-        alt: "Wynora",
+        alt: "Wynora — Live Pianist, Performance & Music Services",
       },
     ],
   },
 
   twitter: {
     card: "summary_large_image",
-
-    title:
-      "Wynora | Piano, Performance & Music Services",
-
+    title,
     description,
+    images: ["/og-wynora.jpg"],
   },
 }
 

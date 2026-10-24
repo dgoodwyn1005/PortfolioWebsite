@@ -1,6 +1,16 @@
+import type { Metadata } from "next"
 import Link from "next/link"
 import { CheckCircle } from "lucide-react"
 import { Button } from "@/components/ui/button"
+
+export const metadata: Metadata = {
+  title: "Payment Successful",
+  robots: {
+    index: false,
+    follow: false,
+    nocache: true,
+  },
+}
 
 export default function SuccessPage() {
   return (
@@ -18,7 +28,7 @@ export default function SuccessPage() {
             <Link href="/">Return Home</Link>
           </Button>
           <Button asChild variant="outline" className="w-full bg-transparent">
-            <Link href="/contact">Contact Support</Link>
+            <Link href="/#contact">Contact Support</Link>
           </Button>
         </div>
       </div>

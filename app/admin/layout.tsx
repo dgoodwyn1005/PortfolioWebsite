@@ -1,7 +1,16 @@
+import type { Metadata } from "next"
 import type React from "react"
 
 import { AdminSidebar } from "@/components/admin/sidebar"
 import { createClient } from "@/lib/supabase/server"
+
+export const metadata: Metadata = {
+  robots: {
+    index: false,
+    follow: false,
+    nocache: true,
+  },
+}
 
 // Admin pages depend on the current session and must never be prerendered.
 export const dynamic = "force-dynamic"
