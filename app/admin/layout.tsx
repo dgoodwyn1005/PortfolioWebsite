@@ -1,6 +1,7 @@
 import type React from "react"
-import { createClient } from "@/lib/supabase/server"
+
 import { AdminSidebar } from "@/components/admin/sidebar"
+import { createClient } from "@/lib/supabase/server"
 
 // Admin pages depend on the current session and must never be prerendered.
 export const dynamic = "force-dynamic"
@@ -15,17 +16,28 @@ export default async function AdminLayout({
     data: { user },
   } = await supabase.auth.getUser()
 
-  // Show sidebar for any authenticated user
+  let isAdmin = false
+
+  if (user) {
+    const { data: role } = await supabase
+      .from("user_roles")
+      .select("is_admin")
+      .eq("user_id", user.id)
+      .maybeSingle()
+
+    isAdmin = role?.is_admin === true
+  }
+
+  if (!isAdmin) {
+    return <div className="min-h-screen bg-background">{children}</div>
+  }
+
   return (
-    <div className="min-h-screen bg-background">
-      {user ? (
-        <div className="flex">
-          <AdminSidebar />
-          <main className="flex-1 p-8">{children}</main>
-        </div>
-      ) : (
-        children
-      )}
+    <div className="min-h-screen bg-muted/10 lg:flex">
+      <AdminSidebar />
+      <main className="min-w-0 flex-1 px-4 py-6 sm:px-6 sm:py-8 lg:px-10 lg:py-10 xl:px-12">
+        <div className="mx-auto w-full max-w-[1500px]">{children}</div>
+      </main>
     </div>
   )
 }
