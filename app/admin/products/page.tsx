@@ -1,17 +1,8 @@
-import { createClient } from "@/lib/supabase/server"
-import { redirect } from "next/navigation"
 import { ProductsManager } from "@/components/admin/products-manager"
+import { requireAdmin } from "@/lib/admin/require-admin"
 
 export default async function ProductsAdminPage() {
-  const supabase = await createClient()
-
-  const {
-    data: { user },
-  } = await supabase.auth.getUser()
-
-  if (!user || !user.user_metadata?.is_admin) {
-    redirect("/admin/login")
-  }
+  await requireAdmin()
 
   return (
     <div className="space-y-6">
