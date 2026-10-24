@@ -34,6 +34,12 @@ export function ProjectCard({
   const isFeatured =
     index === 0
 
+  // The first project in a curated collection is the flagship.
+  // Ordering stays content-driven so a future flagship does not
+  // require changing this component.
+  const isFlagship =
+    isFeatured
+
   const number = String(
     index + 1,
   ).padStart(2, "0")
@@ -138,12 +144,18 @@ export function ProjectCard({
             <div className="pointer-events-none absolute left-3 top-3 flex items-center gap-2 border border-white/20 bg-black/30 px-2.5 py-1.5 font-mono text-[10px] uppercase tracking-[0.18em] text-white backdrop-blur-sm sm:left-4 sm:top-4">
               <span>{number}</span>
               <span className="h-px w-5 bg-white/40" />
-              <span>Build</span>
+              <span>
+                {isFlagship
+                  ? "Flagship"
+                  : "Build"}
+              </span>
             </div>
 
             {project.live_url && (
               <div className="pointer-events-none absolute bottom-3 right-3 hidden items-center gap-1.5 rounded-full border border-white/20 bg-black/30 px-3 py-1.5 text-[10px] font-medium uppercase tracking-[0.14em] text-white backdrop-blur-sm sm:flex">
-                Live
+                {isFlagship
+                  ? "Live product"
+                  : "Live"}
                 <ArrowUpRight className="size-3" />
               </div>
             )}
@@ -191,9 +203,18 @@ export function ProjectCard({
               </div>
             </div>
 
+            {isFlagship && (
+              <p className="mt-5 font-mono text-[10px] uppercase tracking-[0.18em] text-muted-foreground">
+                Flagship product · software × music
+              </p>
+            )}
+
             <h3
               className={[
-                "mt-5 font-medium tracking-[-0.04em] text-foreground",
+                isFlagship
+                  ? "mt-3"
+                  : "mt-5",
+                "font-medium tracking-[-0.04em] text-foreground",
                 isFeatured
                   ? "text-3xl sm:text-4xl lg:text-5xl"
                   : "text-2xl sm:text-3xl",
@@ -243,7 +264,9 @@ export function ProjectCard({
                 rel="noopener noreferrer"
                 className="group/link mt-5 inline-flex min-h-11 items-center gap-2 text-sm font-medium text-foreground"
               >
-                Explore project
+                {isFlagship
+                  ? "Experience product"
+                  : "Explore project"}
                 <ArrowUpRight className="size-4 transition-transform duration-200 group-hover/link:translate-x-0.5 group-hover/link:-translate-y-0.5" />
               </a>
             )}
