@@ -86,28 +86,59 @@ export function ResilientImage({
   }, [sourceKey])
 
   useEffect(() => {
-    const retry = () => {
+    const retryIfExhausted = () => {
       if (
-        sourceIndex >=
+        sourceIndex <
         normalizedSources.length
       ) {
-        setSourceIndex(0)
-        setLoaded(false)
-        setRetryToken((value) =>
-          value + 1,
-        )
+        return
+      }
+
+      setSourceIndex(0)
+      setLoaded(false)
+      setRetryToken((value) =>
+        value + 1,
+      )
+    }
+
+    const retryWhenVisible = () => {
+      if (
+        document.visibilityState ===
+        "visible"
+      ) {
+        retryIfExhausted()
       }
     }
 
     window.addEventListener(
       "online",
-      retry,
+      retryIfExhausted,
+    )
+
+    window.addEventListener(
+      "focus",
+      retryIfExhausted,
+    )
+
+    document.addEventListener(
+      "visibilitychange",
+      retryWhenVisible,
     )
 
     return () => {
       window.removeEventListener(
         "online",
-        retry,
+        retryIfExhausted,
+      )
+
+      window.removeEventListener(
+        "focus",
+        retryIfExhausted,
+      )
+
+      document.removeEventListener(
+        "visibilitychange",
+        retryWhenVisible,
       )
     }
   }, [
