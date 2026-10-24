@@ -1,17 +1,8 @@
-import { createClient } from "@/lib/supabase/server"
-import { redirect } from "next/navigation"
 import { StripeSettings } from "@/components/admin/stripe-settings"
+import { requireAdmin } from "@/lib/admin/require-admin"
 
 export default async function StripeAdminPage() {
-  const supabase = await createClient()
-
-  const {
-    data: { user },
-  } = await supabase.auth.getUser()
-
-  if (!user || !user.user_metadata?.is_admin) {
-    redirect("/admin/login")
-  }
+  const { supabase } = await requireAdmin()
 
   // Fetch current Stripe settings
   const { data: settings } = await supabase

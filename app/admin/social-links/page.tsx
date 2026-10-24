@@ -1,16 +1,8 @@
-import { createClient } from "@/lib/supabase/server"
-import { redirect } from "next/navigation"
 import { SocialLinksManager } from "@/components/admin/social-links-manager"
+import { requireAdmin } from "@/lib/admin/require-admin"
 
 export default async function SocialLinksPage() {
-  const supabase = await createClient()
-  const {
-    data: { user },
-  } = await supabase.auth.getUser()
-
-  if (!user || !user.user_metadata?.is_admin) {
-    redirect("/admin/login")
-  }
+  const { supabase } = await requireAdmin()
 
   const { data: links } = await supabase.from("social_links").select("*").order("display_order")
 

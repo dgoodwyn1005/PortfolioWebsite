@@ -1,16 +1,8 @@
-import { createClient } from "@/lib/supabase/server"
-import { redirect } from "next/navigation"
 import { TestimonialsManager } from "@/components/admin/testimonials-manager"
+import { requireAdmin } from "@/lib/admin/require-admin"
 
 export default async function TestimonialsPage() {
-  const supabase = await createClient()
-  const {
-    data: { user },
-  } = await supabase.auth.getUser()
-
-  if (!user || !user.user_metadata?.is_admin) {
-    redirect("/admin/login")
-  }
+  const { supabase } = await requireAdmin()
 
   const { data: companies } = await supabase.from("companies").select("id, name, slug").order("name")
 
@@ -20,7 +12,7 @@ export default async function TestimonialsPage() {
     .order("created_at", { ascending: false })
 
   // Count pending testimonials
-  const pendingCount = testimonials?.filter(t => t.status === 'pending').length || 0
+  const pendingCount = testimonials?.filter((t) => t.status === "pending").length || 0
 
   return (
     <div className="space-y-8">

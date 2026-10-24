@@ -1,16 +1,8 @@
-import { createClient } from "@/lib/supabase/server"
-import { redirect } from "next/navigation"
 import { TeamManager } from "@/components/admin/team-manager"
+import { requireAdmin } from "@/lib/admin/require-admin"
 
 export default async function TeamPage() {
-  const supabase = await createClient()
-  const {
-    data: { user },
-  } = await supabase.auth.getUser()
-
-  if (!user || !user.user_metadata?.is_admin) {
-    redirect("/admin/login")
-  }
+  const { supabase } = await requireAdmin()
 
   const { data: companies } = await supabase.from("companies").select("id, name, slug").order("name")
 

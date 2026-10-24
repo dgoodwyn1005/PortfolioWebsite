@@ -1,16 +1,8 @@
-import { createClient } from "@/lib/supabase/server"
-import { redirect } from "next/navigation"
 import { ProjectsManager } from "@/components/admin/projects-manager"
+import { requireAdmin } from "@/lib/admin/require-admin"
 
 export default async function ProjectsPage() {
-  const supabase = await createClient()
-  const {
-    data: { user },
-  } = await supabase.auth.getUser()
-
-  if (!user || !user.user_metadata?.is_admin) {
-    redirect("/admin/login")
-  }
+  const { supabase } = await requireAdmin()
 
   const { data: projects } = await supabase.from("projects").select("*").order("display_order")
 
