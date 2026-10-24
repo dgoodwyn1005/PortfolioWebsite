@@ -26,17 +26,20 @@ export async function updateSession(request: NextRequest) {
     },
   })
 
-  // Verify the token rather than trusting the user object stored in a cookie.
+  // getUser() validates the current access token with Supabase. Authorization
+  // itself comes from the database-backed user_roles table below.
   const {
-    data: { claims },
-  } = await supabase.auth.getClaims()
+    data: { user },
+  } = await supabase.auth.getUser()
 
   const pathname = request.nextUrl.pathname
   const isAdminRoute = pathname === "/admin" || pathname.startsWith("/admin/")
   const isAdminLogin = pathname === "/admin/login"
 
   const copySessionState = (response: NextResponse) => {
-    response.cookies.setAll(supabaseResponse.cookies.getAll())
+    for (const cookie of supabaseResponse.cookies.getAll()) {
+      response.cookies.set(cookie.name, cookie.value, cookie)
+    }
 
     for (const header of ["cache-control", "expires", "pragma"]) {
       const value = supabaseResponse.headers.get(header)
@@ -47,21 +50,17 @@ export async function updateSession(request: NextRequest) {
   }
 
   if (isAdminRoute && !isAdminLogin) {
-    const userId = typeof claims?.sub === "string" ? claims.sub : null
-
-    if (!userId) {
+    if (!user) {
       const loginUrl = request.nextUrl.clone()
       loginUrl.pathname = "/admin/login"
       loginUrl.search = ""
       return copySessionState(NextResponse.redirect(loginUrl))
     }
 
-    // Authorization comes from the database-backed role table. This avoids
-    // treating editable user metadata as an admin permission.
     const { data: role } = await supabase
       .from("user_roles")
       .select("is_admin")
-      .eq("user_id", userId)
+      .eq("user_id", user.id)
       .maybeSingle()
 
     if (role?.is_admin !== true) {
