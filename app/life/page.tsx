@@ -67,7 +67,7 @@ export default async function LifePage() {
                 Athletics, education,
                 people, places,
                 milestones, and the
-                experiences that don't
+                experiences that don&apos;t
                 fit neatly into a
                 professional title.
               </p>

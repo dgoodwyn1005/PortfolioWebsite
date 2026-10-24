@@ -2,6 +2,9 @@ import type React from "react"
 import { createClient } from "@/lib/supabase/server"
 import { AdminSidebar } from "@/components/admin/sidebar"
 
+// Admin pages depend on the current session and must never be prerendered.
+export const dynamic = "force-dynamic"
+
 export default async function AdminLayout({
   children,
 }: {

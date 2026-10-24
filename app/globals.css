@@ -146,3 +146,7 @@
     transition-duration: 0.01ms !important;
   }
 }
+.font-variables {
+  --font-inter: "Inter Variable";
+  --font-geist-mono: "Geist Mono Variable";
+}

@@ -280,7 +280,7 @@ export function TestimonialsManager({
               </div>
             </CardHeader>
             <CardContent>
-              <p className="text-sm text-muted-foreground mb-3 line-clamp-3">"{testimonial.content}"</p>
+              <p className="text-sm text-muted-foreground mb-3 line-clamp-3">&quot;{testimonial.content}&quot;</p>
               <div className="flex items-center justify-between">
                 <div className="flex gap-1">
                   {Array.from({ length: 5 }).map((_, i) => (

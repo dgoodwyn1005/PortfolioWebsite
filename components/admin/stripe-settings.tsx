@@ -200,7 +200,7 @@ export function StripeSettings({ settings }: StripeSettingsProps) {
           <Alert>
             <AlertTitle>Test vs Live Mode</AlertTitle>
             <AlertDescription>
-              Use test keys (pk_test_, sk_test_) while developing. Switch to live keys (pk_live_, sk_live_) when you're
+              Use test keys (pk_test_, sk_test_) while developing. Switch to live keys (pk_live_, sk_live_) when you&apos;re
               ready to accept real payments.
             </AlertDescription>
           </Alert>
@@ -256,10 +256,10 @@ export function StripeSettings({ settings }: StripeSettingsProps) {
               Copy your <strong>Publishable key</strong> (starts with pk_)
             </li>
             <li>
-              Click "Reveal" next to your <strong>Secret key</strong> and copy it (starts with sk_)
+              Click &quot;Reveal&quot; next to your <strong>Secret key</strong> and copy it (starts with sk_)
             </li>
-            <li>Paste both keys above and click "Test Connection"</li>
-            <li>Once connected, click "Save Keys"</li>
+            <li>Paste both keys above and click &quot;Test Connection&quot;</li>
+            <li>Once connected, click &quot;Save Keys&quot;</li>
           </ol>
           <p className="text-xs border-l-2 border-primary pl-3 mt-4">
             <strong>Tip:</strong> Use test mode keys first to verify everything works, then switch to live keys when
