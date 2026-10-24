@@ -169,28 +169,10 @@ export default async function MusicPage() {
         </section>
 
         {videos.length > 0 && (
-          <section className="border-b border-border/60 py-16 sm:py-20">
-            <div className="mx-auto mb-10 max-w-7xl px-4 sm:px-6 lg:px-8">
-              <div className="flex items-end justify-between gap-8 border-b border-border/60 pb-5">
-                <div>
-                  <p className="text-xs font-medium uppercase tracking-[0.22em] text-muted-foreground">
-                    On Screen
-                  </p>
-                  <h2 className="mt-3 text-3xl font-medium tracking-[-0.04em] sm:text-4xl">
-                    Performance in motion.
-                  </h2>
-                </div>
-
-                <p className="hidden font-mono text-[10px] uppercase tracking-[0.18em] text-muted-foreground sm:block">
-                  Program / 02
-                </p>
-              </div>
-            </div>
-
-            <VideoShowcase
-              videos={videos}
-            />
-          </section>
+          <VideoShowcase
+            videos={videos}
+            variant="stage"
+          />
         )}
 
         {wynora && (
