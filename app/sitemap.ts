@@ -1,66 +1,17 @@
-import type {
-  MetadataRoute,
-} from "next"
+import type { MetadataRoute } from "next"
 
 const siteUrl = (
-  process.env
-    .NEXT_PUBLIC_SITE_URL ||
-  "https://deshawngoodwyn.com"
+  process.env.NEXT_PUBLIC_SITE_URL ||
+  "https://www.deshawngoodwyn.com"
 ).replace(/\/$/, "")
 
-export default function sitemap():
-  MetadataRoute.Sitemap {
-  const currentDate =
-    new Date()
-
+export default function sitemap(): MetadataRoute.Sitemap {
   return [
-    {
-      url: siteUrl,
-      lastModified:
-        currentDate,
-      changeFrequency:
-        "weekly",
-      priority: 1,
-    },
-    {
-      url: `${siteUrl}/build`,
-      lastModified:
-        currentDate,
-      changeFrequency:
-        "weekly",
-      priority: 0.9,
-    },
-    {
-      url: `${siteUrl}/music`,
-      lastModified:
-        currentDate,
-      changeFrequency:
-        "weekly",
-      priority: 0.9,
-    },
-    {
-      url: `${siteUrl}/life`,
-      lastModified:
-        currentDate,
-      changeFrequency:
-        "weekly",
-      priority: 0.8,
-    },
-    {
-      url: `${siteUrl}/wyntech`,
-      lastModified:
-        currentDate,
-      changeFrequency:
-        "weekly",
-      priority: 0.9,
-    },
-    {
-      url: `${siteUrl}/wynora`,
-      lastModified:
-        currentDate,
-      changeFrequency:
-        "weekly",
-      priority: 0.9,
-    },
+    { url: siteUrl },
+    { url: `${siteUrl}/build` },
+    { url: `${siteUrl}/music` },
+    { url: `${siteUrl}/life` },
+    { url: `${siteUrl}/wyntech` },
+    { url: `${siteUrl}/wynora` },
   ]
 }
