@@ -19,6 +19,36 @@ import {
   getWynoraMediaData,
 } from "@/lib/content/companies"
 
+function prioritizeFlagshipProject<
+  T extends { title: string },
+>(projects: T[]) {
+  return [...projects].sort(
+    (a, b) => {
+      const aIsFlagship =
+        a.title
+          .trim()
+          .toLowerCase() ===
+        "sonisphere"
+      const bIsFlagship =
+        b.title
+          .trim()
+          .toLowerCase() ===
+        "sonisphere"
+
+      if (
+        aIsFlagship ===
+        bIsFlagship
+      ) {
+        return 0
+      }
+
+      return aIsFlagship
+        ? -1
+        : 1
+    },
+  )
+}
+
 export async function getBuildPageData() {
   const [
     site,
@@ -34,7 +64,12 @@ export async function getBuildPageData() {
     navigation:
       site.navigation,
 
-    projects,
+    // Keep the durable Build world broad, but make the strongest
+    // product expression visibly lead the portfolio hierarchy.
+    projects:
+      prioritizeFlagshipProject(
+        projects,
+      ),
 
     wyntech,
   }
