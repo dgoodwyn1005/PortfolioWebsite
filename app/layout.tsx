@@ -37,6 +37,16 @@ export const metadata: Metadata = {
   creator: "Deshawn Goodwyn",
   publisher: "Deshawn Goodwyn",
 
+  icons: {
+    icon: [
+      {
+        url: "/apple-icon.png",
+        type: "image/png",
+      },
+    ],
+    apple: "/apple-icon.png",
+  },
+
   robots: {
     index: true,
     follow: true,
