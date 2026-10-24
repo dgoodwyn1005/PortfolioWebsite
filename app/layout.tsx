@@ -10,10 +10,10 @@ import "./globals.css"
 
 const siteUrl =
   process.env.NEXT_PUBLIC_SITE_URL?.replace(/\/$/, "") ||
-  "https://deshawngoodwyn.com"
+  "https://www.deshawngoodwyn.com"
 
 const siteDescription =
-  "The official website of Deshawn Goodwyn — work, music, life, and the ideas connecting them."
+  "The official website of Deshawn Goodwyn — software, music, athletics, ventures, and the work connecting them."
 
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
@@ -53,21 +53,22 @@ export const metadata: Metadata = {
     type: "website",
     locale: "en_US",
     siteName: "Deshawn Goodwyn",
-    title: "Deshawn Goodwyn",
+    title: "Deshawn Goodwyn | Build · Music · Life",
     description: siteDescription,
+    url: siteUrl,
     images: [
       {
         url: "/og-image",
         width: 1200,
         height: 630,
-        alt: "Deshawn Goodwyn",
+        alt: "Deshawn Goodwyn — Build, Music, Life",
       },
     ],
   },
 
   twitter: {
     card: "summary_large_image",
-    title: "Deshawn Goodwyn",
+    title: "Deshawn Goodwyn | Build · Music · Life",
     description: siteDescription,
     images: ["/og-image"],
     creator: "@dgoodwyn",
@@ -109,30 +110,50 @@ const structuredData = {
       sameAs: [
         "https://twitter.com/dgoodwyn",
         "https://linkedin.com/in/deshawngoodwyn",
-        "https://github.com/dgoodwyn",
+        "https://github.com/dgoodwyn1005",
       ],
 
       knowsAbout: [
         "Software Engineering",
         "Web Development",
         "Product Development",
-        "Piano",
+        "Piano Performance",
         "Music",
         "Basketball",
       ],
 
       affiliation: [
         {
-          "@type": "Organization",
-          name: "Wyntech",
-          url: `${siteUrl}/wyntech`,
+          "@id": `${siteUrl}/wyntech#organization`,
         },
         {
-          "@type": "Organization",
-          name: "Wynora",
-          url: `${siteUrl}/wynora`,
+          "@id": `${siteUrl}/wynora#organization`,
         },
       ],
+    },
+
+    {
+      "@type": "Organization",
+      "@id": `${siteUrl}/wyntech#organization`,
+      name: "Wyntech",
+      url: `${siteUrl}/wyntech`,
+      founder: {
+        "@id": `${siteUrl}/#person`,
+      },
+      description:
+        "Websites, software, automation, and digital products built through Wyntech by Deshawn Goodwyn.",
+    },
+
+    {
+      "@type": "Organization",
+      "@id": `${siteUrl}/wynora#organization`,
+      name: "Wynora",
+      url: `${siteUrl}/wynora`,
+      founder: {
+        "@id": `${siteUrl}/#person`,
+      },
+      description:
+        "Piano performance, accompaniment, arrangements, recording, and professional music services through Wynora by Deshawn Goodwyn.",
     },
 
     {
@@ -142,8 +163,22 @@ const structuredData = {
       url: siteUrl,
       name: "Deshawn Goodwyn",
       description: siteDescription,
+      inLanguage: "en-US",
 
       publisher: {
+        "@id": `${siteUrl}/#person`,
+      },
+    },
+
+    {
+      "@type": "ProfilePage",
+      "@id": `${siteUrl}/#profile-page`,
+      url: siteUrl,
+      name: "Deshawn Goodwyn | Build · Music · Life",
+      isPartOf: {
+        "@id": `${siteUrl}/#website`,
+      },
+      mainEntity: {
         "@id": `${siteUrl}/#person`,
       },
     },
@@ -182,7 +217,7 @@ export default function RootLayout({
         >
           Skip to content
         </a>
-        
+
         <ThemeProvider
           attribute="class"
           defaultTheme="dark"
