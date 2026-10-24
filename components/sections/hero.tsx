@@ -13,27 +13,35 @@ import {
   motion,
 } from "framer-motion"
 
+import styles from "@/styles/worlds.module.css"
+
 const worlds = [
   {
     number: "01",
     name: "Build",
+    kicker: "Structure",
     description:
       "Technology, products, ventures, and the ideas behind them.",
     href: "/build",
+    visualClass: styles.homeBuildTile,
   },
   {
     number: "02",
     name: "Music",
+    kicker: "Presence",
     description:
       "Piano, performance, arranging, and musical creation.",
     href: "/music",
+    visualClass: styles.homeMusicTile,
   },
   {
     number: "03",
     name: "Life",
+    kicker: "Motion",
     description:
       "Athletics, education, experiences, and the story in between.",
     href: "/life",
+    visualClass: styles.homeLifeTile,
   },
 ]
 
@@ -212,20 +220,25 @@ export function HeroSection({
                 key={world.name}
                 href={world.href}
                 className={[
+                  styles.homeWorldTile,
+                  world.visualClass,
                   "group relative flex min-h-36 flex-col justify-between",
                   "border-b border-border/70 py-5",
-                  "transition-colors hover:bg-foreground/[0.03]",
-                  "md:min-h-44 md:border-b-0 md:px-6 md:py-6",
+                  "transition-colors",
+                  "md:min-h-48 md:border-b-0 md:px-6 md:py-6",
                   "md:first:pl-0",
                   "md:not-first:border-l md:not-first:border-border/70",
                 ].join(" ")}
               >
                 <div className="flex items-start justify-between gap-4">
-                  <span className="font-mono text-xs text-muted-foreground">
-                    {
-                      world.number
-                    }
-                  </span>
+                  <div>
+                    <span className="font-mono text-xs text-muted-foreground">
+                      {world.number}
+                    </span>
+                    <p className="mt-2 text-[10px] font-medium uppercase tracking-[0.18em] text-muted-foreground">
+                      {world.kicker}
+                    </p>
+                  </div>
 
                   <ArrowUpRight className="size-4 text-muted-foreground transition-transform duration-200 group-hover:translate-x-1 group-hover:-translate-y-1 group-hover:text-foreground" />
                 </div>
@@ -236,9 +249,7 @@ export function HeroSection({
                   </h2>
 
                   <p className="mt-2 max-w-xs text-sm leading-relaxed text-muted-foreground">
-                    {
-                      world.description
-                    }
+                    {world.description}
                   </p>
                 </div>
               </Link>

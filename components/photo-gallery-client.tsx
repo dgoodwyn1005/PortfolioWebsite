@@ -1,14 +1,13 @@
 "use client"
 
 import { useReducedMotion } from "@/lib/use-reduced-motion"
+import { ResilientImage } from "@/components/resilient-image"
 
 import {
   useEffect,
   useRef,
   useState,
 } from "react"
-
-import Image from "next/image"
 
 import {
   AnimatePresence,
@@ -25,6 +24,7 @@ import type { Photo } from "@/lib/content/media"
 
 interface PhotoGalleryClientProps {
   photos: Photo[]
+  variant?: "default" | "life"
 }
 
 const imageLayouts = [
@@ -56,8 +56,17 @@ const imageLayouts = [
   },
 ]
 
+const lifeTilts = [
+  "lg:rotate-[-0.7deg]",
+  "lg:translate-y-5 lg:rotate-[0.6deg]",
+  "lg:translate-x-2 lg:rotate-[-0.45deg]",
+  "lg:-translate-y-2 lg:rotate-[0.5deg]",
+  "lg:translate-x-1 lg:rotate-[-0.35deg]",
+]
+
 export function PhotoGalleryClient({
   photos,
+  variant = "default",
 }: PhotoGalleryClientProps) {
   const shouldReduceMotion = useReducedMotion()
 
@@ -147,6 +156,11 @@ export function PhotoGalleryClient({
               imageLayouts.length - 1
             ]
 
+          const lifeTilt =
+            lifeTilts[
+              index % lifeTilts.length
+            ]
+
           return (
             <motion.figure
               key={photo.id}
@@ -187,53 +201,89 @@ export function PhotoGalleryClient({
               }}
               className={layout.wrapper}
             >
-              <button
-                type="button"
-                onClick={() =>
-                  setSelectedIndex(index)
+              <div
+                className={
+                  variant === "life"
+                    ? lifeTilt
+                    : ""
                 }
-                aria-label={
-                  photo.caption
-                    ? `View ${photo.caption}`
-                    : `View photo ${
-                        index + 1
-                      }`
-                }
-                className="group block w-full text-left"
               >
-                <div
-                  className={[
-                    "relative overflow-hidden bg-muted",
-                    layout.aspect,
-                  ].join(" ")}
+                <button
+                  type="button"
+                  onClick={() =>
+                    setSelectedIndex(index)
+                  }
+                  aria-label={
+                    photo.caption
+                      ? `View ${photo.caption}`
+                      : `View photo ${index + 1}`
+                  }
+                  className="group block w-full text-left"
                 >
-                  <Image
-                    src={photo.image_url}
-                    alt={
-                      photo.caption ||
-                      "Deshawn Goodwyn"
-                    }
-                    fill
-                    sizes={
-                      index === 0
-                        ? "(max-width: 640px) 100vw, (max-width: 1024px) 100vw, 58vw"
-                        : "(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 42vw"
-                    }
-                    className="object-cover transition-transform duration-700 ease-out group-hover:scale-[1.025]"
-                  />
-
                   <div
-                    aria-hidden="true"
-                    className="absolute inset-0 bg-black/0 transition-colors duration-300 group-hover:bg-black/10"
-                  />
-                </div>
-              </button>
+                    className={[
+                      "relative overflow-hidden bg-muted",
+                      layout.aspect,
+                      variant === "life"
+                        ? "rounded-[1.5rem] shadow-xl shadow-black/5 ring-1 ring-border/30"
+                        : "",
+                    ].join(" ")}
+                  >
+                    <ResilientImage
+                      sources={[photo.image_url]}
+                      alt={
+                        photo.caption ||
+                        "Deshawn Goodwyn"
+                      }
+                      loading={
+                        index === 0
+                          ? "eager"
+                          : "lazy"
+                      }
+                      fetchPriority={
+                        index === 0
+                          ? "high"
+                          : "auto"
+                      }
+                      fallbackTone={
+                        variant === "life"
+                          ? "life"
+                          : "neutral"
+                      }
+                      fallbackLabel={
+                        photo.caption ||
+                        `Moment ${String(index + 1).padStart(2, "0")}`
+                      }
+                      fallbackDetail="Photo temporarily unavailable"
+                      className="object-cover transition-transform duration-700 ease-out group-hover:scale-[1.025]"
+                    />
 
-              {photo.caption && (
-                <figcaption className="mt-2 text-xs leading-relaxed text-muted-foreground sm:text-sm">
-                  {photo.caption}
-                </figcaption>
-              )}
+                    <div
+                      aria-hidden="true"
+                      className="absolute inset-0 bg-black/0 transition-colors duration-300 group-hover:bg-black/10"
+                    />
+
+                    {variant === "life" && (
+                      <div className="pointer-events-none absolute bottom-3 left-3 rounded-full border border-white/20 bg-black/25 px-2.5 py-1 font-mono text-[10px] tracking-[0.15em] text-white backdrop-blur-sm">
+                        {String(index + 1).padStart(2, "0")}
+                      </div>
+                    )}
+                  </div>
+                </button>
+
+                {photo.caption && (
+                  <figcaption
+                    className={[
+                      "mt-2 text-xs leading-relaxed text-muted-foreground sm:text-sm",
+                      variant === "life"
+                        ? "px-1"
+                        : "",
+                    ].join(" ")}
+                  >
+                    {photo.caption}
+                  </figcaption>
+                )}
+              </div>
             </motion.figure>
           )
         })}
@@ -245,15 +295,9 @@ export function PhotoGalleryClient({
             role="dialog"
             aria-modal="true"
             aria-label="Photo viewer"
-            initial={{
-              opacity: 0,
-            }}
-            animate={{
-              opacity: 1,
-            }}
-            exit={{
-              opacity: 0,
-            }}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
             transition={{
               duration:
                 shouldReduceMotion
@@ -327,31 +371,36 @@ export function PhotoGalleryClient({
               onClick={(event) =>
                 event.stopPropagation()
               }
-              className="relative flex max-h-full max-w-6xl flex-col items-center"
+              className="relative flex max-h-full w-full max-w-6xl flex-col items-center"
             >
-              <Image
-                src={
-                  photos[selectedIndex]
-                    .image_url
-                }
-                alt={
-                  photos[selectedIndex]
-                    .caption ||
-                  "Deshawn Goodwyn"
-                }
-                width={1600}
-                height={1200}
-                priority
-                className="max-h-[72svh] w-auto max-w-full object-contain"
-              />
-
-              {photos[selectedIndex]
-                .caption && (
-                <p className="mt-4 max-w-2xl text-center text-sm leading-relaxed text-white/70 sm:text-base">
-                  {
-                    photos[selectedIndex]
-                      .caption
+              <div className="relative h-[68svh] w-full max-w-5xl overflow-hidden rounded-2xl bg-white/5 ring-1 ring-white/10 sm:h-[72svh]">
+                <ResilientImage
+                  sources={[
+                    photos[selectedIndex].image_url,
+                  ]}
+                  alt={
+                    photos[selectedIndex].caption ||
+                    "Deshawn Goodwyn"
                   }
+                  loading="eager"
+                  fetchPriority="high"
+                  fallbackTone={
+                    variant === "life"
+                      ? "life"
+                      : "neutral"
+                  }
+                  fallbackLabel={
+                    photos[selectedIndex].caption ||
+                    `Moment ${String(selectedIndex + 1).padStart(2, "0")}`
+                  }
+                  fallbackDetail="Full image temporarily unavailable"
+                  className="object-contain"
+                />
+              </div>
+
+              {photos[selectedIndex].caption && (
+                <p className="mt-4 max-w-2xl text-center text-sm leading-relaxed text-white/70 sm:text-base">
+                  {photos[selectedIndex].caption}
                 </p>
               )}
             </motion.div>
