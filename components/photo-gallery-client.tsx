@@ -9,8 +9,6 @@ import {
   useState,
 } from "react"
 
-import Image from "next/image"
-
 import {
   AnimatePresence,
   motion,
@@ -373,19 +371,32 @@ export function PhotoGalleryClient({
               onClick={(event) =>
                 event.stopPropagation()
               }
-              className="relative flex max-h-full max-w-6xl flex-col items-center"
+              className="relative flex max-h-full w-full max-w-6xl flex-col items-center"
             >
-              <Image
-                src={photos[selectedIndex].image_url}
-                alt={
-                  photos[selectedIndex].caption ||
-                  "Deshawn Goodwyn"
-                }
-                width={1600}
-                height={1200}
-                priority
-                className="max-h-[72svh] w-auto max-w-full object-contain"
-              />
+              <div className="relative h-[68svh] w-full max-w-5xl overflow-hidden rounded-2xl bg-white/5 ring-1 ring-white/10 sm:h-[72svh]">
+                <ResilientImage
+                  sources={[
+                    photos[selectedIndex].image_url,
+                  ]}
+                  alt={
+                    photos[selectedIndex].caption ||
+                    "Deshawn Goodwyn"
+                  }
+                  loading="eager"
+                  fetchPriority="high"
+                  fallbackTone={
+                    variant === "life"
+                      ? "life"
+                      : "neutral"
+                  }
+                  fallbackLabel={
+                    photos[selectedIndex].caption ||
+                    `Moment ${String(selectedIndex + 1).padStart(2, "0")}`
+                  }
+                  fallbackDetail="Full image temporarily unavailable"
+                  className="object-contain"
+                />
+              </div>
 
               {photos[selectedIndex].caption && (
                 <p className="mt-4 max-w-2xl text-center text-sm leading-relaxed text-white/70 sm:text-base">
