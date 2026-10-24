@@ -246,6 +246,7 @@ export default async function LifePage() {
 
                 <PhotoGalleryClient
                   photos={photos}
+                  variant="life"
                 />
               </div>
             </div>
