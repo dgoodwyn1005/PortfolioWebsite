@@ -1,10 +1,11 @@
 "use client"
 
+import { useReducedMotion } from "@/lib/use-reduced-motion"
+
 import Link from "next/link"
 
 import {
   motion,
-  useReducedMotion,
 } from "framer-motion"
 
 import type { LucideIcon } from "lucide-react"
@@ -210,7 +211,7 @@ export function ContactContent({
                 <p className="mt-3 max-w-sm text-sm leading-relaxed text-muted-foreground sm:text-base">
                   For opportunities,
                   questions, collaborations,
-                  or anything that doesn't
+                  or anything that doesn&apos;t
                   fit neatly into a category.
                 </p>
 

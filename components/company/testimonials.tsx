@@ -61,7 +61,7 @@ export function CompanyTestimonials({ company, testimonials }: { company: Compan
               <Card className="h-full">
                 <CardContent className="p-6">
                   <Quote className="h-8 w-8 mb-4" style={{ color: company.primary_color }} />
-                  <p className="text-muted-foreground mb-6 leading-relaxed">"{testimonial.content}"</p>
+                  <p className="text-muted-foreground mb-6 leading-relaxed">&quot;{testimonial.content}&quot;</p>
                   <div className="flex items-center gap-4">
                     {testimonial.image_url ? (
                       <img

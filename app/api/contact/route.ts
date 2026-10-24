@@ -7,6 +7,10 @@ import {
   createAdminClient,
 } from "@/lib/supabase/server"
 
+import {
+  sendLeadNotifications,
+} from "@/lib/lead-notifications"
+
 const MAX_BODY_BYTES = 25_000
 
 const limits = {
@@ -17,9 +21,12 @@ const limits = {
 
   companySlug: 100,
   submissionType: 100,
+  selectedService: 160,
 
   eventLocation: 300,
   songRequests: 2_000,
+
+  honeypot: 200,
 } as const
 
 class ValidationError extends Error {}
@@ -85,12 +92,6 @@ function normalizeEmail(
     limits.email,
   ).toLowerCase()
 
-  /*
-   * Intentionally simple validation.
-   *
-   * We're checking for an obviously usable email,
-   * not trying to reproduce the complete RFC.
-   */
   const emailPattern =
     /^[^\s@]+@[^\s@]+\.[^\s@]+$/
 
@@ -185,11 +186,12 @@ function dateOrNull(
   }
 
   const parsed = new Date(
-    `${date}T00:00:00`,
+    `${date}T00:00:00Z`,
   )
 
   if (
-    Number.isNaN(parsed.getTime())
+    Number.isNaN(parsed.getTime()) ||
+    parsed.toISOString().slice(0, 10) !== date
   ) {
     throw new ValidationError(
       "Invalid event date.",
@@ -282,14 +284,81 @@ const durations = [
   "not-sure",
 ] as const
 
+async function recordNotificationState(
+  supabase: ReturnType<
+    typeof createAdminClient
+  >,
+  id: string,
+  notification: {
+    owner:
+      | "sent"
+      | "skipped"
+      | "failed"
+      | "disabled"
+    acknowledgement:
+      | "sent"
+      | "skipped"
+      | "failed"
+      | "disabled"
+  },
+) {
+  const attemptedAt =
+    new Date().toISOString()
+
+  const {
+    error,
+  } = await supabase
+    .from("contact_submissions")
+    .update({
+      owner_notification_status:
+        notification.owner,
+
+      owner_notification_attempted_at:
+        attemptedAt,
+
+      acknowledgement_status:
+        notification.acknowledgement,
+
+      acknowledgement_attempted_at:
+        notification.acknowledgement ===
+        "disabled"
+          ? null
+          : attemptedAt,
+    })
+    .eq("id", id)
+
+  if (error) {
+    console.warn(
+      "[contact] Failed to record notification state:",
+      {
+        id,
+        code: error.code,
+      },
+    )
+  }
+}
+
+const successResponse = () =>
+  NextResponse.json(
+    {
+      success: true,
+      message:
+        "Your message has been received.",
+    },
+    {
+      status: 201,
+
+      headers: {
+        "Cache-Control":
+          "no-store",
+      },
+    },
+  )
+
 export async function POST(
   request: NextRequest,
 ) {
   try {
-    /*
-     * Reject unexpectedly large requests before
-     * parsing them.
-     */
     const contentLength =
       request.headers.get(
         "content-length",
@@ -332,11 +401,6 @@ export async function POST(
       )
     }
 
-    /*
-     * Read the text ourselves so we can enforce
-     * an actual size limit even if Content-Length
-     * is missing or inaccurate.
-     */
     const rawBody =
       await request.text()
 
@@ -388,6 +452,21 @@ export async function POST(
       )
     }
 
+    /*
+     * Honeypot. Real visitors never see or fill
+     * this field. Bots receive a normal success
+     * response so the endpoint does not teach
+     * them which check they tripped.
+     */
+    const website = toStringOrNull(
+      parsedBody.website,
+      limits.honeypot,
+    )
+
+    if (website) {
+      return successResponse()
+    }
+
     const name = requireString(
       parsedBody.name,
       "Name",
@@ -409,9 +488,13 @@ export async function POST(
       limits.subject,
     )
 
-    /*
-     * Build / Wyntech fields
-     */
+    const selectedService =
+      toStringOrNull(
+        parsedBody.selectedService,
+        limits.selectedService,
+      )
+
+    // Build / Wyntech
     const projectType =
       enumOrNull(
         parsedBody.projectType,
@@ -445,9 +528,7 @@ export async function POST(
         "referral source",
       )
 
-    /*
-     * Music / Wynora fields
-     */
+    // Music / Wynora
     const eventType =
       enumOrNull(
         parsedBody.eventType,
@@ -520,14 +601,143 @@ export async function POST(
         limits.submissionType,
       ) ?? "contact"
 
-    /*
-     * This is deliberately the server-only elevated
-     * client—not the cookie-aware SSR client.
-     *
-     * The API route is the write boundary.
-     */
     const supabase =
       createAdminClient()
+
+    /*
+     * Keep duplicate retries from creating a
+     * pile of identical leads. If the original
+     * notification failed, retrying with the same
+     * submission id is safe because the email
+     * provider receives an idempotency key.
+     */
+    const duplicateSince =
+      new Date(
+        Date.now() -
+          10 * 60 * 1000,
+      ).toISOString()
+
+    const {
+      data: duplicate,
+      error: duplicateError,
+    } = await supabase
+      .from("contact_submissions")
+      .select("id")
+      .eq("email", email)
+      .eq("message", message)
+      .gte(
+        "created_at",
+        duplicateSince,
+      )
+      .order(
+        "created_at",
+        {
+          ascending: false,
+        },
+      )
+      .limit(1)
+      .maybeSingle()
+
+    if (duplicateError) {
+      console.warn(
+        "[contact] Duplicate check failed:",
+        {
+          code:
+            duplicateError.code,
+        },
+      )
+    }
+
+    if (duplicate) {
+      try {
+        const notification =
+          await sendLeadNotifications({
+            id: duplicate.id,
+            name,
+            email,
+            subject,
+            message,
+            companySlug,
+            submissionType,
+            selectedService,
+            budgetRange,
+            timeline,
+            eventDate,
+            eventLocation,
+          })
+
+        await recordNotificationState(
+          supabase,
+          duplicate.id,
+          notification,
+        )
+
+        console.info(
+          "[contact] Duplicate submission reused:",
+          {
+            id: duplicate.id,
+            notification:
+              notification.owner,
+          },
+        )
+      } catch (error) {
+        console.error("[contact] Duplicate notification failed:",
+          error instanceof Error ? error.message : "Unknown error")
+      }
+      return successResponse()
+    }
+
+    /*
+     * Lightweight per-email abuse guard. This is
+     * deliberately generous; the goal is to stop
+     * obvious bursts without annoying legitimate
+     * visitors.
+     */
+    const rateLimitSince =
+      new Date(
+        Date.now() -
+          15 * 60 * 1000,
+      ).toISOString()
+
+    const {
+      count,
+      error: countError,
+    } = await supabase
+      .from("contact_submissions")
+      .select(
+        "id",
+        {
+          count: "exact",
+          head: true,
+        },
+      )
+      .eq("email", email)
+      .gte(
+        "created_at",
+        rateLimitSince,
+      )
+
+    if (countError) {
+      console.warn(
+        "[contact] Rate-limit check failed:",
+        {
+          code: countError.code,
+        },
+      )
+    } else if (
+      typeof count === "number" &&
+      count >= 4
+    ) {
+      return NextResponse.json(
+        {
+          error:
+            "Too many recent submissions. Please try again later.",
+        },
+        {
+          status: 429,
+        },
+      )
+    }
 
     const {
       data: submission,
@@ -545,6 +755,9 @@ export async function POST(
 
         submission_type:
           submissionType,
+
+        selected_service:
+          selectedService,
 
         status: "new",
 
@@ -617,39 +830,57 @@ export async function POST(
       )
     }
 
-    /*
-     * Do not log the visitor's email/message.
-     * If we need observability, the submission ID
-     * is enough to locate the record internally.
-     */
     console.info(
       "[contact] Submission received:",
       submission.id,
     )
 
     /*
-     * Email notification will eventually happen here.
-     *
-     * Keep database persistence authoritative:
-     * if notification email fails later, the submission
-     * should still remain successfully stored.
+     * Persistence is authoritative. Notification
+     * happens only after the lead has been saved,
+     * and notification failure never changes the
+     * successful customer response.
      */
+    try {
+      const notification =
+        await sendLeadNotifications({
+          id: submission.id,
+          name,
+          email,
+          subject,
+          message,
+          companySlug,
+          submissionType,
+          selectedService,
+          budgetRange,
+          timeline,
+          eventDate,
+          eventLocation,
+        })
 
-    return NextResponse.json(
-      {
-        success: true,
-        message:
-          "Your message has been received.",
-      },
-      {
-        status: 201,
+      await recordNotificationState(
+        supabase,
+        submission.id,
+        notification,
+      )
 
-        headers: {
-          "Cache-Control":
-            "no-store",
+      console.info(
+        "[contact] Lead notification:",
+        {
+          id: submission.id,
+          owner:
+            notification.owner,
+          acknowledgement:
+            notification.acknowledgement,
         },
-      },
-    )
+      )
+    } catch (error) {
+      // The lead is already saved. Email/provider/status-write failures must
+      // never turn persistence success into a failed customer response.
+      console.error("[contact] Post-persistence notification failed:",
+        error instanceof Error ? error.message : "Unknown error")
+    }
+    return successResponse()
   } catch (error) {
     if (
       error instanceof
@@ -667,7 +898,9 @@ export async function POST(
 
     console.error(
       "[contact] Unexpected error:",
-      error,
+      error instanceof Error
+        ? error.message
+        : "Unknown error",
     )
 
     return NextResponse.json(

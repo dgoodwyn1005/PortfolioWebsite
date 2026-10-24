@@ -286,7 +286,7 @@ export function AudioClipsManager() {
                     </Button>
                   </div>
                   <p className="text-xs text-muted-foreground">
-                    Use "Trim Clip" to upload longer files and select a 30-second snippet
+                    Use &quot;Trim Clip&quot; to upload longer files and select a 30-second snippet
                   </p>
                 </>
               )}

@@ -1,5 +1,7 @@
 "use client"
 
+import { useReducedMotion } from "@/lib/use-reduced-motion"
+
 import {
   useEffect,
   useRef,
@@ -11,7 +13,6 @@ import Image from "next/image"
 import {
   AnimatePresence,
   motion,
-  useReducedMotion,
 } from "framer-motion"
 
 import {

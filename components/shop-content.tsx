@@ -1,5 +1,7 @@
 "use client"
 
+import Link from "next/link"
+
 import { useEffect, useState } from "react"
 import { motion } from "framer-motion"
 import { Button } from "@/components/ui/button"
@@ -182,10 +184,10 @@ export function ShopContent() {
                       </Button>
                     ) : (
                       <Button className="w-full bg-transparent" variant="outline" asChild>
-                        <a href="/#contact">
+                        <Link href="/#contact">
                           <ExternalLink className="h-4 w-4 mr-2" />
                           Contact Us
-                        </a>
+                        </Link>
                       </Button>
                     )}
                   </CardFooter>

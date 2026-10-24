@@ -1,11 +1,28 @@
 "use client"
 
-import type { FormEvent } from "react"
-import { useEffect, useState } from "react"
+import type {
+  FormEvent,
+} from "react"
+import {
+  useEffect,
+  useState,
+} from "react"
 
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
+import {
+  CheckCircle,
+  Loader2,
+  Send,
+} from "lucide-react"
+
+import {
+  Button,
+} from "@/components/ui/button"
+import {
+  Input,
+} from "@/components/ui/input"
+import {
+  Label,
+} from "@/components/ui/label"
 import {
   Select,
   SelectContent,
@@ -13,13 +30,9 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
-import { Textarea } from "@/components/ui/textarea"
-
 import {
-  CheckCircle,
-  Loader2,
-  Send,
-} from "lucide-react"
+  Textarea,
+} from "@/components/ui/textarea"
 
 type ContactFormMode =
   | "general"
@@ -30,12 +43,6 @@ interface ContactFormProps {
   companySlug?: string
   submissionType?: string
 
-  /**
-   * Preferred going forward.
-   *
-   * Existing showOnboarding / showWynoraOnboarding
-   * props remain supported for backwards compatibility.
-   */
   mode?: ContactFormMode
 
   showSubject?: boolean
@@ -47,37 +54,34 @@ interface ContactFormProps {
 }
 
 const initialFormData = {
-  // General
   name: "",
   email: "",
   subject: "",
   message: "",
 
-  // Build / Wyntech
+  selectedService: "",
+
+  // Lightweight anti-bot honeypot.
+  website: "",
+
+  // Build
   projectType: "",
-  hasExistingWebsite: "",
   budgetRange: "",
   timeline: "",
-  referralSource: "",
 
-  // Music / Wynora
-  eventType: "",
+  // Music
+  serviceInterest: "",
   eventDate: "",
   eventLocation: "",
-  eventStartTime: "",
-  eventEndTime: "",
-  serviceInterest: "",
-  durationNeeded: "",
-  pianoAvailable: "",
-  within50Miles: "",
-  songRequests: "",
 }
 
 type FormDataState =
   typeof initialFormData
 
 function getServiceFromLocation() {
-  if (typeof window === "undefined") {
+  if (
+    typeof window === "undefined"
+  ) {
     return null
   }
 
@@ -85,8 +89,6 @@ function getServiceFromLocation() {
     window.location.href,
   )
 
-  // Preferred:
-  // /wyntech?service=business#contact
   const queryService =
     url.searchParams.get("service")
 
@@ -94,22 +96,28 @@ function getServiceFromLocation() {
     return queryService
   }
 
-  // Backwards compatibility:
-  // /wyntech#contact?service=business
-  const hash = url.hash
+  // Backwards compatibility for old
+  // #contact?service=... links.
   const queryIndex =
-    hash.indexOf("?")
+    url.hash.indexOf("?")
 
   if (queryIndex === -1) {
     return null
   }
 
-  const hashParams =
-    new URLSearchParams(
-      hash.slice(queryIndex + 1),
-    )
+  return new URLSearchParams(
+    url.hash.slice(queryIndex + 1),
+  ).get("service")
+}
 
-  return hashParams.get("service")
+function decodeService(
+  value: string,
+) {
+  try {
+    return decodeURIComponent(value)
+  } catch {
+    return value
+  }
 }
 
 export function ContactForm({
@@ -139,16 +147,23 @@ export function ContactForm({
   const isMusicForm =
     resolvedMode === "music"
 
+  const isGeneralForm =
+    resolvedMode === "general"
+
   const [formData, setFormData] =
     useState<FormDataState>(
       initialFormData,
     )
 
-  const [isSubmitting, setIsSubmitting] =
-    useState(false)
+  const [
+    isSubmitting,
+    setIsSubmitting,
+  ] = useState(false)
 
-  const [isSubmitted, setIsSubmitted] =
-    useState(false)
+  const [
+    isSubmitted,
+    setIsSubmitted,
+  ] = useState(false)
 
   const [error, setError] =
     useState("")
@@ -165,39 +180,23 @@ export function ContactForm({
     }))
   }
 
-  /*
-   * Support service-prefilled links.
-   *
-   * New preferred format:
-   * ?service=Business%20Website#contact
-   *
-   * Legacy hash format is also supported.
-   */
   useEffect(() => {
     const checkForService = () => {
-      const service =
+      const rawService =
         getServiceFromLocation()
 
-      if (!service) {
+      if (!rawService) {
         return
       }
 
-      let serviceName = service
+      const serviceName =
+        decodeService(rawService)
 
-      try {
-        serviceName =
-          decodeURIComponent(service)
-      } catch {
-        // Already-decoded or malformed values
-        // simply fall back to the original.
-      }
-
-      /*
-       * Prefill context without writing the
-       * visitor's actual message for them.
-       */
       setFormData((current) => ({
         ...current,
+
+        selectedService:
+          serviceName,
 
         subject:
           current.subject ||
@@ -212,21 +211,24 @@ export function ContactForm({
           "contact",
         )
 
-      if (contactSection) {
-        const reduceMotion =
-          window.matchMedia(
-            "(prefers-reduced-motion: reduce)",
-          ).matches
-
-        requestAnimationFrame(() => {
-          contactSection.scrollIntoView({
-            behavior: reduceMotion
-              ? "auto"
-              : "smooth",
-            block: "start",
-          })
-        })
+      if (!contactSection) {
+        return
       }
+
+      const reduceMotion =
+        window.matchMedia(
+          "(prefers-reduced-motion: reduce)",
+        ).matches
+
+      requestAnimationFrame(() => {
+        contactSection.scrollIntoView({
+          behavior: reduceMotion
+            ? "auto"
+            : "smooth",
+
+          block: "start",
+        })
+      })
     }
 
     checkForService()
@@ -266,6 +268,16 @@ export function ContactForm({
     setIsSubmitting(true)
     setError("")
 
+    const inferredSubject =
+      formData.subject ||
+      (formData.selectedService
+        ? `Inquiry: ${formData.selectedService}`
+        : isBuildForm
+          ? "Wyntech project inquiry"
+          : isMusicForm
+            ? "Wynora booking inquiry"
+            : "")
+
     try {
       const response = await fetch(
         "/api/contact",
@@ -279,6 +291,8 @@ export function ContactForm({
 
           body: JSON.stringify({
             ...formData,
+            subject:
+              inferredSubject,
             companySlug,
             submissionType,
           }),
@@ -307,13 +321,16 @@ export function ContactForm({
             message = body.message
           }
         } catch {
-          // Response was not JSON.
+          // Non-JSON response.
         }
 
         throw new Error(message)
       }
 
-      setFormData(initialFormData)
+      setFormData(
+        initialFormData,
+      )
+
       setIsSubmitted(true)
     } catch (error) {
       console.error(
@@ -351,9 +368,10 @@ export function ContactForm({
         </h3>
 
         <p className="mt-3 max-w-md text-base leading-relaxed text-muted-foreground">
-          Thanks for reaching out. I’ll
-          get back to you as soon as I
-          can.
+          Thanks for reaching out.
+          Your request was received
+          and I’ll review the details
+          before following up.
         </p>
 
         <Button
@@ -373,6 +391,7 @@ export function ContactForm({
 
   return (
     <form
+      id="contact-form"
       onSubmit={handleSubmit}
       aria-busy={isSubmitting}
       className={[
@@ -380,7 +399,30 @@ export function ContactForm({
         className,
       ].join(" ")}
     >
-      {/* General identity */}
+      <div
+        aria-hidden="true"
+        className="absolute -left-[10000px] top-auto h-px w-px overflow-hidden"
+      >
+        <Label htmlFor="website">
+          Website
+        </Label>
+
+        <Input
+          id="website"
+          name="website"
+          type="text"
+          tabIndex={-1}
+          autoComplete="off"
+          value={formData.website}
+          onChange={(event: { target: { value: string } }) =>
+            updateField(
+              "website",
+              event.target.value,
+            )
+          }
+        />
+      </div>
+
       <div className="grid gap-5 sm:grid-cols-2">
         <div className="space-y-2">
           <Label htmlFor="name">
@@ -394,7 +436,7 @@ export function ContactForm({
             autoComplete="name"
             placeholder="Your name"
             value={formData.name}
-            onChange={(event) =>
+            onChange={(event: { target: { value: string } }) =>
               updateField(
                 "name",
                 event.target.value,
@@ -421,7 +463,7 @@ export function ContactForm({
             spellCheck={false}
             placeholder="you@example.com"
             value={formData.email}
-            onChange={(event) =>
+            onChange={(event: { target: { value: string } }) =>
               updateField(
                 "email",
                 event.target.value,
@@ -434,145 +476,140 @@ export function ContactForm({
         </div>
       </div>
 
-      {showSubject && (
-        <div className="space-y-2">
-          <Label htmlFor="subject">
-            Subject
-          </Label>
+      {isGeneralForm &&
+        showSubject && (
+          <div className="space-y-2">
+            <Label htmlFor="subject">
+              Subject
+            </Label>
 
-          <Input
-            id="subject"
-            name="subject"
-            type="text"
-            autoComplete="off"
-            placeholder="What's this about?"
-            value={formData.subject}
-            onChange={(event) =>
-              updateField(
-                "subject",
-                event.target.value,
-              )
-            }
-            disabled={isSubmitting}
-            className="min-h-12 text-base"
-          />
-        </div>
-      )}
+            <Input
+              id="subject"
+              name="subject"
+              type="text"
+              autoComplete="off"
+              placeholder="What's this about?"
+              value={formData.subject}
+              onChange={(event: { target: { value: string } }) =>
+                updateField(
+                  "subject",
+                  event.target.value,
+                )
+              }
+              disabled={
+                isSubmitting
+              }
+              className="min-h-12 text-base"
+            />
+          </div>
+        )}
 
-      {/* Build / Wyntech */}
+      {(isBuildForm ||
+        isMusicForm) &&
+        formData.selectedService && (
+          <div className="rounded-xl border border-border bg-muted/30 p-4">
+            <p className="text-xs font-medium uppercase tracking-[0.18em] text-muted-foreground">
+              Selected service
+            </p>
+
+            <div className="mt-2 flex flex-wrap items-center justify-between gap-3">
+              <p className="text-base font-medium text-foreground">
+                {
+                  formData.selectedService
+                }
+              </p>
+
+              <button
+                type="button"
+                onClick={() =>
+                  setFormData(
+                    (current) => ({
+                      ...current,
+                      selectedService:
+                        "",
+                      subject: "",
+                    }),
+                  )
+                }
+                className="text-sm text-muted-foreground underline-offset-4 hover:text-foreground hover:underline"
+              >
+                Change
+              </button>
+            </div>
+          </div>
+        )}
+
       {isBuildForm && (
-        <div className="space-y-8 border-y border-border/70 py-8">
+        <div className="space-y-6 border-y border-border/70 py-8">
           <div>
             <p className="text-xs font-medium uppercase tracking-[0.18em] text-muted-foreground">
               Project
             </p>
 
             <h3 className="mt-2 text-xl font-medium tracking-tight text-foreground">
-              Tell me what you’re
-              looking to build.
+              What do you want to
+              build?
             </h3>
           </div>
 
-          <div className="space-y-2">
-            <Label htmlFor="projectType">
-              What type of project are
-              you interested in?
-            </Label>
+          {!formData.selectedService && (
+            <div className="space-y-2">
+              <Label htmlFor="projectType">
+                Project type
+              </Label>
 
-            <Select
-              name="projectType"
-              value={
-                formData.projectType
-              }
-              disabled={isSubmitting}
-              onValueChange={(value) =>
-                updateField(
-                  "projectType",
-                  value,
-                )
-              }
-            >
-              <SelectTrigger
-                id="projectType"
-                className="min-h-12 text-base"
+              <Select
+                name="projectType"
+                value={
+                  formData.projectType
+                }
+                disabled={
+                  isSubmitting
+                }
+                onValueChange={(
+                  value: string,
+                ) =>
+                  updateField(
+                    "projectType",
+                    value,
+                  )
+                }
               >
-                <SelectValue placeholder="Select a project type" />
-              </SelectTrigger>
+                <SelectTrigger
+                  id="projectType"
+                  className="min-h-12 text-base"
+                >
+                  <SelectValue placeholder="Select the closest fit" />
+                </SelectTrigger>
 
-              <SelectContent>
-                <SelectItem value="starter">
-                  Starter Package —
-                  Single-page website
-                </SelectItem>
+                <SelectContent>
+                  <SelectItem value="starter">
+                    Website
+                  </SelectItem>
 
-                <SelectItem value="business">
-                  Business Package —
-                  Multi-page website
-                </SelectItem>
+                  <SelectItem value="business">
+                    Business /
+                    E-commerce
+                  </SelectItem>
 
-                <SelectItem value="premium">
-                  Premium Package —
-                  Full-featured web app
-                </SelectItem>
+                  <SelectItem value="premium">
+                    Software / Web
+                    application
+                  </SelectItem>
 
-                <SelectItem value="custom">
-                  Custom Project —
-                  Something else
-                </SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-
-          <div className="space-y-2">
-            <Label htmlFor="hasExistingWebsite">
-              Do you have an existing
-              website?
-            </Label>
-
-            <Select
-              name="hasExistingWebsite"
-              value={
-                formData.hasExistingWebsite
-              }
-              disabled={isSubmitting}
-              onValueChange={(value) =>
-                updateField(
-                  "hasExistingWebsite",
-                  value,
-                )
-              }
-            >
-              <SelectTrigger
-                id="hasExistingWebsite"
-                className="min-h-12 text-base"
-              >
-                <SelectValue placeholder="Select an option" />
-              </SelectTrigger>
-
-              <SelectContent>
-                <SelectItem value="yes">
-                  Yes, I have an existing
-                  website
-                </SelectItem>
-
-                <SelectItem value="no">
-                  No, starting from
-                  scratch
-                </SelectItem>
-
-                <SelectItem value="redesign">
-                  Yes, but I want a
-                  complete redesign
-                </SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
+                  <SelectItem value="custom">
+                    Automation or
+                    something custom
+                  </SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          )}
 
           <div className="grid gap-5 sm:grid-cols-2">
             <div className="space-y-2">
               <Label htmlFor="budgetRange">
-                What&apos;s your budget
-                range?
+                Budget
               </Label>
 
               <Select
@@ -584,7 +621,7 @@ export function ContactForm({
                   isSubmitting
                 }
                 onValueChange={(
-                  value,
+                  value: string,
                 ) =>
                   updateField(
                     "budgetRange",
@@ -596,7 +633,7 @@ export function ContactForm({
                   id="budgetRange"
                   className="min-h-12 text-base"
                 >
-                  <SelectValue placeholder="Select budget" />
+                  <SelectValue placeholder="Optional" />
                 </SelectTrigger>
 
                 <SelectContent>
@@ -629,8 +666,7 @@ export function ContactForm({
 
             <div className="space-y-2">
               <Label htmlFor="timeline">
-                What&apos;s your
-                timeline?
+                Timeline
               </Label>
 
               <Select
@@ -642,7 +678,7 @@ export function ContactForm({
                   isSubmitting
                 }
                 onValueChange={(
-                  value,
+                  value: string,
                 ) =>
                   updateField(
                     "timeline",
@@ -654,7 +690,7 @@ export function ContactForm({
                   id="timeline"
                   className="min-h-12 text-base"
                 >
-                  <SelectValue placeholder="Select timeline" />
+                  <SelectValue placeholder="Optional" />
                 </SelectTrigger>
 
                 <SelectContent>
@@ -685,257 +721,26 @@ export function ContactForm({
               </Select>
             </div>
           </div>
-
-          <div className="space-y-2">
-            <Label htmlFor="referralSource">
-              How did you hear about
-              Wyntech?
-            </Label>
-
-            <Select
-              name="referralSource"
-              value={
-                formData.referralSource
-              }
-              disabled={isSubmitting}
-              onValueChange={(value) =>
-                updateField(
-                  "referralSource",
-                  value,
-                )
-              }
-            >
-              <SelectTrigger
-                id="referralSource"
-                className="min-h-12 text-base"
-              >
-                <SelectValue placeholder="Select an option" />
-              </SelectTrigger>
-
-              <SelectContent>
-                <SelectItem value="google">
-                  Google Search
-                </SelectItem>
-
-                <SelectItem value="social-media">
-                  Social Media
-                </SelectItem>
-
-                <SelectItem value="referral">
-                  Friend / Colleague
-                  Referral
-                </SelectItem>
-
-                <SelectItem value="portfolio">
-                  Saw your portfolio work
-                </SelectItem>
-
-                <SelectItem value="other">
-                  Other
-                </SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
         </div>
       )}
 
-      {/* Music / Wynora */}
       {isMusicForm && (
-        <div className="space-y-10 border-y border-border/70 py-8">
-          {/* Event */}
-          <div className="space-y-5">
-            <div>
-              <p className="text-xs font-medium uppercase tracking-[0.18em] text-muted-foreground">
-                01 / Event
-              </p>
+        <div className="space-y-6 border-y border-border/70 py-8">
+          <div>
+            <p className="text-xs font-medium uppercase tracking-[0.18em] text-muted-foreground">
+              Booking
+            </p>
 
-              <h3 className="mt-2 text-xl font-medium tracking-tight text-foreground">
-                Tell me about the
-                occasion.
-              </h3>
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="eventType">
-                What type of event?
-              </Label>
-
-              <Select
-                name="eventType"
-                value={
-                  formData.eventType
-                }
-                disabled={
-                  isSubmitting
-                }
-                onValueChange={(
-                  value,
-                ) =>
-                  updateField(
-                    "eventType",
-                    value,
-                  )
-                }
-              >
-                <SelectTrigger
-                  id="eventType"
-                  className="min-h-12 text-base"
-                >
-                  <SelectValue placeholder="Select event type" />
-                </SelectTrigger>
-
-                <SelectContent>
-                  <SelectItem value="wedding">
-                    Wedding
-                  </SelectItem>
-
-                  <SelectItem value="church-service">
-                    Church Service
-                  </SelectItem>
-
-                  <SelectItem value="corporate">
-                    Corporate Event
-                  </SelectItem>
-
-                  <SelectItem value="private-gathering">
-                    Private Gathering
-                  </SelectItem>
-
-                  <SelectItem value="studio-session">
-                    Studio Session
-                  </SelectItem>
-
-                  <SelectItem value="other">
-                    Other
-                  </SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-
-            <div className="grid gap-5 sm:grid-cols-2">
-              <div className="space-y-2">
-                <Label htmlFor="eventDate">
-                  Event date
-                </Label>
-
-                <Input
-                  id="eventDate"
-                  name="eventDate"
-                  type="date"
-                  autoComplete="off"
-                  value={
-                    formData.eventDate
-                  }
-                  onChange={(event) =>
-                    updateField(
-                      "eventDate",
-                      event.target.value,
-                    )
-                  }
-                  disabled={
-                    isSubmitting
-                  }
-                  className="min-h-12 text-base"
-                />
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="eventLocation">
-                  Event location / venue
-                </Label>
-
-                <Input
-                  id="eventLocation"
-                  name="eventLocation"
-                  type="text"
-                  autoComplete="off"
-                  placeholder="Venue and city"
-                  value={
-                    formData.eventLocation
-                  }
-                  onChange={(event) =>
-                    updateField(
-                      "eventLocation",
-                      event.target.value,
-                    )
-                  }
-                  disabled={
-                    isSubmitting
-                  }
-                  className="min-h-12 text-base"
-                />
-              </div>
-            </div>
-
-            <div className="grid gap-5 sm:grid-cols-2">
-              <div className="space-y-2">
-                <Label htmlFor="eventStartTime">
-                  Event start time
-                </Label>
-
-                <Input
-                  id="eventStartTime"
-                  name="eventStartTime"
-                  type="time"
-                  value={
-                    formData.eventStartTime
-                  }
-                  onChange={(event) =>
-                    updateField(
-                      "eventStartTime",
-                      event.target.value,
-                    )
-                  }
-                  disabled={
-                    isSubmitting
-                  }
-                  className="min-h-12 text-base"
-                />
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="eventEndTime">
-                  Approximate end time
-                </Label>
-
-                <Input
-                  id="eventEndTime"
-                  name="eventEndTime"
-                  type="time"
-                  value={
-                    formData.eventEndTime
-                  }
-                  onChange={(event) =>
-                    updateField(
-                      "eventEndTime",
-                      event.target.value,
-                    )
-                  }
-                  disabled={
-                    isSubmitting
-                  }
-                  className="min-h-12 text-base"
-                />
-              </div>
-            </div>
+            <h3 className="mt-2 text-xl font-medium tracking-tight text-foreground">
+              Tell me about the
+              occasion.
+            </h3>
           </div>
 
-          {/* Music */}
-          <div className="space-y-5 border-t border-border/70 pt-8">
-            <div>
-              <p className="text-xs font-medium uppercase tracking-[0.18em] text-muted-foreground">
-                02 / Music
-              </p>
-
-              <h3 className="mt-2 text-xl font-medium tracking-tight text-foreground">
-                What do you need?
-              </h3>
-            </div>
-
+          {!formData.selectedService && (
             <div className="space-y-2">
               <Label htmlFor="serviceInterest">
-                Which service are you
-                interested in?
+                Service
               </Label>
 
               <Select
@@ -947,7 +752,7 @@ export function ContactForm({
                   isSubmitting
                 }
                 onValueChange={(
-                  value,
+                  value: string,
                 ) =>
                   updateField(
                     "serviceInterest",
@@ -964,18 +769,17 @@ export function ContactForm({
 
                 <SelectContent>
                   <SelectItem value="essential">
-                    Essential Performance
-                    — $250
+                    Live Performance
+                    (Essential)
                   </SelectItem>
 
                   <SelectItem value="premium">
-                    Premium Performance
-                    — $550
+                    Live Performance
+                    (Premium)
                   </SelectItem>
 
                   <SelectItem value="luxury">
-                    Luxury Session —
-                    $1,000
+                    Luxury Session
                   </SelectItem>
 
                   <SelectItem value="accompaniment">
@@ -983,7 +787,7 @@ export function ContactForm({
                   </SelectItem>
 
                   <SelectItem value="recording">
-                    Audio Recording
+                    Audio-Only Recording
                   </SelectItem>
 
                   <SelectItem value="arrangement">
@@ -992,225 +796,90 @@ export function ContactForm({
                 </SelectContent>
               </Select>
             </div>
+          )}
 
+          <div className="grid gap-5 sm:grid-cols-2">
             <div className="space-y-2">
-              <Label htmlFor="durationNeeded">
-                Approximate duration
-                needed
+              <Label htmlFor="eventDate">
+                Event date
+                <span className="ml-1 text-muted-foreground">
+                  (if known)
+                </span>
               </Label>
 
-              <Select
-                name="durationNeeded"
+              <Input
+                id="eventDate"
+                name="eventDate"
+                type="date"
                 value={
-                  formData.durationNeeded
+                  formData.eventDate
+                }
+                onChange={(event: { target: { value: string } }) =>
+                  updateField(
+                    "eventDate",
+                    event.target.value,
+                  )
                 }
                 disabled={
                   isSubmitting
                 }
-                onValueChange={(
-                  value,
-                ) =>
-                  updateField(
-                    "durationNeeded",
-                    value,
-                  )
-                }
-              >
-                <SelectTrigger
-                  id="durationNeeded"
-                  className="min-h-12 text-base"
-                >
-                  <SelectValue placeholder="Select duration" />
-                </SelectTrigger>
-
-                <SelectContent>
-                  <SelectItem value="30-min">
-                    30 minutes
-                  </SelectItem>
-
-                  <SelectItem value="1-hour">
-                    1 hour
-                  </SelectItem>
-
-                  <SelectItem value="2-hours">
-                    2 hours
-                  </SelectItem>
-
-                  <SelectItem value="3-hours">
-                    3 hours
-                  </SelectItem>
-
-                  <SelectItem value="4-plus-hours">
-                    4+ hours
-                  </SelectItem>
-
-                  <SelectItem value="not-sure">
-                    Not sure yet
-                  </SelectItem>
-                </SelectContent>
-              </Select>
+                className="min-h-12 text-base"
+              />
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="songRequests">
-                Any specific songs or
-                style requests?
+              <Label htmlFor="eventLocation">
+                Location
+                <span className="ml-1 text-muted-foreground">
+                  (if known)
+                </span>
               </Label>
 
-              <Textarea
-                id="songRequests"
-                name="songRequests"
-                autoComplete="off"
-                placeholder="Songs, genres, styles, or references..."
-                rows={4}
+              <Input
+                id="eventLocation"
+                name="eventLocation"
+                type="text"
+                placeholder="Venue and city"
                 value={
-                  formData.songRequests
+                  formData.eventLocation
                 }
-                onChange={(event) =>
+                onChange={(event: { target: { value: string } }) =>
                   updateField(
-                    "songRequests",
+                    "eventLocation",
                     event.target.value,
                   )
                 }
-                disabled={isSubmitting}
-                className="min-h-28 resize-y text-base"
+                disabled={
+                  isSubmitting
+                }
+                className="min-h-12 text-base"
               />
-            </div>
-          </div>
-
-          {/* Logistics */}
-          <div className="space-y-5 border-t border-border/70 pt-8">
-            <div>
-              <p className="text-xs font-medium uppercase tracking-[0.18em] text-muted-foreground">
-                03 / Logistics
-              </p>
-
-              <h3 className="mt-2 text-xl font-medium tracking-tight text-foreground">
-                A few practical details.
-              </h3>
-            </div>
-
-            <div className="grid gap-5 sm:grid-cols-2">
-              <div className="space-y-2">
-                <Label htmlFor="pianoAvailable">
-                  Will a piano or keyboard
-                  be available?
-                </Label>
-
-                <Select
-                  name="pianoAvailable"
-                  value={
-                    formData.pianoAvailable
-                  }
-                  disabled={
-                    isSubmitting
-                  }
-                  onValueChange={(
-                    value,
-                  ) =>
-                    updateField(
-                      "pianoAvailable",
-                      value,
-                    )
-                  }
-                >
-                  <SelectTrigger
-                    id="pianoAvailable"
-                    className="min-h-12 text-base"
-                  >
-                    <SelectValue placeholder="Select an option" />
-                  </SelectTrigger>
-
-                  <SelectContent>
-                    <SelectItem value="yes">
-                      Yes
-                    </SelectItem>
-
-                    <SelectItem value="no">
-                      No
-                    </SelectItem>
-
-                    <SelectItem value="not-sure">
-                      Not sure
-                    </SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="within50Miles">
-                  Is the venue within 50
-                  miles of Richmond, VA?
-                </Label>
-
-                <Select
-                  name="within50Miles"
-                  value={
-                    formData.within50Miles
-                  }
-                  disabled={
-                    isSubmitting
-                  }
-                  onValueChange={(
-                    value,
-                  ) =>
-                    updateField(
-                      "within50Miles",
-                      value,
-                    )
-                  }
-                >
-                  <SelectTrigger
-                    id="within50Miles"
-                    className="min-h-12 text-base"
-                  >
-                    <SelectValue placeholder="Select an option" />
-                  </SelectTrigger>
-
-                  <SelectContent>
-                    <SelectItem value="yes">
-                      Yes
-                    </SelectItem>
-
-                    <SelectItem value="no">
-                      No
-                    </SelectItem>
-
-                    <SelectItem value="not-sure">
-                      Not sure
-                    </SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
             </div>
           </div>
         </div>
       )}
 
-      {/* Main message */}
       <div className="space-y-2">
         <Label htmlFor="message">
-          {isMusicForm
-            ? "Anything else I should know?"
-            : isBuildForm
-              ? "Tell me about the project"
+          {isBuildForm
+            ? "What do you want to build?"
+            : isMusicForm
+              ? "Tell me about the event or music you need."
               : "Message"}
         </Label>
 
         <Textarea
           id="message"
           name="message"
-          autoComplete="off"
           placeholder={
             isBuildForm
-              ? "What are you trying to build, improve, or solve?"
+              ? "A short description is enough to start."
               : isMusicForm
-                ? "Anything else about the event, music, or experience I should know?"
-                : "What would you like to talk about?"
+                ? "Share the important details. We can work out the rest after I review it."
+                : "How can I help?"
           }
-          rows={6}
           value={formData.message}
-          onChange={(event) =>
+          onChange={(event: { target: { value: string } }) =>
             updateField(
               "message",
               event.target.value,
@@ -1222,30 +891,25 @@ export function ContactForm({
         />
       </div>
 
-      {/* Submission error */}
       {error && (
         <div
-          id="contact-form-error"
           role="alert"
-          aria-live="assertive"
-          className="border-l-2 border-destructive pl-4"
+          className="rounded-xl border border-destructive/30 bg-destructive/5 p-4 text-sm text-destructive"
         >
-          <p className="text-sm leading-relaxed text-destructive">
-            {error}
-          </p>
+          {error}
         </div>
       )}
 
       <Button
         type="submit"
         disabled={isSubmitting}
-        className="min-h-12 w-full text-base sm:w-auto sm:min-w-44"
+        className="min-h-12 w-full gap-2 sm:w-auto"
       >
         {isSubmitting ? (
           <>
             <Loader2
               aria-hidden="true"
-              className="mr-2 size-4 animate-spin"
+              className="size-4 animate-spin"
             />
             Sending…
           </>
@@ -1253,7 +917,7 @@ export function ContactForm({
           <>
             <Send
               aria-hidden="true"
-              className="mr-2 size-4"
+              className="size-4"
             />
             {buttonText}
           </>

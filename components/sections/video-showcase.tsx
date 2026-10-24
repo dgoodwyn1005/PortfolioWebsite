@@ -1,10 +1,11 @@
 "use client"
 
+import { useReducedMotion } from "@/lib/use-reduced-motion"
+
 import { useState } from "react"
 
 import {
   motion,
-  useReducedMotion,
 } from "framer-motion"
 
 import {

@@ -1,9 +1,22 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import { useReducedMotion } from "@/lib/use-reduced-motion"
+
+import {
+  useEffect,
+  useState,
+} from "react"
+
 import Link from "next/link"
-import { usePathname } from "next/navigation"
-import { AnimatePresence, motion, useReducedMotion } from "framer-motion"
+import {
+  usePathname,
+} from "next/navigation"
+
+import {
+  AnimatePresence,
+  motion,
+} from "framer-motion"
+
 import {
   ArrowUpRight,
   Linkedin,
@@ -12,28 +25,35 @@ import {
   Sun,
   X,
 } from "lucide-react"
-import { useTheme } from "next-themes"
+
+import {
+  useTheme,
+} from "next-themes"
 
 const navLinks = [
   {
     name: "Build",
-    href: "/wyntech",
-    description: "Technology, products & ventures",
+    href: "/build",
+    description:
+      "Technology, products & ventures",
   },
   {
     name: "Music",
-    href: "/wynora",
-    description: "Piano, performance & creation",
+    href: "/music",
+    description:
+      "Piano, performance & creation",
   },
   {
     name: "Life",
-    href: "/#about",
-    description: "Athletics, story & experience",
+    href: "/life",
+    description:
+      "Athletics, story & experience",
   },
   {
     name: "Work",
     href: "/#projects",
-    description: "Selected projects & case studies",
+    description:
+      "Selected projects & case studies",
   },
 ]
 
@@ -47,12 +67,23 @@ export function Navbar({
   linkedinUrl = null,
 }: NavbarProps) {
   const pathname = usePathname()
-  const { resolvedTheme, setTheme } = useTheme()
-  const shouldReduceMotion = useReducedMotion()
 
-  const [isOpen, setIsOpen] = useState(false)
-  const [scrolled, setScrolled] = useState(false)
-  const [mounted, setMounted] = useState(false)
+  const {
+    resolvedTheme,
+    setTheme,
+  } = useTheme()
+
+  const shouldReduceMotion =
+    useReducedMotion()
+
+  const [isOpen, setIsOpen] =
+    useState(false)
+
+  const [scrolled, setScrolled] =
+    useState(false)
+
+  const [mounted, setMounted] =
+    useState(false)
 
   useEffect(() => {
     setMounted(true)
@@ -60,61 +91,107 @@ export function Navbar({
 
   useEffect(() => {
     const handleScroll = () => {
-      setScrolled(window.scrollY > 24)
+      setScrolled(
+        window.scrollY > 24,
+      )
     }
 
     handleScroll()
 
-    window.addEventListener("scroll", handleScroll, {
-      passive: true,
-    })
+    window.addEventListener(
+      "scroll",
+      handleScroll,
+      {
+        passive: true,
+      },
+    )
 
     return () => {
-      window.removeEventListener("scroll", handleScroll)
+      window.removeEventListener(
+        "scroll",
+        handleScroll,
+      )
     }
   }, [])
 
-  // Close mobile navigation after navigating.
   useEffect(() => {
     setIsOpen(false)
   }, [pathname])
 
-  // Prevent the page behind the mobile menu from scrolling.
   useEffect(() => {
-    if (!isOpen) return
+    if (!isOpen) {
+      return
+    }
 
-    const previousOverflow = document.body.style.overflow
-    document.body.style.overflow = "hidden"
+    const previousOverflow =
+      document.body.style.overflow
 
-    const handleKeyDown = (event: KeyboardEvent) => {
+    document.body.style.overflow =
+      "hidden"
+
+    const handleKeyDown = (
+      event: KeyboardEvent,
+    ) => {
       if (event.key === "Escape") {
         setIsOpen(false)
       }
     }
 
-    window.addEventListener("keydown", handleKeyDown)
+    window.addEventListener(
+      "keydown",
+      handleKeyDown,
+    )
 
     return () => {
-      document.body.style.overflow = previousOverflow
-      window.removeEventListener("keydown", handleKeyDown)
+      document.body.style.overflow =
+        previousOverflow
+
+      window.removeEventListener(
+        "keydown",
+        handleKeyDown,
+      )
     }
   }, [isOpen])
 
   const toggleTheme = () => {
-    setTheme(resolvedTheme === "dark" ? "light" : "dark")
+    setTheme(
+      resolvedTheme === "dark"
+        ? "light"
+        : "dark",
+    )
   }
 
   return (
     <motion.header
-      initial={shouldReduceMotion ? false : { y: -80, opacity: 0 }}
-      animate={{ y: 0, opacity: 1 }}
+      initial={
+        shouldReduceMotion
+          ? false
+          : {
+              y: -80,
+              opacity: 0,
+            }
+      }
+      animate={{
+        y: 0,
+        opacity: 1,
+      }}
       transition={{
-        duration: shouldReduceMotion ? 0 : 0.5,
-        ease: [0.22, 1, 0.36, 1],
+        duration:
+          shouldReduceMotion
+            ? 0
+            : 0.5,
+
+        ease: [
+          0.22,
+          1,
+          0.36,
+          1,
+        ],
       }}
       className={[
         "fixed inset-x-0 top-0 z-50",
         "transition-[background-color,border-color,backdrop-filter] duration-300",
+
         scrolled || isOpen
           ? "border-b border-border/60 bg-background/85 backdrop-blur-xl"
           : "border-b border-transparent bg-transparent",
@@ -124,7 +201,6 @@ export function Navbar({
         aria-label="Primary navigation"
         className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8"
       >
-        {/* Identity */}
         <Link
           href="/"
           aria-label="Deshawn Goodwyn — Home"
@@ -148,17 +224,18 @@ export function Navbar({
           </span>
         </Link>
 
-        {/* Desktop / large tablet */}
         <div className="hidden items-center gap-1 lg:flex">
-          {navLinks.map((link) => (
-            <Link
-              key={link.name}
-              href={link.href}
-              className="rounded-full px-3.5 py-2 text-sm text-muted-foreground transition-colors hover:bg-foreground/5 hover:text-foreground"
-            >
-              {link.name}
-            </Link>
-          ))}
+          {navLinks.map(
+            (link) => (
+              <Link
+                key={link.name}
+                href={link.href}
+                className="rounded-full px-3.5 py-2 text-sm text-muted-foreground transition-colors hover:bg-foreground/5 hover:text-foreground"
+              >
+                {link.name}
+              </Link>
+            ),
+          )}
 
           <div
             aria-hidden="true"
@@ -182,13 +259,15 @@ export function Navbar({
               type="button"
               onClick={toggleTheme}
               aria-label={
-                resolvedTheme === "dark"
+                resolvedTheme ===
+                "dark"
                   ? "Switch to light theme"
                   : "Switch to dark theme"
               }
               className="flex size-10 items-center justify-center rounded-full text-muted-foreground transition-colors hover:bg-foreground/5 hover:text-foreground"
             >
-              {resolvedTheme === "dark" ? (
+              {resolvedTheme ===
+              "dark" ? (
                 <Sun className="size-4" />
               ) : (
                 <Moon className="size-4" />
@@ -205,20 +284,21 @@ export function Navbar({
           </Link>
         </div>
 
-        {/* Mobile / tablet controls */}
         <div className="relative z-50 flex items-center gap-1 lg:hidden">
           {mounted && (
             <button
               type="button"
               onClick={toggleTheme}
               aria-label={
-                resolvedTheme === "dark"
+                resolvedTheme ===
+                "dark"
                   ? "Switch to light theme"
                   : "Switch to dark theme"
               }
               className="flex size-11 items-center justify-center rounded-full text-muted-foreground transition-colors hover:bg-foreground/5 hover:text-foreground"
             >
-              {resolvedTheme === "dark" ? (
+              {resolvedTheme ===
+              "dark" ? (
                 <Sun className="size-5" />
               ) : (
                 <Moon className="size-5" />
@@ -228,10 +308,19 @@ export function Navbar({
 
           <button
             type="button"
-            onClick={() => setIsOpen((current) => !current)}
+            onClick={() =>
+              setIsOpen(
+                (current) =>
+                  !current,
+              )
+            }
             aria-expanded={isOpen}
             aria-controls="mobile-navigation"
-            aria-label={isOpen ? "Close navigation" : "Open navigation"}
+            aria-label={
+              isOpen
+                ? "Close navigation"
+                : "Open navigation"
+            }
             className="flex size-11 items-center justify-center rounded-full text-foreground transition-colors hover:bg-foreground/5"
           >
             {isOpen ? (
@@ -249,8 +338,13 @@ export function Navbar({
             id="mobile-navigation"
             initial={
               shouldReduceMotion
-                ? { opacity: 1 }
-                : { opacity: 0, y: -12 }
+                ? {
+                    opacity: 1,
+                  }
+                : {
+                    opacity: 0,
+                    y: -12,
+                  }
             }
             animate={{
               opacity: 1,
@@ -258,11 +352,19 @@ export function Navbar({
             }}
             exit={
               shouldReduceMotion
-                ? { opacity: 0 }
-                : { opacity: 0, y: -12 }
+                ? {
+                    opacity: 0,
+                  }
+                : {
+                    opacity: 0,
+                    y: -12,
+                  }
             }
             transition={{
-              duration: shouldReduceMotion ? 0 : 0.25,
+              duration:
+                shouldReduceMotion
+                  ? 0
+                  : 0.25,
             }}
             className="fixed inset-x-0 bottom-0 top-16 overflow-y-auto bg-background lg:hidden"
           >
@@ -273,47 +375,74 @@ export function Navbar({
                 </p>
 
                 <div className="divide-y divide-border/60 border-y border-border/60">
-                  {navLinks.map((link, index) => (
-                    <motion.div
-                      key={link.name}
-                      initial={
-                        shouldReduceMotion
-                          ? false
-                          : { opacity: 0, y: 12 }
-                      }
-                      animate={{ opacity: 1, y: 0 }}
-                      transition={{
-                        delay: shouldReduceMotion
-                          ? 0
-                          : 0.04 * index,
-                      }}
-                    >
-                      <Link
-                        href={link.href}
-                        onClick={() => setIsOpen(false)}
-                        className="group flex min-h-20 items-center justify-between gap-4 py-4"
+                  {navLinks.map(
+                    (
+                      link,
+                      index,
+                    ) => (
+                      <motion.div
+                        key={
+                          link.name
+                        }
+                        initial={
+                          shouldReduceMotion
+                            ? false
+                            : {
+                                opacity: 0,
+                                y: 12,
+                              }
+                        }
+                        animate={{
+                          opacity: 1,
+                          y: 0,
+                        }}
+                        transition={{
+                          delay:
+                            shouldReduceMotion
+                              ? 0
+                              : 0.04 *
+                                index,
+                        }}
                       >
-                        <div>
-                          <span className="block text-2xl font-medium tracking-tight text-foreground sm:text-3xl">
-                            {link.name}
-                          </span>
+                        <Link
+                          href={
+                            link.href
+                          }
+                          onClick={() =>
+                            setIsOpen(
+                              false,
+                            )
+                          }
+                          className="group flex min-h-20 items-center justify-between gap-4 py-4"
+                        >
+                          <div>
+                            <span className="block text-2xl font-medium tracking-tight text-foreground sm:text-3xl">
+                              {
+                                link.name
+                              }
+                            </span>
 
-                          <span className="mt-1 block text-sm text-muted-foreground">
-                            {link.description}
-                          </span>
-                        </div>
+                            <span className="mt-1 block text-sm text-muted-foreground">
+                              {
+                                link.description
+                              }
+                            </span>
+                          </div>
 
-                        <ArrowUpRight className="size-5 shrink-0 text-muted-foreground transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
-                      </Link>
-                    </motion.div>
-                  ))}
+                          <ArrowUpRight className="size-5 shrink-0 text-muted-foreground transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
+                        </Link>
+                      </motion.div>
+                    ),
+                  )}
                 </div>
               </div>
 
               <div className="mt-8 space-y-3">
                 <Link
                   href="/#contact"
-                  onClick={() => setIsOpen(false)}
+                  onClick={() =>
+                    setIsOpen(false)
+                  }
                   className="flex min-h-14 w-full items-center justify-between rounded-full bg-foreground px-6 text-base font-medium text-background"
                 >
                   Work With Me
@@ -322,10 +451,16 @@ export function Navbar({
 
                 {linkedinUrl && (
                   <a
-                    href={linkedinUrl}
+                    href={
+                      linkedinUrl
+                    }
                     target="_blank"
                     rel="noopener noreferrer"
-                    onClick={() => setIsOpen(false)}
+                    onClick={() =>
+                      setIsOpen(
+                        false,
+                      )
+                    }
                     className="flex min-h-14 w-full items-center gap-3 rounded-full border border-border px-6 text-sm text-muted-foreground"
                   >
                     <Linkedin className="size-5" />
