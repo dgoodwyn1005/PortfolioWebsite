@@ -70,12 +70,10 @@ function useTikTokThumbnail(
   existingThumbnail?: string | null,
 ) {
   const [thumbnail, setThumbnail] =
-    useState<string | null>(
-      existingThumbnail || null,
-    )
+    useState<string | null>(null)
 
   useEffect(() => {
-    if (existingThumbnail || !videoId) {
+    if (!videoId) {
       return
     }
 
@@ -96,14 +94,17 @@ function useTikTokThumbnail(
         return response.json()
       })
       .then((data: { thumbnail_url?: string }) => {
-        if (data.thumbnail_url) {
+        if (
+          data.thumbnail_url &&
+          data.thumbnail_url !== existingThumbnail
+        ) {
           setThumbnail(
             data.thumbnail_url,
           )
         }
       })
       .catch(() => {
-        // The persistent fallback remains visible.
+        // The stored image or persistent fallback remains visible.
       })
   }, [
     existingThumbnail,
