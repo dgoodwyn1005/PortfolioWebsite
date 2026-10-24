@@ -2,8 +2,9 @@
 
 import { useState, useRef, useEffect } from "react"
 import { motion } from "framer-motion"
-import { Play, Pause, Music, Volume2 } from "lucide-react"
+import { Play, Pause, Volume2 } from "lucide-react"
 import { Card, CardContent } from "@/components/ui/card"
+import { ResilientImage } from "@/components/resilient-image"
 
 interface AudioClip {
   id: string
@@ -38,106 +39,154 @@ export function MusicSection({ clips, companyName = "Our" }: MusicSectionProps) 
     if (playingId === clipId) {
       audioRef.current?.pause()
       setPlayingId(null)
-    } else {
-      if (audioRef.current) {
-        audioRef.current.pause()
-      }
-      audioRef.current = new Audio(audioUrl)
-      audioRef.current.play()
-      audioRef.current.onended = () => {
-        setPlayingId(null)
-        setProgress((prev) => ({ ...prev, [clipId]: 0 }))
-      }
-      audioRef.current.ontimeupdate = () => {
-        if (audioRef.current) {
-          const pct = (audioRef.current.currentTime / audioRef.current.duration) * 100
-          setProgress((prev) => ({ ...prev, [clipId]: pct }))
-        }
-      }
-      setPlayingId(clipId)
+      return
     }
+
+    if (audioRef.current) {
+      audioRef.current.pause()
+    }
+
+    audioRef.current = new Audio(audioUrl)
+    audioRef.current.play()
+    audioRef.current.onended = () => {
+      setPlayingId(null)
+      setProgress((prev) => ({ ...prev, [clipId]: 0 }))
+    }
+    audioRef.current.ontimeupdate = () => {
+      if (audioRef.current) {
+        const pct =
+          (audioRef.current.currentTime /
+            audioRef.current.duration) *
+          100
+
+        setProgress((prev) => ({
+          ...prev,
+          [clipId]: pct,
+        }))
+      }
+    }
+    setPlayingId(clipId)
   }
 
   if (clips.length === 0) return null
 
   return (
-    <section className="py-20 bg-muted/30">
+    <section className="bg-muted/20 py-20">
       <div className="container mx-auto px-4">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.6 }}
-          className="text-center mb-12"
+          className="mx-auto mb-12 max-w-3xl text-center"
         >
-          <div className="flex items-center justify-center gap-2 mb-4">
-            <Volume2 className="w-6 h-6 text-primary" />
-            <h2 className="text-3xl md:text-4xl font-bold">{companyName} Music</h2>
+          <div className="mb-4 flex items-center justify-center gap-2">
+            <Volume2 className="size-5 text-primary" />
+            <p className="text-xs font-medium uppercase tracking-[0.22em] text-muted-foreground">
+              Deeper listening
+            </p>
           </div>
-          <p className="text-muted-foreground max-w-2xl mx-auto">
-            Listen to our latest tracks and productions
+
+          <h2 className="text-3xl font-medium tracking-[-0.04em] md:text-5xl">
+            {companyName} Music
+          </h2>
+
+          <p className="mx-auto mt-4 max-w-xl text-muted-foreground">
+            Tracks, recordings, and smaller musical moments that reward a closer listen.
           </p>
         </motion.div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="mx-auto grid max-w-6xl grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
           {clips.map((clip, index) => (
             <motion.div
               key={clip.id}
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
-              transition={{ duration: 0.6, delay: index * 0.1 }}
+              transition={{ duration: 0.6, delay: index * 0.08 }}
             >
-              <Card className="overflow-hidden group hover:shadow-lg transition-shadow">
-                <div className="relative aspect-square">
-                  {clip.cover_image ? (
-                    <img
-                      src={clip.cover_image || "/placeholder.svg"}
-                      alt={clip.title}
-                      className="w-full h-full object-cover"
-                    />
-                  ) : (
-                    <div className="w-full h-full bg-gradient-to-br from-primary/20 to-primary/5 flex items-center justify-center">
-                      <Music className="w-16 h-16 text-primary/50" />
-                    </div>
-                  )}
-                  <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+              <Card className="group h-full overflow-hidden rounded-[1.5rem] border-border/50 bg-card/70 shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-xl hover:shadow-black/5">
+                <div className="relative aspect-square overflow-hidden bg-muted">
+                  <ResilientImage
+                    sources={[clip.cover_image]}
+                    alt={clip.title}
+                    loading={index === 0 ? "eager" : "lazy"}
+                    fetchPriority={index === 0 ? "high" : "auto"}
+                    fallbackTone="music"
+                    fallbackLabel={clip.title}
+                    fallbackDetail={clip.artist || clip.genre || "Audio cover"}
+                    className="object-cover transition-transform duration-700 ease-out group-hover:scale-[1.02]"
+                  />
+
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/45 via-black/5 to-transparent" />
+
+                  <div className="absolute left-4 top-4 rounded-full border border-white/20 bg-black/25 px-3 py-1 font-mono text-[10px] uppercase tracking-[0.14em] text-white backdrop-blur-sm">
+                    {String(index + 1).padStart(2, "0")}
+                  </div>
+
+                  <div className="absolute inset-0 flex items-center justify-center">
                     <button
+                      type="button"
                       onClick={() => togglePlay(clip.id, clip.audio_url)}
-                      className="w-16 h-16 rounded-full bg-white/90 flex items-center justify-center hover:scale-110 transition-transform"
+                      aria-label={
+                        playingId === clip.id
+                          ? `Pause ${clip.title}`
+                          : `Play ${clip.title}`
+                      }
+                      className="flex size-16 items-center justify-center rounded-full bg-white/95 text-black shadow-xl transition-transform duration-300 hover:scale-110"
                     >
                       {playingId === clip.id ? (
-                        <Pause className="w-8 h-8 text-primary" />
+                        <Pause className="size-7" />
                       ) : (
-                        <Play className="w-8 h-8 text-primary ml-1" />
+                        <Play className="ml-1 size-7 fill-current" />
                       )}
                     </button>
                   </div>
+
                   {playingId === clip.id && (
-                    <div className="absolute bottom-0 left-0 right-0 h-1 bg-black/20">
+                    <div className="absolute bottom-0 left-0 right-0 h-1 bg-black/25">
                       <div
-                        className="h-full bg-primary transition-all duration-100"
+                        className="h-full bg-white transition-all duration-100"
                         style={{ width: `${progress[clip.id] || 0}%` }}
                       />
                     </div>
                   )}
                 </div>
-                <CardContent className="p-4">
-                  <h3 className="font-semibold truncate">{clip.title}</h3>
-                  {clip.artist && (
-                    <p className="text-sm text-muted-foreground truncate">{clip.artist}</p>
-                  )}
-                  {clip.description && (
-                    <p className="text-sm text-muted-foreground mt-2 line-clamp-2">{clip.description}</p>
-                  )}
-                  <div className="flex items-center gap-2 mt-2 text-xs text-muted-foreground">
-                    {clip.genre && (
-                      <span className="px-2 py-0.5 bg-primary/10 text-primary rounded-full">
-                        {clip.genre}
+
+                <CardContent className="p-5">
+                  <div className="flex items-start justify-between gap-4">
+                    <div className="min-w-0">
+                      <h3 className="truncate text-lg font-medium tracking-[-0.02em]">
+                        {clip.title}
+                      </h3>
+
+                      {clip.artist && (
+                        <p className="mt-1 truncate text-sm text-muted-foreground">
+                          {clip.artist}
+                        </p>
+                      )}
+                    </div>
+
+                    {clip.duration && (
+                      <span className="shrink-0 font-mono text-[10px] text-muted-foreground">
+                        {clip.duration}
                       </span>
                     )}
-                    {clip.duration && <span>{clip.duration}</span>}
                   </div>
+
+                  {clip.description && (
+                    <p className="mt-4 line-clamp-2 text-sm leading-relaxed text-muted-foreground">
+                      {clip.description}
+                    </p>
+                  )}
+
+                  {clip.genre && (
+                    <div className="mt-5 border-t border-border/60 pt-4">
+                      <span className="text-[10px] font-medium uppercase tracking-[0.16em] text-muted-foreground">
+                        {clip.genre}
+                      </span>
+                    </div>
+                  )}
                 </CardContent>
               </Card>
             </motion.div>
