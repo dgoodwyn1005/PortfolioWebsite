@@ -3,6 +3,7 @@
 import {
   useEffect,
   useMemo,
+  useRef,
   useState,
 } from "react"
 
@@ -68,11 +69,11 @@ export function ResilientImage({
   const sourceKey =
     normalizedSources.join("|")
 
+  const imageRef =
+    useRef<HTMLImageElement>(null)
+
   const [sourceIndex, setSourceIndex] =
     useState(0)
-
-  const [loaded, setLoaded] =
-    useState(false)
 
   const [retryToken, setRetryToken] =
     useState(0)
@@ -82,23 +83,72 @@ export function ResilientImage({
 
   useEffect(() => {
     setSourceIndex(0)
-    setLoaded(false)
   }, [sourceKey])
 
+  // A cached image can finish before React hydrates and attaches
+  // onLoad/onError handlers. Successful images should paint without
+  // waiting on React state; this effect only recovers a missed error
+  // so the next fallback source can be attempted.
   useEffect(() => {
-    const retryIfExhausted = () => {
+    const image = imageRef.current
+
+    if (!source || !image) {
+      return
+    }
+
+    if (
+      image.complete &&
+      image.naturalWidth === 0
+    ) {
+      setSourceIndex((current) =>
+        current + 1,
+      )
+    }
+  }, [source, retryToken])
+
+  useEffect(() => {
+    const retryIfNeeded = () => {
       if (
-        sourceIndex <
+        sourceIndex >=
         normalizedSources.length
+      ) {
+        setSourceIndex(0)
+        setRetryToken((value) =>
+          value + 1,
+        )
+        return
+      }
+
+      const image = imageRef.current
+
+      if (!image) {
+        return
+      }
+
+      if (
+        image.complete &&
+        image.naturalWidth > 0
       ) {
         return
       }
 
-      setSourceIndex(0)
-      setLoaded(false)
-      setRetryToken((value) =>
-        value + 1,
-      )
+      const rect =
+        image.getBoundingClientRect()
+
+      const isNearViewport =
+        loading === "eager" ||
+        (
+          rect.bottom >=
+            -window.innerHeight &&
+          rect.top <=
+            window.innerHeight * 2
+        )
+
+      if (isNearViewport) {
+        setRetryToken((value) =>
+          value + 1,
+        )
+      }
     }
 
     const retryWhenVisible = () => {
@@ -106,18 +156,18 @@ export function ResilientImage({
         document.visibilityState ===
         "visible"
       ) {
-        retryIfExhausted()
+        retryIfNeeded()
       }
     }
 
     window.addEventListener(
       "online",
-      retryIfExhausted,
+      retryIfNeeded,
     )
 
     window.addEventListener(
       "focus",
-      retryIfExhausted,
+      retryIfNeeded,
     )
 
     document.addEventListener(
@@ -128,12 +178,12 @@ export function ResilientImage({
     return () => {
       window.removeEventListener(
         "online",
-        retryIfExhausted,
+        retryIfNeeded,
       )
 
       window.removeEventListener(
         "focus",
-        retryIfExhausted,
+        retryIfNeeded,
       )
 
       document.removeEventListener(
@@ -142,13 +192,12 @@ export function ResilientImage({
       )
     }
   }, [
+    loading,
     normalizedSources.length,
     sourceIndex,
   ])
 
   const handleError = () => {
-    setLoaded(false)
-
     setSourceIndex((current) =>
       current + 1,
     )
@@ -198,19 +247,15 @@ export function ResilientImage({
 
       {source ? (
         <img
+          ref={imageRef}
           key={`${source}-${retryToken}`}
           src={source}
           alt={alt}
           loading={loading}
           fetchPriority={fetchPriority}
           decoding={decoding}
-          onLoad={() => setLoaded(true)}
           onError={handleError}
-          className={`absolute inset-0 h-full w-full transition-opacity duration-300 ${
-            loaded
-              ? "opacity-100"
-              : "opacity-0"
-          } ${className}`}
+          className={`absolute inset-0 h-full w-full ${className}`}
         />
       ) : alt ? (
         <span className="sr-only">
