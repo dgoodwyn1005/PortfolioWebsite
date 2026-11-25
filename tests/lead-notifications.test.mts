@@ -18,10 +18,14 @@ test("notification delivery and acknowledgement controls", async t => {
   assert.deepEqual(await sendLeadNotifications(lead), {owner: "sent", acknowledgement: "disabled"})
   assert.equal(requests.length, 1)
   assert.equal((requests[0].headers as Record<string,string>)["Idempotency-Key"], "lead-owner/saved-lead")
+  assert.equal(JSON.parse(String(requests[0].body)).reply_to, lead.email)
   assert.ok(requests[0].signal, "provider requests must have a timeout")
   process.env.LEAD_ACK_EMAILS_ENABLED = "true"
   assert.deepEqual(await sendLeadNotifications(lead), {owner: "sent", acknowledgement: "sent"})
   assert.equal((requests[2].headers as Record<string,string>)["Idempotency-Key"], "lead-ack/saved-lead")
+  assert.equal(JSON.parse(String(requests[2].body)).reply_to, undefined)
+  await sendLeadNotifications({...lead, email: "bad,visitor@example.test"})
+  assert.equal(JSON.parse(String(requests[3].body)).reply_to, undefined)
   globalThis.fetch = async () => new Response("{}", {status: 503})
   assert.deepEqual(await sendLeadNotifications(lead), {owner: "failed", acknowledgement: "failed"})
   globalThis.fetch = async () => {throw new Error("timeout")}
