@@ -14,6 +14,10 @@ import {
   getHomePageData,
 } from "@/lib/content/home"
 
+// Refresh public content after database recovery without a full redeploy.
+// Requests after this interval can trigger static regeneration.
+export const revalidate = 300
+
 const homeDescription =
   "Deshawn Goodwyn's official website — exploring technology, music, athletics, and the work connecting them."
 
