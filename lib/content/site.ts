@@ -99,7 +99,7 @@ const fallback: HomeSiteContent = {
   },
 }
 
-export async function getHomeSiteContent(): Promise<HomeSiteContent> {
+export async function getHomeSiteContent(strict = false): Promise<HomeSiteContent> {
   try {
     const supabase =
       createPublicClient()
@@ -191,6 +191,10 @@ export async function getHomeSiteContent(): Promise<HomeSiteContent> {
             socialResult.error.code,
         },
       )
+    }
+
+    if (strict && (settingsResult.error || statsResult.error || socialResult.error)) {
+      throw new Error("Failed to load homepage site content")
     }
 
     const settings =
@@ -293,6 +297,7 @@ export async function getHomeSiteContent(): Promise<HomeSiteContent> {
       error,
     )
 
+    if (strict) throw error
     return fallback
   }
 }
