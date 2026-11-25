@@ -20,7 +20,7 @@ export const metadata: Metadata = {
     type: "website",
     images: [
       {
-        url: "/og-image",
+        url: "/share/life",
         width: 1200,
         height: 630,
         alt: "Deshawn Goodwyn — Life",
@@ -31,7 +31,7 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title,
     description,
-    images: ["/og-image"],
+    images: ["/share/life"],
   },
 }
 
