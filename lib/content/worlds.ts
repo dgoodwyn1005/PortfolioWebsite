@@ -25,9 +25,9 @@ export async function getBuildPageData() {
     projects,
     wyntech,
   ] = await Promise.all([
-    getHomeSiteContent(),
-    getProjectsByWorld("build"),
-    getCompanyPageData("wyntech"),
+    getHomeSiteContent(true),
+    getProjectsByWorld("build", true),
+    getCompanyPageData("wyntech", true),
   ])
 
   return {
@@ -46,15 +46,16 @@ export async function getMusicPageData() {
     videos,
     wynora,
   ] = await Promise.all([
-    getHomeSiteContent(),
-    getVideosByWorld("music"),
-    getCompanyPageData("wynora"),
+    getHomeSiteContent(true),
+    getVideosByWorld("music", true),
+    getCompanyPageData("wynora", true),
   ])
 
   const wynoraMedia =
     wynora
       ? await getWynoraMediaData(
           wynora.company.id,
+          true,
         )
       : {
           audioClips: [],
@@ -88,9 +89,9 @@ export async function getLifePageData() {
     photos,
     stats,
   ] = await Promise.all([
-    getHomeSiteContent(),
-    getPhotosByWorld("life"),
-    getStatsByWorld("life"),
+    getHomeSiteContent(true),
+    getPhotosByWorld("life", true),
+    getStatsByWorld("life", true),
   ])
 
   return {
