@@ -56,11 +56,13 @@ async function sendEmail({
   subject,
   text,
   idempotencyKey,
+  replyTo,
 }: {
   to: string
   subject: string
   text: string
   idempotencyKey: string
+  replyTo?: string
 }) {
   const apiKey =
     process.env.RESEND_API_KEY?.trim()
@@ -94,6 +96,9 @@ async function sendEmail({
           to: [to],
           subject,
           text,
+          ...(replyTo && /^[^\s@<>,;"\\]+@[^\s@<>,;"\\]+\.[^\s@<>,;"\\]+$/.test(replyTo)
+            ? { reply_to: replyTo }
+            : {}),
         }),
 
         cache: "no-store",
@@ -213,6 +218,7 @@ export async function sendLeadNotifications(
 
   const owner = await sendEmail({
     to: notificationEmail,
+    replyTo: lead.email,
     subject: ownerSubject,
     text: ownerBody,
     idempotencyKey:
