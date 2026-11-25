@@ -163,7 +163,7 @@ export default async function BuildPage() {
         </section>
 
         {projects.length > 0 && (
-          <section className="border-b border-border/60 bg-muted/15 py-16 sm:py-24 lg:py-32">
+          <section className="portfolio-reveal border-b border-border/60 bg-muted/15 py-16 sm:py-24 lg:py-32">
             <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
               <div className="grid gap-8 lg:grid-cols-12">
                 <div className="lg:col-span-4">
@@ -214,7 +214,7 @@ export default async function BuildPage() {
         )}
 
         {wyntech && (
-          <section className="border-b border-border/60 py-16 sm:py-24 lg:py-32">
+          <section className="portfolio-reveal border-b border-border/60 py-16 sm:py-24 lg:py-32">
             <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
               <div className="grid gap-8 lg:grid-cols-12">
                 <div className="lg:col-span-4">
@@ -287,7 +287,7 @@ export default async function BuildPage() {
           </section>
         )}
 
-        <section className="border-b border-border/60 py-16 sm:py-24 lg:py-32">
+        <section className="portfolio-reveal border-b border-border/60 py-16 sm:py-24 lg:py-32">
           <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
             <div className="grid gap-8 lg:grid-cols-12">
               <div className="lg:col-span-4">
