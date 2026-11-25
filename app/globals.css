@@ -174,3 +174,6 @@
 @media (hover: hover) and (pointer: fine) {
   .portfolio-project-frame:hover { border-color: color-mix(in oklab, var(--border) 40%, var(--primary) 60%); }
 }
+
+/* Fixed headers must not cover linked forms or service headings. */
+main section[id] { scroll-margin-top: 5rem; }
