@@ -1,4 +1,5 @@
 import { ProjectCard } from "@/components/project-card"
+import { SonisphereSpotlight, isSonisphere } from "@/components/sonisphere-spotlight"
 
 import type {
   Project,
@@ -11,6 +12,9 @@ interface ProjectsSectionProps {
 export function ProjectsSection({
   projects,
 }: ProjectsSectionProps) {
+  const flagship = projects.find(isSonisphere)
+  const otherProjects = projects.filter((project) => project.id !== flagship?.id)
+
   return (
     <section
       id="projects"
@@ -54,12 +58,13 @@ export function ProjectsSection({
           </div>
         ) : (
           <div className="grid grid-cols-1 gap-x-6 gap-y-12 md:grid-cols-2 lg:grid-cols-12 lg:gap-y-20">
-            {projects.map(
+            {flagship && <SonisphereSpotlight project={flagship} />}
+            {otherProjects.map(
               (project, index) => (
                 <ProjectCard
                   key={project.id}
                   project={project}
-                  index={index}
+                  index={flagship ? index + 1 : index}
                 />
               ),
             )}
