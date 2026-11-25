@@ -122,7 +122,7 @@ export default async function LifePage() {
         </section>
 
         {stats.length > 0 && (
-          <section className="border-b border-border/50 py-20 sm:py-28 lg:py-36">
+          <section className="portfolio-reveal border-b border-border/50 py-20 sm:py-28 lg:py-36">
             <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
               <div className="grid gap-10 lg:grid-cols-12">
                 <div className="lg:col-span-4">
@@ -221,7 +221,7 @@ export default async function LifePage() {
         </section>
 
         {photos.length > 0 && (
-          <section className="border-b border-border/50 py-20 sm:py-28 lg:py-36">
+          <section className="portfolio-reveal border-b border-border/50 py-20 sm:py-28 lg:py-36">
             <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
               <div className="grid items-end gap-8 lg:grid-cols-12">
                 <div className="lg:col-span-4">
