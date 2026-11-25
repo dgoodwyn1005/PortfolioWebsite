@@ -19,7 +19,7 @@ export interface Project {
   world: string | null
 }
 
-export async function getFeaturedProjects(): Promise<Project[]> {
+export async function getFeaturedProjects(strict = false): Promise<Project[]> {
   try {
     const supabase =
       createPublicClient()
@@ -67,6 +67,7 @@ export async function getFeaturedProjects(): Promise<Project[]> {
         },
       )
 
+      if (strict) throw error
       return []
     }
 
@@ -77,6 +78,7 @@ export async function getFeaturedProjects(): Promise<Project[]> {
       error,
     )
 
+    if (strict) throw error
     return []
   }
 }
