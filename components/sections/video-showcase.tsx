@@ -4,6 +4,7 @@ import { useReducedMotion } from "@/lib/use-reduced-motion"
 import { ResilientImage } from "@/components/resilient-image"
 
 import { useState } from "react"
+import Link from "next/link"
 
 import {
   motion,
@@ -110,6 +111,10 @@ function getExternalUrl(video: Video) {
     return `https://x.com/i/status/${videoId}`
   }
 
+  if (platform === "youtube") {
+    return `https://www.youtube.com/watch?v=${encodeURIComponent(videoId)}`
+  }
+
   return null
 }
 
@@ -161,6 +166,14 @@ export function VideoShowcase({
   const isStage =
     variant === "stage"
 
+  const orderedVideos = isStage
+    ? [...videos].sort((a, b) => Number(getPlatform(a) === "tiktok") - Number(getPlatform(b) === "tiktok"))
+    : videos
+
+  const featuredId = isStage
+    ? orderedVideos.find((video) => getPlatform(video) === "youtube")?.id
+    : orderedVideos[0]?.id
+
   return (
     <section
       id="videos"
@@ -184,7 +197,7 @@ export function VideoShowcase({
           <div className="lg:col-span-4">
             <p className="text-xs font-medium uppercase tracking-[0.22em] text-muted-foreground">
               {isStage
-                ? "Performance / Selected media"
+                ? "The Silent Pianist / Selected performances"
                 : "04 / Selected Media"}
             </p>
           </div>
@@ -206,14 +219,14 @@ export function VideoShowcase({
 
             {isStage && (
               <p className="mt-5 max-w-xl text-base leading-relaxed text-muted-foreground sm:text-lg">
-                Not a reel for the sake of a reel—just enough to feel how the music sits in a space.
+                Piano performances, arrangements and short moments at the instrument. Choose a video to listen.
               </p>
             )}
           </div>
         </div>
 
-        <div className="grid gap-10 lg:grid-cols-12 lg:gap-6">
-          {videos.map(
+        <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+          {orderedVideos.map(
             (video, index) => {
               const platform =
                 getPlatform(video)
@@ -227,11 +240,13 @@ export function VideoShowcase({
               const isYouTube =
                 platform === "youtube"
 
+              const isTikTok = platform === "tiktok"
+              const canEmbed = Boolean(videoId) && (isYouTube || (isStage && isTikTok && /^\d+$/.test(videoId)))
               const isActive =
                 activeVideo === video.id
 
               const isFeatured =
-                index === 0
+                video.id === featuredId
 
               return (
                 <motion.article
@@ -263,9 +278,9 @@ export function VideoShowcase({
                         : index * 0.06,
                   }}
                   className={
-                    isFeatured
-                      ? "lg:col-span-8"
-                      : "lg:col-span-4"
+                    isStage && isFeatured && !isTikTok
+                      ? "sm:col-span-2 lg:col-span-3 mx-auto w-full max-w-4xl"
+                      : "min-w-0"
                   }
                 >
                   <div
@@ -278,27 +293,24 @@ export function VideoShowcase({
                   >
                     <div
                       className={[
-                        "relative aspect-video overflow-hidden bg-muted",
+                        "relative overflow-hidden bg-muted",
+                        isStage && isTikTok ? "aspect-[9/16]" : "aspect-video",
                         isStage
                           ? "rounded-[1.25rem]"
                           : "",
                       ].join(" ")}
                     >
-                      {isYouTube &&
-                      isActive &&
-                      videoId ? (
+                      {canEmbed && isActive ? (
                         <iframe
-                          src={buildYouTubeEmbedUrl(
-                            videoId,
-                            video.start_time,
-                            video.end_time,
-                          )}
+                          src={isTikTok
+                            ? `https://www.tiktok.com/player/v1/${videoId}?autoplay=1&controls=1&rel=0`
+                            : buildYouTubeEmbedUrl(videoId, video.start_time, video.end_time)}
                           title={video.title}
                           allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                           allowFullScreen
                           className="absolute inset-0 h-full w-full"
                         />
-                      ) : externalUrl ? (
+                      ) : !canEmbed && externalUrl ? (
                         <a
                           href={externalUrl}
                           target="_blank"
@@ -318,13 +330,13 @@ export function VideoShowcase({
                         <button
                           type="button"
                           onClick={() => {
-                            if (videoId) {
+                            if (canEmbed) {
                               setActiveVideo(
                                 video.id,
                               )
                             }
                           }}
-                          disabled={!videoId}
+                          disabled={!canEmbed}
                           aria-label={`Play ${video.title}`}
                           className="absolute inset-0 h-full w-full text-left disabled:cursor-default"
                         >
@@ -365,9 +377,16 @@ export function VideoShowcase({
                         )}
                       </div>
 
-                      {externalUrl && (
-                        <ArrowUpRight className="mt-1 size-4 shrink-0 text-muted-foreground" />
-                      )}
+                      <div className="flex shrink-0 items-center gap-3">
+                        {isActive && (
+                          <button type="button" onClick={() => setActiveVideo(null)} className="text-xs font-medium text-muted-foreground underline underline-offset-4">Close player</button>
+                        )}
+                        {externalUrl && (
+                          <a href={externalUrl} target="_blank" rel="noopener noreferrer" aria-label={`Open ${video.title} on ${platform}`} className="p-2 text-muted-foreground hover:text-foreground">
+                            <ArrowUpRight className="size-4" />
+                          </a>
+                        )}
+                      </div>
                     </div>
                   </div>
                 </motion.article>
@@ -375,6 +394,11 @@ export function VideoShowcase({
             },
           )}
         </div>
+        {!isStage && (
+          <Link href="/music#videos" className="mt-8 inline-flex items-center gap-2 text-sm font-medium underline underline-offset-4">
+            Explore more performances <ArrowUpRight className="size-4" />
+          </Link>
+        )}
       </div>
     </section>
   )
