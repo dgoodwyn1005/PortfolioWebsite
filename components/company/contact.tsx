@@ -63,7 +63,7 @@ export function CompanyContact({
   return (
     <section
       id="contact"
-      className="bg-muted/30 py-24"
+      className="scroll-mt-20 bg-muted/30 py-12 sm:py-20 lg:py-24"
     >
       <div className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
         <motion.div
@@ -78,7 +78,7 @@ export function CompanyContact({
           viewport={{
             once: true,
           }}
-          className="mb-16 text-center"
+          className="mb-8 text-center sm:mb-12"
         >
           <h2 className="mb-4 text-3xl font-bold text-foreground md:text-4xl">
             {heading}
@@ -115,7 +115,7 @@ export function CompanyContact({
             viewport={{
               once: true,
             }}
-            className="rounded-2xl border border-border bg-card p-6 sm:p-8"
+            className="min-w-0 rounded-2xl border border-border bg-card p-4 sm:p-8"
           >
             <h3 className="mb-2 text-xl font-semibold text-foreground">
               {isWynora
@@ -151,7 +151,7 @@ export function CompanyContact({
               {company.contact_email && (
                 <a
                   href={`mailto:${company.contact_email}`}
-                  className="flex items-center gap-3 text-muted-foreground transition-colors hover:text-foreground"
+                  className="flex min-w-0 break-all items-center gap-3 text-muted-foreground transition-colors hover:text-foreground"
                 >
                   <Mail
                     className="h-5 w-5"
@@ -170,7 +170,7 @@ export function CompanyContact({
               {company.contact_phone && (
                 <a
                   href={`tel:${company.contact_phone}`}
-                  className="flex items-center gap-3 text-muted-foreground transition-colors hover:text-foreground"
+                  className="flex min-w-0 break-all items-center gap-3 text-muted-foreground transition-colors hover:text-foreground"
                 >
                   <Phone
                     className="h-5 w-5"
