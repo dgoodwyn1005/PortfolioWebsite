@@ -43,7 +43,7 @@ export function SonisphereEmbed({ imageUrl }: { imageUrl: string | null }) {
           <iframe ref={iframe} src={embedUrl} title="Live Sonisphere interactive music visualizer" allow="autoplay; fullscreen" allowFullScreen loading="eager" sandbox="allow-scripts allow-same-origin allow-popups allow-popups-to-escape-sandbox" className="absolute inset-0 h-full w-full border-0" />
         ) : (
           <>
-            <ResilientImage sources={[imageUrl]} alt="Sonisphere project preview" loading="lazy" fallbackTone="build" fallbackLabel="Sonisphere" fallbackDetail="Interactive music experience" className="object-contain" />
+            <ResilientImage sources={[imageUrl]} sizes="(min-width: 1024px) 700px, 100vw" alt="Sonisphere project preview" loading="lazy" fallbackTone="build" fallbackLabel="Sonisphere" fallbackDetail="Interactive music experience" className="object-contain" />
             <button type="button" data-portfolio-event="sonisphere_demo_launch" onClick={() => { readyRef.current = false; setReady(false); setTimedOut(false); setActive(true) }} className="absolute inset-0 flex items-center justify-center bg-black/25 transition-colors hover:bg-black/45 focus-visible:outline-2 focus-visible:outline-offset-[-4px]">
               <span className="inline-flex min-h-12 items-center gap-2 rounded-full border border-white/30 bg-black/85 px-5 py-3 text-sm font-medium text-white"><Play className="size-4 fill-current" aria-hidden="true" /> Load live demo</span>
             </button>
