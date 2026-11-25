@@ -23,7 +23,11 @@ import {
   getBuildPageData,
 } from "@/lib/content/worlds"
 
+import { SonisphereSpotlight, isSonisphere } from "@/components/sonisphere-spotlight"
+
 import styles from "@/styles/worlds.module.css"
+
+export const revalidate = 300
 
 export const metadata: Metadata = {
   title: "Build",
@@ -51,6 +55,9 @@ export default async function BuildPage() {
     projects,
     wyntech,
   } = await getBuildPageData()
+
+  const flagship = projects.find(isSonisphere)
+  const otherProjects = projects.filter((project) => project.id !== flagship?.id)
 
   return (
     <>
@@ -92,6 +99,8 @@ export default async function BuildPage() {
                   <br />
                   to be used.
                 </h1>
+
+                {flagship && <Link href="#sonisphere" className="mt-8 inline-flex min-h-11 items-center gap-2 text-sm font-medium underline underline-offset-4">Explore Sonisphere <ArrowDown className="size-4" aria-hidden="true" /></Link>}
 
                 <div className="mt-12 grid overflow-hidden border border-border/70 bg-border/70 sm:grid-cols-3">
                   {[
@@ -186,7 +195,8 @@ export default async function BuildPage() {
               </div>
 
               <div className="mt-12 grid grid-cols-1 gap-x-6 gap-y-12 border-t border-border/70 pt-8 md:grid-cols-2 lg:mt-16 lg:grid-cols-12 lg:gap-y-20 lg:pt-12">
-                {projects.map(
+                {flagship && <SonisphereSpotlight project={flagship} detailed />}
+                {otherProjects.map(
                   (
                     project,
                     index,
@@ -194,7 +204,7 @@ export default async function BuildPage() {
                     <ProjectCard
                       key={project.id}
                       project={project}
-                      index={index}
+                      index={flagship ? index + 1 : index}
                     />
                   ),
                 )}
