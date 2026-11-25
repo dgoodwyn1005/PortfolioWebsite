@@ -45,7 +45,10 @@ export function ProjectsSection({
             <p className="text-muted-foreground">
               Explore software, products, and ongoing experiments in Build.
             </p>
-            <a href="/build" className="inline-flex font-medium text-foreground underline underline-offset-4 focus-visible:outline-2 focus-visible:outline-offset-4">
+            <a
+              href="/build"
+              className="inline-flex font-medium text-foreground underline underline-offset-4 focus-visible:outline-2 focus-visible:outline-offset-4"
+            >
               Explore Build
             </a>
           </div>
@@ -60,7 +63,7 @@ export function ProjectsSection({
                 />
               ),
             )}
-        </div>
+          </div>
         )}
       </div>
     </section>
