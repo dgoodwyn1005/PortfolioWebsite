@@ -33,6 +33,9 @@ interface VideoItem {
   is_visible: boolean
   start_time?: string
   end_time?: string
+  presentation_format?: string | null
+  youtube_video_id?: string | null
+  tiktok_video_id?: string | null
 }
 
 export function VideosManager({ initialVideos }: { initialVideos: VideoItem[] }) {
@@ -52,11 +55,14 @@ export function VideosManager({ initialVideos }: { initialVideos: VideoItem[] })
     is_visible: true,
     start_time: "",
     end_time: "",
+    presentation_format: "auto",
+    youtube_video_id: "",
+    tiktok_video_id: "",
   })
   const [isUploading, setIsUploading] = useState(false)
 
   const resetForm = () => {
-    setFormData({ title: "", embed_id: "", tiktok_username: "TheSilentPianist", thumbnail_url: "", section: "music", platform: "youtube", is_visible: true, start_time: "", end_time: "" })
+    setFormData({ title: "", embed_id: "", tiktok_username: "TheSilentPianist", thumbnail_url: "", section: "music", platform: "youtube", is_visible: true, start_time: "", end_time: "", presentation_format: "auto", youtube_video_id: "", tiktok_video_id: "" })
     setEditingVideo(null)
   }
 
@@ -98,6 +104,9 @@ export function VideosManager({ initialVideos }: { initialVideos: VideoItem[] })
       is_visible: video.is_visible,
       start_time: video.start_time || "",
       end_time: video.end_time || "",
+      presentation_format: video.presentation_format || "auto",
+      youtube_video_id: video.youtube_video_id || "",
+      tiktok_video_id: video.tiktok_video_id || "",
     })
     setIsDialogOpen(true)
   }
@@ -109,10 +118,21 @@ export function VideosManager({ initialVideos }: { initialVideos: VideoItem[] })
     const supabase = createClient()
 
     try {
+      const youtubeId = formData.youtube_video_id.trim().match(/^(?:[\w-]{11})$/)?.[0] || formData.youtube_video_id.trim().match(/(?:v=|youtu\.be\/|\/shorts\/|\/embed\/)([\w-]{11})(?=$|[?&#/])/ )?.[1] || ""
+      const tiktokId = formData.tiktok_video_id.trim().match(/^\d+$/)?.[0] || formData.tiktok_video_id.trim().match(/\/video\/(\d+)/)?.[1] || ""
+      if ((formData.youtube_video_id.trim() && !youtubeId) || (formData.tiktok_video_id.trim() && !tiktokId)) {
+        throw new Error("Enter a valid YouTube or TikTok video URL or ID.")
+      }
+      const presentation = {
+        presentation_format: formData.presentation_format === "auto" ? null : formData.presentation_format,
+        youtube_video_id: youtubeId || null,
+        tiktok_video_id: tiktokId || null,
+      }
       if (editingVideo) {
         const { error } = await supabase
           .from("videos")
           .update({
+            ...presentation,
             title: formData.title,
             embed_id: formData.embed_id,
             tiktok_username: formData.tiktok_username,
@@ -130,6 +150,7 @@ export function VideosManager({ initialVideos }: { initialVideos: VideoItem[] })
       } else {
         const sectionVideos = videos.filter((v) => v.section === formData.section)
         const { error } = await supabase.from("videos").insert({
+          ...presentation,
           title: formData.title,
           embed_id: formData.embed_id,
           tiktok_username: formData.tiktok_username,
@@ -140,6 +161,7 @@ export function VideosManager({ initialVideos }: { initialVideos: VideoItem[] })
           start_time: formData.start_time || null,
           end_time: formData.end_time || null,
           display_order: sectionVideos.length + 1,
+          world: formData.section === "basketball" ? "life" : "music",
         })
 
         if (error) throw error
@@ -198,7 +220,7 @@ export function VideosManager({ initialVideos }: { initialVideos: VideoItem[] })
             Add Video
           </Button>
         </DialogTrigger>
-        <DialogContent>
+        <DialogContent className="max-h-[85dvh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>{editingVideo ? "Edit Video" : "Add New Video"}</DialogTitle>
             <DialogDescription>Add a YouTube or TikTok video to your portfolio.</DialogDescription>
@@ -250,7 +272,7 @@ export function VideosManager({ initialVideos }: { initialVideos: VideoItem[] })
                     const twitterMatch = value.match(/status\/(\d+)/)
                     if (twitterMatch) value = twitterMatch[1]
                   } else {
-                    const ytMatch = value.match(/(?:v=|youtu\.be\/|\/embed\/)([a-zA-Z0-9_-]+)/)
+                    const ytMatch = value.match(/(?:v=|youtu\.be\/|\/embed\/|\/shorts\/)([a-zA-Z0-9_-]+)/)
                     if (ytMatch) value = ytMatch[1]
                   }
                   setFormData((prev) => ({ ...prev, embed_id: value }))
@@ -272,6 +294,25 @@ export function VideosManager({ initialVideos }: { initialVideos: VideoItem[] })
                 </p>
               )}
             </div>
+            <div className="space-y-2">
+              <Label>Presentation format</Label>
+              <Select value={formData.presentation_format} onValueChange={(value) => setFormData({ ...formData, presentation_format: value })}>
+                <SelectTrigger><SelectValue /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="auto">Automatic (existing catalog)</SelectItem>
+                  <SelectItem value="pov">Piano POV — portrait</SelectItem>
+                  <SelectItem value="performance">Standard performance — landscape</SelectItem>
+                </SelectContent>
+              </Select>
+              <p className="text-xs text-muted-foreground">Choose based on camera angle, not platform.</p>
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="youtube_video_id">YouTube version (preferred playback)</Label>
+              <Input id="youtube_video_id" value={formData.youtube_video_id} onChange={(e) => setFormData({ ...formData, youtube_video_id: e.target.value })} placeholder="YouTube video or Shorts URL" />
+              <Label htmlFor="tiktok_video_id">TikTok version (optional alternative)</Label>
+              <Input id="tiktok_video_id" value={formData.tiktok_video_id} onChange={(e) => setFormData({ ...formData, tiktok_video_id: e.target.value })} placeholder="TikTok video URL or ID" />
+              <p className="text-xs text-muted-foreground">Add cross-uploads to this entry instead of creating a duplicate. Existing platform and ID remain the fallback.</p>
+            </div>
             {formData.platform === "tiktok" && (
               <div className="space-y-2">
                 <Label htmlFor="tiktok_username">TikTok Username</Label>
@@ -287,7 +328,7 @@ export function VideosManager({ initialVideos }: { initialVideos: VideoItem[] })
                 </p>
               </div>
             )}
-            {formData.platform === "youtube" && (
+            {(formData.platform === "youtube" || formData.youtube_video_id.trim()) && (
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <Label htmlFor="start_time">Start Time (Optional)</Label>
