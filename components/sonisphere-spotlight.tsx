@@ -16,7 +16,7 @@ const capabilities = [
 
 export function SonisphereSpotlight({ project, detailed = false }: { project: Project; detailed?: boolean }) {
   return (
-    <article id="sonisphere" aria-labelledby="sonisphere-title" className="scroll-mt-24 overflow-hidden border border-border/70 bg-card md:col-span-2 lg:col-span-12">
+    <article id="sonisphere" aria-labelledby="sonisphere-title" className="portfolio-flagship scroll-mt-24 overflow-hidden border border-border/70 bg-card md:col-span-2 lg:col-span-12">
       <div className="grid lg:grid-cols-12">
         <div className="flex flex-col justify-center p-6 sm:p-10 lg:col-span-5 lg:p-12">
           <p className="font-mono text-[10px] uppercase tracking-[0.2em] text-muted-foreground">Flagship product / Software × Music</p>
@@ -24,14 +24,14 @@ export function SonisphereSpotlight({ project, detailed = false }: { project: Pr
           <p className="mt-3 text-2xl font-medium tracking-tight sm:text-3xl">Music, made spatial.</p>
           <p className="mt-5 max-w-lg leading-relaxed text-muted-foreground">A browser-based platform that interprets music in real time, transforms it into living 3D worlds, and lets people create, capture and share those experiences.</p>
           <div className="mt-7 flex flex-wrap gap-3">
-            <a href="https://www.sonisphere.dev/try" target="_blank" rel="noopener noreferrer" className="inline-flex min-h-12 items-center gap-2 bg-foreground px-5 py-3 text-sm font-medium text-background transition-opacity hover:opacity-85 focus-visible:outline-2 focus-visible:outline-offset-4">Try Sonisphere <ArrowUpRight className="size-4" aria-hidden="true" /></a>
+            <a data-portfolio-event="sonisphere_product_visit" href="https://www.sonisphere.dev/try" target="_blank" rel="noopener noreferrer" className="inline-flex min-h-12 items-center gap-2 bg-foreground px-5 py-3 text-sm font-medium text-background transition-opacity hover:opacity-85 focus-visible:outline-2 focus-visible:outline-offset-4">Try Sonisphere <ArrowUpRight className="size-4" aria-hidden="true" /></a>
             {detailed ? <a href="https://www.sonisphere.dev/docs" target="_blank" rel="noopener noreferrer" className="inline-flex min-h-12 items-center gap-2 border border-border px-5 py-3 text-sm font-medium hover:bg-muted focus-visible:outline-2 focus-visible:outline-offset-4">Product docs <ArrowUpRight className="size-4" aria-hidden="true" /></a> : <Link href="/build#sonisphere" className="inline-flex min-h-12 items-center gap-2 border border-border px-5 py-3 text-sm font-medium hover:bg-muted focus-visible:outline-2 focus-visible:outline-offset-4">Behind the product <ArrowRight className="size-4" aria-hidden="true" /></Link>}
           </div>
           <p className="mt-4 text-xs text-muted-foreground">Explore in your browser · No download required</p>
         </div>
-        <div className="relative flex min-h-64 items-center justify-center overflow-hidden border-t border-white/10 bg-[#08090d] p-4 sm:p-8 lg:col-span-7 lg:border-l lg:border-t-0">
+        <div className="sonisphere-stage relative flex min-h-64 items-center justify-center overflow-hidden border-t border-white/10 bg-[#08090d] p-4 sm:p-8 lg:col-span-7 lg:border-l lg:border-t-0">
           <div aria-hidden="true" className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_center,rgba(105,98,215,0.16),transparent_72%)]" />
-          <div className="relative w-full overflow-hidden border border-white/15 bg-black shadow-2xl">
+          <div className="relative w-full overflow-hidden rounded-xl border border-white/15 bg-black shadow-2xl">
             <div className="flex items-center justify-between border-b border-white/10 px-4 py-3 font-mono text-[10px] uppercase tracking-widest text-white/70"><span>Sonisphere / Interactive preview</span><span className="flex gap-1.5" aria-hidden="true"><i className="size-1.5 rounded-full bg-white/40"/><i className="size-1.5 rounded-full bg-white/40"/><i className="size-1.5 rounded-full bg-white/40"/></span></div>
             <SonisphereEmbed imageUrl={project.image_url} />
           </div>
