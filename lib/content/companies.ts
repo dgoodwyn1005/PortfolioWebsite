@@ -23,6 +23,7 @@ function logError(
 
 export async function getCompanyPageData(
   slug: string,
+  strict = false,
 ) {
   try {
     const supabase = createPublicClient()
@@ -43,6 +44,7 @@ export async function getCompanyPageData(
         companyError,
       )
 
+      if (strict) throw companyError
       return null
     }
 
@@ -114,6 +116,8 @@ export async function getCompanyPageData(
       faqsResult.error,
     )
 
+    if (strict && (servicesResult.error || portfolioResult.error || testimonialsResult.error || faqsResult.error)) throw new Error("Failed to load company content")
+
     return {
       company,
 
@@ -135,12 +139,14 @@ export async function getCompanyPageData(
       error,
     )
 
+    if (strict) throw error
     return null
   }
 }
 
 export async function getWynoraMediaData(
   companyId: string,
+  strict = false,
 ) {
   try {
     const supabase = createPublicClient()
@@ -230,6 +236,8 @@ export async function getWynoraMediaData(
       musicVideosResult.error,
     )
 
+    if (strict && (audioClipsResult.error || silentPianistResult.error || audioSamplesResult.error || musicVideosResult.error)) throw new Error("Failed to load Wynora media")
+
     return {
       audioClips:
         audioClipsResult.data ?? [],
@@ -249,6 +257,7 @@ export async function getWynoraMediaData(
       error,
     )
 
+    if (strict) throw error
     return {
       audioClips: [],
       silentPianistVideos: [],
