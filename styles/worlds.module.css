@@ -233,3 +233,10 @@
     font-size: 3.55rem;
   }
 }
+
+/* Distinct worlds, one shared visual language. */
+.buildGrid { background: radial-gradient(ellipse at 82% 15%, oklch(0.70 0.12 230 / .13), transparent 55%); }
+.homeWorldTile::before { opacity: .28; }
+.homeWorldTile { transition: border-color 220ms ease, background-color 220ms ease; }
+.homeWorldTile:hover, .homeWorldTile:focus-visible { border-color: color-mix(in oklab, var(--border) 40%, var(--foreground) 60%); }
+.lifeCanvas { background: radial-gradient(circle at 12% 18%, oklch(0.76 0.10 75 / .18), transparent 32%), radial-gradient(circle at 88% 22%, oklch(0.75 0.12 155 / .17), transparent 32%), radial-gradient(circle at 62% 86%, oklch(0.82 0.08 75 / .12), transparent 33%); }
