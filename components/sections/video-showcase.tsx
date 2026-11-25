@@ -170,9 +170,7 @@ export function VideoShowcase({
     ? [...videos].sort((a, b) => Number(getPlatform(a) === "tiktok") - Number(getPlatform(b) === "tiktok"))
     : videos
 
-  const featuredId = isStage
-    ? orderedVideos.find((video) => getPlatform(video) === "youtube")?.id
-    : orderedVideos[0]?.id
+  const featuredId = orderedVideos[0]?.id
 
   return (
     <section
@@ -219,7 +217,7 @@ export function VideoShowcase({
 
             {isStage && (
               <p className="mt-5 max-w-xl text-base leading-relaxed text-muted-foreground sm:text-lg">
-                Piano performances, arrangements and short moments at the instrument. Choose a video to listen.
+                First-person piano performances, arrangements and recordings from the instrument. Choose a performance to listen.
               </p>
             )}
           </div>
@@ -241,7 +239,8 @@ export function VideoShowcase({
                 platform === "youtube"
 
               const isTikTok = platform === "tiktok"
-              const canEmbed = Boolean(videoId) && (isYouTube || (isStage && isTikTok && /^\d+$/.test(videoId)))
+              const canEmbed = (isYouTube && /^[\w-]{11}$/.test(videoId)) || (isStage && isTikTok && /^\d+$/.test(videoId))
+              const isPortrait = isStage && (isTikTok || isYouTube)
               const isActive =
                 activeVideo === video.id
 
@@ -278,8 +277,8 @@ export function VideoShowcase({
                         : index * 0.06,
                   }}
                   className={
-                    isStage && isFeatured && !isTikTok
-                      ? "sm:col-span-2 lg:col-span-3 mx-auto w-full max-w-4xl"
+                    isStage && isFeatured
+                      ? "sm:col-span-2 lg:col-span-3 mx-auto w-full max-w-sm"
                       : "min-w-0"
                   }
                 >
@@ -294,7 +293,7 @@ export function VideoShowcase({
                     <div
                       className={[
                         "relative overflow-hidden bg-muted",
-                        isStage && isTikTok ? "aspect-[9/16]" : "aspect-video",
+                        isPortrait ? "aspect-[9/16]" : "aspect-video",
                         isStage
                           ? "rounded-[1.25rem]"
                           : "",
@@ -324,6 +323,8 @@ export function VideoShowcase({
                               isFeatured
                             }
                             warm={isStage}
+                            portrait={isPortrait}
+                            playable={canEmbed}
                           />
                         </a>
                       ) : (
@@ -346,6 +347,8 @@ export function VideoShowcase({
                               isFeatured
                             }
                             warm={isStage}
+                            portrait={isPortrait}
+                            playable={canEmbed}
                           />
                         </button>
                       )}
@@ -408,10 +411,14 @@ function VideoThumbnail({
   video,
   featured,
   warm,
+  portrait = false,
+  playable = false,
 }: {
   video: Video
   featured: boolean
   warm: boolean
+  portrait?: boolean
+  playable?: boolean
 }) {
   const platform =
     getPlatform(video)
@@ -442,14 +449,14 @@ function VideoThumbnail({
         fallbackDetail={
           `${platform} preview`
         }
-        className="object-cover transition-transform duration-700 ease-out group-hover:scale-[1.025]"
+        className={`${portrait ? "object-contain" : "object-cover"} transition-transform duration-700 ease-out group-hover:scale-[1.025]`}
       />
 
       <div className="absolute inset-0 bg-black/15 transition-colors group-hover:bg-black/25" />
 
       <div className="absolute inset-0 flex items-center justify-center">
         <div className="flex size-14 items-center justify-center rounded-full bg-white text-black shadow-lg transition-transform duration-300 group-hover:scale-105 sm:size-16">
-          {platform === "youtube" ? (
+          {playable ? (
             <Play className="ml-1 size-6 fill-current sm:size-7" />
           ) : (
             <ArrowUpRight className="size-6" />
