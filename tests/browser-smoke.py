@@ -65,6 +65,21 @@ try:
             page.wait_for_timeout(350)
             assert page.locator('main').count() == 1, route
             print('PASS route', route)
+        for width in [320, 375, 430, 768, 1024, 1280]:
+            page.set_viewport_size({'width': width, 'height': 850})
+            for route in ['/', '/build', '/music', '/life']:
+                assert page.goto('http://127.0.0.1:3001' + route).status == 200
+                page.wait_for_timeout(350)
+                assert page.evaluate('document.documentElement.scrollWidth <= window.innerWidth'), (route, width)
+                if route == '/music':
+                    assert page.locator('main a[href="/wynora#contact"]').first.is_visible(), (route, width, 'booking link')
+                elif route == '/build':
+                    assert page.locator('main a[href="/wyntech#contact"]').first.is_visible(), (route, width, 'project link')
+                elif route == '/':
+                    assert page.locator('main a[href="/wynora#contact"]').first.is_visible()
+                    assert page.locator('main a[href="/wyntech#contact"]').first.is_visible()
+            print('PASS public responsive routes and conversion links', width)
+        page.set_viewport_size({'width': 1280, 'height': 900})
         page.goto('http://127.0.0.1:3001/')
         for name, target in [('Build', '/build'), ('Music', '/music'), ('Life', '/life')]:
             assert page.locator(f'nav a[href="{target}"]').count(), name

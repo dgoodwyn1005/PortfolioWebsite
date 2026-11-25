@@ -76,8 +76,8 @@
 }
 
 @theme inline {
-  --font-sans: "Inter", "Inter Fallback", sans-serif;
-  --font-mono: "Geist Mono", "Geist Mono Fallback", monospace;
+  --font-sans: "Inter Variable", "Inter", sans-serif;
+  --font-mono: "Geist Mono Variable", "Geist Mono", monospace;
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --color-card: var(--card);
@@ -127,7 +127,7 @@
     scroll-behavior: smooth;
   }
   :focus-visible {
-    outline: 2px solid hsl(var(--foreground));
+    outline: 2px solid var(--foreground);
     outline-offset: 3px;
   }
 }
@@ -150,3 +150,30 @@
   --font-inter: "Inter Variable";
   --font-geist-mono: "Geist Mono Variable";
 }
+
+/* Public portfolio refinement; never hide server-rendered content. */
+.portfolio-flagship { border-color: color-mix(in oklab, var(--border) 70%, #8980ea 30%); }
+.sonisphere-stage { isolation: isolate; }
+.sonisphere-stage::before {
+  content: ""; position: absolute; inset: 0; pointer-events: none;
+  background: radial-gradient(ellipse at 65% 40%, rgb(137 128 234 / .21), transparent 68%);
+  opacity: .65;
+}
+@keyframes sonisphere-ambient { from { opacity: .45; } to { opacity: 1; } }
+@media (prefers-reduced-motion: no-preference) {
+  .sonisphere-stage::before { animation: sonisphere-ambient 6s ease-in-out infinite alternate; }
+  @supports (animation-timeline: view()) {
+    .portfolio-reveal {
+      animation: portfolio-rise linear both;
+      animation-timeline: view();
+      animation-range: entry 0% entry 75%;
+    }
+    @keyframes portfolio-rise { from { transform: translateY(12px); } to { transform: translateY(0); } }
+  }
+}
+@media (hover: hover) and (pointer: fine) {
+  .portfolio-project-frame:hover { border-color: color-mix(in oklab, var(--border) 40%, var(--primary) 60%); }
+}
+
+/* Fixed headers must not cover linked forms or service headings. */
+main section[id] { scroll-margin-top: 5rem; }

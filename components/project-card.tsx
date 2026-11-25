@@ -105,7 +105,7 @@ export function ProjectCard({
         >
           <div
             className={[
-              "relative overflow-hidden border border-border/60 bg-muted shadow-sm transition-shadow duration-500 group-hover:shadow-xl group-hover:shadow-black/5",
+              "portfolio-project-frame relative overflow-hidden border border-border/60 bg-muted shadow-sm transition-[border-color,box-shadow] duration-500 group-hover:shadow-xl group-hover:shadow-black/5",
               isFeatured
                 ? "aspect-[4/3] sm:aspect-[16/10] lg:aspect-[16/9]"
                 : "aspect-[4/3]",
@@ -113,6 +113,7 @@ export function ProjectCard({
           >
             <ResilientImage
               sources={[project.image_url]}
+              sizes={isFeatured ? "(min-width: 1024px) 760px, 100vw" : "(min-width: 1024px) 600px, 100vw"}
               alt=""
               loading={
                 isFeatured
@@ -205,7 +206,7 @@ export function ProjectCard({
 
             {isFlagship && (
               <p className="mt-5 font-mono text-[10px] uppercase tracking-[0.18em] text-muted-foreground">
-                Flagship product · software × music
+                Featured product
               </p>
             )}
 

@@ -230,6 +230,7 @@ export function PhotoGalleryClient({
                     ].join(" ")}
                   >
                     <ResilientImage
+                      sizes="(min-width: 1024px) 760px, (min-width: 640px) 50vw, 100vw"
                       sources={[photo.image_url]}
                       alt={
                         photo.caption ||

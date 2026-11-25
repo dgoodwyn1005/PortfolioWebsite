@@ -136,6 +136,7 @@ export async function getFeaturedVideos(strict = false): Promise<Video[]> {
 
 export async function getPhotosByWorld(
   world: ContentWorld,
+  strict = false,
 ): Promise<Photo[]> {
   try {
     const supabase =
@@ -173,6 +174,7 @@ export async function getPhotosByWorld(
         },
       )
 
+      if (strict) throw error
       return []
     }
 
@@ -183,12 +185,14 @@ export async function getPhotosByWorld(
       error,
     )
 
+    if (strict) throw error
     return []
   }
 }
 
 export async function getVideosByWorld(
   world: ContentWorld,
+  strict = false,
 ): Promise<Video[]> {
   try {
     const supabase =
@@ -233,6 +237,7 @@ export async function getVideosByWorld(
         },
       )
 
+      if (strict) throw error
       return []
     }
 
@@ -243,6 +248,7 @@ export async function getVideosByWorld(
       error,
     )
 
+    if (strict) throw error
     return []
   }
 }

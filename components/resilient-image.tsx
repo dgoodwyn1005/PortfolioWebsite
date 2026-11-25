@@ -7,6 +7,8 @@ import {
   useState,
 } from "react"
 
+import { getImageProps } from "next/image"
+
 import {
   ImageOff,
 } from "lucide-react"
@@ -27,6 +29,7 @@ interface ResilientImageProps {
   loading?: "eager" | "lazy"
   fetchPriority?: "high" | "low" | "auto"
   decoding?: "sync" | "async" | "auto"
+  sizes?: string
 }
 
 const toneClasses: Record<FallbackTone, string> = {
@@ -50,6 +53,7 @@ export function ResilientImage({
   loading = "lazy",
   fetchPriority = "auto",
   decoding = "async",
+  sizes,
 }: ResilientImageProps) {
   const normalizedSources = useMemo(
     () =>
@@ -81,6 +85,19 @@ export function ResilientImage({
   const source =
     normalizedSources[sourceIndex] ?? null
 
+  const [originalSource, setOriginalSource] = useState<string | null>(null)
+  // Optimize known public image stores only. Never proxy signed/private or arbitrary URLs.
+  const optimized = useMemo(() => {
+    if (!source || !sizes || originalSource === source) return null
+    try {
+      const url = new URL(source)
+      const publicBlob = url.hostname.endsWith(".public.blob.vercel-storage.com")
+      const publicStorage = url.hostname.endsWith(".supabase.co") && url.pathname.startsWith("/storage/v1/object/public/")
+      if (url.protocol !== "https:" || url.search || !(publicBlob || publicStorage)) return null
+      return getImageProps({ src: source, alt, fill: true, sizes, quality: 75 }).props
+    } catch { return null }
+  }, [source, sizes, originalSource, alt])
+
   useEffect(() => {
     setSourceIndex(0)
   }, [sourceKey])
@@ -100,11 +117,10 @@ export function ResilientImage({
       image.complete &&
       image.naturalWidth === 0
     ) {
-      setSourceIndex((current) =>
-        current + 1,
-      )
+      if (optimized) setOriginalSource(source)
+      else setSourceIndex((current) => current + 1)
     }
-  }, [source, retryToken])
+  }, [source, retryToken, optimized])
 
   useEffect(() => {
     const retryIfNeeded = () => {
@@ -198,6 +214,7 @@ export function ResilientImage({
   ])
 
   const handleError = () => {
+    if (optimized) { setOriginalSource(source); return }
     setSourceIndex((current) =>
       current + 1,
     )
@@ -248,8 +265,10 @@ export function ResilientImage({
       {source ? (
         <img
           ref={imageRef}
-          key={`${source}-${retryToken}`}
-          src={source}
+          key={`${source}-${retryToken}-${optimized ? "optimized" : "original"}`}
+          src={optimized?.src ?? source}
+          srcSet={optimized?.srcSet}
+          sizes={optimized?.sizes}
           alt={alt}
           loading={loading}
           fetchPriority={fetchPriority}

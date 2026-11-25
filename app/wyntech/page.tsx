@@ -19,6 +19,8 @@ const title = "Wyntech | Web Design, Software & Automation"
 const description =
   "Web design, website development, software, automation, e-commerce, and digital products built through Wyntech by Deshawn Goodwyn."
 
+export const revalidate = 300
+
 export const metadata: Metadata = {
   title: {
     absolute: title,
@@ -57,6 +59,7 @@ export default async function WynTechPage() {
   const data =
     await getCompanyPageData(
       "wyntech",
+      true,
     )
 
   if (!data) {
