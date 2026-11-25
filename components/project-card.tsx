@@ -113,6 +113,7 @@ export function ProjectCard({
           >
             <ResilientImage
               sources={[project.image_url]}
+              sizes={isFeatured ? "(min-width: 1024px) 760px, 100vw" : "(min-width: 1024px) 600px, 100vw"}
               alt=""
               loading={
                 isFeatured
