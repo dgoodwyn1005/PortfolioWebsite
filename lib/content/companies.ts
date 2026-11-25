@@ -188,6 +188,9 @@ export async function getWynoraMediaData(
           platform,
           tiktok_username,
           thumbnail_url,
+          presentation_format,
+          youtube_video_id,
+          tiktok_video_id,
           start_time,
           end_time,
           world

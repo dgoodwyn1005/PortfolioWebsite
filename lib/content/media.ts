@@ -23,6 +23,9 @@ export interface Video {
   platform: string | null
   tiktok_username: string | null
   thumbnail_url: string | null
+  presentation_format?: string | null
+  youtube_video_id?: string | null
+  tiktok_video_id?: string | null
   start_time: string | null
   end_time: string | null
   world: string | null
@@ -90,6 +93,9 @@ export async function getFeaturedVideos(strict = false): Promise<Video[]> {
         platform,
         tiktok_username,
         thumbnail_url,
+        presentation_format,
+        youtube_video_id,
+        tiktok_video_id,
         start_time,
         end_time,
         world
@@ -199,6 +205,9 @@ export async function getVideosByWorld(
           platform,
           tiktok_username,
           thumbnail_url,
+          presentation_format,
+          youtube_video_id,
+          tiktok_video_id,
           start_time,
           end_time,
           world
