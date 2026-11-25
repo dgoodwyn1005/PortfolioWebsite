@@ -91,12 +91,13 @@ export default async function BuildPage() {
                   <span>Ideas → useful things</span>
                 </div>
 
-                <h1 className="mt-8 max-w-5xl text-[clamp(3.75rem,10vw,9rem)] font-medium leading-[0.82] tracking-[-0.07em] text-foreground">
+                <h1 className="mt-8 max-w-5xl text-[clamp(3rem,10vw,9rem)] font-medium leading-[0.82] tracking-[-0.07em] text-foreground">
                   Things made
                   <br />
                   to be used.
                 </h1>
 
+                {wyntech && <Link href="/wyntech#contact" className="mr-4 mt-8 inline-flex min-h-12 items-center gap-2 rounded-full bg-foreground px-5 text-sm font-medium text-background">Start a project <ArrowUpRight className="size-4" aria-hidden="true" /></Link>}
                 {flagship && <Link href="#sonisphere" className="mt-8 inline-flex min-h-11 items-center gap-2 text-sm font-medium underline underline-offset-4">Explore Sonisphere <ArrowDown className="size-4" aria-hidden="true" /></Link>}
 
                 <div className="mt-12 grid overflow-hidden border border-border/70 bg-border/70 sm:grid-cols-3">
