@@ -334,7 +334,7 @@ export function VideoShowcase({
                           href={externalUrl}
                           target="_blank"
                           rel="noopener noreferrer"
-                          aria-label={`Watch ${video.title}`}
+                          data-portfolio-event="video_external_open" data-content-id={video.id} data-video-platform={platform} aria-label={`Watch ${video.title}`}
                           className="absolute inset-0 block"
                         >
                           <VideoThumbnail
@@ -358,7 +358,7 @@ export function VideoShowcase({
                             }
                           }}
                           disabled={!canEmbed}
-                          aria-label={`Play ${video.title}`}
+                          data-portfolio-event="video_player_launch" data-content-id={video.id} data-video-platform={platform} aria-label={`Play ${video.title}`}
                           className="absolute inset-0 h-full w-full text-left disabled:cursor-default"
                         >
                           <VideoThumbnail
@@ -401,12 +401,12 @@ export function VideoShowcase({
                       </div>
 
                       <div className="flex shrink-0 flex-wrap items-center justify-end gap-3">
-                        {alternateTikTokUrl && <a href={alternateTikTokUrl} target="_blank" rel="noopener noreferrer" className="text-xs text-muted-foreground underline underline-offset-4">TikTok</a>}
+                        {alternateTikTokUrl && <a data-portfolio-event="video_external_open" data-content-id={video.id} data-video-platform="tiktok" href={alternateTikTokUrl} target="_blank" rel="noopener noreferrer" className="text-xs text-muted-foreground underline underline-offset-4">TikTok</a>}
                         {isActive && (
                           <button type="button" onClick={() => setActiveVideo(null)} className="text-xs font-medium text-muted-foreground underline underline-offset-4">Close player</button>
                         )}
                         {externalUrl && (
-                          <a href={externalUrl} target="_blank" rel="noopener noreferrer" aria-label={`Open ${video.title} on ${platform}`} className="p-2 text-muted-foreground hover:text-foreground">
+                          <a href={externalUrl} target="_blank" rel="noopener noreferrer" data-portfolio-event="video_external_open" data-content-id={video.id} data-video-platform={platform} aria-label={`Open ${video.title} on ${platform}`} className="p-2 text-muted-foreground hover:text-foreground">
                             <ArrowUpRight className="size-4" />
                           </a>
                         )}
