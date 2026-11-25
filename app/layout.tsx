@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from "next"
 import type { ReactNode } from "react"
 import "@fontsource-variable/inter"
 import "@fontsource-variable/geist-mono"
+import { PortfolioEngagement } from "@/components/portfolio-engagement"
 import { Analytics } from "@vercel/analytics/next"
 
 import { ThemeProvider } from "@/components/theme-provider"
@@ -238,6 +239,7 @@ export default function RootLayout({
         </ThemeProvider>
 
         <Analytics />
+        <PortfolioEngagement />
       </body>
     </html>
   )
