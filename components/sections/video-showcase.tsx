@@ -75,7 +75,13 @@ function buildYouTubeEmbedUrl(
   return `https://www.youtube.com/embed/${videoId}?${params.toString()}`
 }
 
+function isPov(video: Video) {
+  return video.presentation_format === "pov" || (!video.presentation_format && video.section === "piano" && video.platform === "tiktok")
+}
+
 function getPlatform(video: Video) {
+  if (video.youtube_video_id) return "youtube"
+  if (video.tiktok_video_id && video.platform !== "youtube") return "tiktok"
   return (
     video.platform
       ?.toLowerCase() ??
@@ -84,6 +90,9 @@ function getPlatform(video: Video) {
 }
 
 function getVideoId(video: Video) {
+  const platform = getPlatform(video)
+  if (platform === "youtube") return video.youtube_video_id || video.embed_id
+  if (platform === "tiktok") return video.tiktok_video_id || video.embed_id
   return video.embed_id
 }
 
@@ -170,7 +179,12 @@ export function VideoShowcase({
     ? [...videos].sort((a, b) => Number(getPlatform(a) === "tiktok") - Number(getPlatform(b) === "tiktok"))
     : videos
 
-  const featuredId = orderedVideos[0]?.id
+  const featuredId = (isStage ? orderedVideos.find((video) => !isPov(video) && getPlatform(video) === "youtube") || orderedVideos.find((video) => !isPov(video)) : orderedVideos[0])?.id
+  const groups = isStage ? [
+    { title: "Featured performance", videos: orderedVideos.filter((v) => v.id === featuredId), grid: "grid-cols-1" },
+    { title: "Through my eyes", videos: orderedVideos.filter((v) => isPov(v)), grid: "grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4" },
+    { title: "More performances", videos: orderedVideos.filter((v) => !isPov(v) && v.id !== featuredId), grid: "grid-cols-1 sm:grid-cols-2 lg:grid-cols-3" },
+  ] : [{ title: "", videos: orderedVideos, grid: "grid-cols-1 sm:grid-cols-2 lg:grid-cols-3" }]
 
   return (
     <section
@@ -217,14 +231,18 @@ export function VideoShowcase({
 
             {isStage && (
               <p className="mt-5 max-w-xl text-base leading-relaxed text-muted-foreground sm:text-lg">
-                First-person piano performances, arrangements and recordings from the instrument. Choose a performance to listen.
+                First-person piano experiences and performances filmed from around the instrument. Choose a performance to listen.
               </p>
             )}
           </div>
         </div>
 
-        <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
-          {orderedVideos.map(
+        <div className="space-y-14">
+          {groups.filter((group) => group.videos.length > 0).map((group) => (
+            <div key={group.title}>
+              {group.title && <h3 className="mb-5 text-2xl font-medium tracking-tight">{group.title}</h3>}
+              <div className={`grid gap-6 ${group.grid}`}>
+          {group.videos.map(
             (video, index) => {
               const platform =
                 getPlatform(video)
@@ -240,7 +258,9 @@ export function VideoShowcase({
 
               const isTikTok = platform === "tiktok"
               const canEmbed = (isYouTube && /^[\w-]{11}$/.test(videoId)) || (isStage && isTikTok && /^\d+$/.test(videoId))
-              const isPortrait = isStage && (isTikTok || isYouTube)
+              const isPortrait = isStage && isPov(video)
+              const alternateTikTokId = video.tiktok_video_id || (video.platform === "tiktok" ? video.embed_id : null)
+              const alternateTikTokUrl = isYouTube && alternateTikTokId && /^\d+$/.test(alternateTikTokId) ? `https://www.tiktok.com/@${encodeURIComponent(video.tiktok_username || "TheSilentPianist")}/video/${alternateTikTokId}` : null
               const isActive =
                 activeVideo === video.id
 
@@ -278,7 +298,7 @@ export function VideoShowcase({
                   }}
                   className={
                     isStage && isFeatured
-                      ? "sm:col-span-2 lg:col-span-3 mx-auto w-full max-w-sm"
+                      ? "mx-auto w-full max-w-4xl"
                       : "min-w-0"
                   }
                 >
@@ -380,7 +400,8 @@ export function VideoShowcase({
                         )}
                       </div>
 
-                      <div className="flex shrink-0 items-center gap-3">
+                      <div className="flex shrink-0 flex-wrap items-center justify-end gap-3">
+                        {alternateTikTokUrl && <a href={alternateTikTokUrl} target="_blank" rel="noopener noreferrer" className="text-xs text-muted-foreground underline underline-offset-4">TikTok</a>}
                         {isActive && (
                           <button type="button" onClick={() => setActiveVideo(null)} className="text-xs font-medium text-muted-foreground underline underline-offset-4">Close player</button>
                         )}
@@ -396,6 +417,9 @@ export function VideoShowcase({
               )
             },
           )}
+              </div>
+            </div>
+          ))}
         </div>
         {!isStage && (
           <Link href="/music#videos" className="mt-8 inline-flex items-center gap-2 text-sm font-medium underline underline-offset-4">
