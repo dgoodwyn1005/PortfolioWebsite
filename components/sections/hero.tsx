@@ -187,6 +187,10 @@ export function HeroSection({
 
                 <ArrowDown className="size-4 transition-transform group-hover:translate-y-1" />
               </Link>
+              <div className="mt-5 flex flex-wrap gap-3">
+                <Link href="/wynora#contact" className="inline-flex min-h-12 items-center gap-2 rounded-full border border-border bg-background/80 px-4 text-sm font-medium">Book piano & music <ArrowUpRight className="size-4" aria-hidden="true" /></Link>
+                <Link href="/wyntech#contact" className="inline-flex min-h-12 items-center gap-2 rounded-full border border-border bg-background/80 px-4 text-sm font-medium">Hire Wyntech <ArrowUpRight className="size-4" aria-hidden="true" /></Link>
+              </div>
             </motion.div>
           </div>
         </div>
