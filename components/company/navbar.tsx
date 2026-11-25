@@ -186,7 +186,7 @@ export function CompanyNavbar({
       ].join(" ")}
     >
       <div className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
-        <div className="flex h-16 items-center justify-between gap-4">
+        <div className="flex h-16 items-center justify-between gap-2 sm:gap-4">
           <div className="flex min-w-0 items-center gap-3">
             <Link
               href={worldHref}
@@ -212,7 +212,7 @@ export function CompanyNavbar({
                   }
                   alt=""
                   aria-hidden="true"
-                  className="h-8 w-auto max-w-32 object-contain"
+                  className="h-8 w-auto max-w-[82px] object-contain sm:max-w-32"
                 />
               ) : (
                 <span
@@ -228,7 +228,7 @@ export function CompanyNavbar({
             </Link>
           </div>
 
-          <div className="hidden items-center gap-1 md:flex">
+          <div className="hidden items-center gap-1 lg:flex">
             {navLinks.map(
               (link) => (
                 <a
@@ -278,8 +278,8 @@ export function CompanyNavbar({
             </a>
           </div>
 
-          <div className="flex items-center gap-1 md:hidden">
-            <a href="#contact" className="inline-flex min-h-11 items-center rounded-full bg-foreground px-3 text-xs font-medium text-background">
+          <div className="flex shrink-0 items-center gap-1 lg:hidden">
+            <a href="#contact" onClick={() => setIsOpen(false)} className="inline-flex min-h-11 items-center rounded-full bg-foreground px-3 text-xs font-medium text-background">
               {commercialLabel}
             </a>
             {mounted && (
@@ -362,9 +362,10 @@ export function CompanyNavbar({
                   ? 0
                   : 0.2,
             }}
-            className="overflow-hidden border-b border-border bg-background md:hidden"
+            className="overflow-hidden border-b border-border bg-background lg:hidden"
           >
-            <div className="space-y-2 px-4 pb-6 pt-3">
+            <div className="max-h-[calc(100dvh-4rem)] space-y-2 overflow-y-auto px-4 pb-6 pt-3">
+              {mounted && <button type="button" onClick={toggleTheme} className="flex min-h-11 items-center gap-2 text-sm min-[400px]:hidden">{resolvedTheme === "dark" ? <Sun className="size-4" /> : <Moon className="size-4" />} Switch theme</button>}
               {navLinks.map(
                 (link) => (
                   <a
