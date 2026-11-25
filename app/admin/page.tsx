@@ -361,6 +361,13 @@ export default async function AdminDashboard() {
         </section>
       </div>
 
+      <section className="rounded-[1.5rem] border border-border/70 bg-card p-5 sm:p-6">
+        <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">Audience engagement</p>
+        <h2 className="mt-2 text-xl font-semibold tracking-tight">Measure what earns attention</h2>
+        <p className="mt-3 max-w-2xl text-sm text-muted-foreground">Sonisphere demo launches, product visits, and video player or external-link launches are recorded as custom events when Web Analytics supports them. These measure intent, not completed playback or unique viewers.</p>
+        <a href="https://vercel.com/wyntech/v0-personal-portfolio-website/analytics" target="_blank" rel="noopener noreferrer" className="mt-4 inline-flex min-h-11 items-center gap-2 text-sm font-medium underline underline-offset-4">Open Web Analytics <ArrowUpRight className="size-4" /></a>
+      </section>
+
       <section>
         <div className="mb-5">
           <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">Publishing health</p>
