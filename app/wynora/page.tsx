@@ -27,6 +27,8 @@ const title = "Wynora | Live Pianist, Performance & Music Services"
 const description =
   "Live piano for weddings, church services, private events, accompaniment, recordings, and arrangements through Wynora by Deshawn Goodwyn."
 
+export const revalidate = 300
+
 export const metadata: Metadata = {
   title: {
     absolute: title,
@@ -65,6 +67,7 @@ export default async function WynoraPage() {
   const companyData =
     await getCompanyPageData(
       "wynora",
+      true,
     )
 
   if (!companyData) {
@@ -86,6 +89,7 @@ export default async function WynoraPage() {
     musicVideos,
   } = await getWynoraMediaData(
     company.id,
+    true,
   )
 
   return (
