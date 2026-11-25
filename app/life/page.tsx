@@ -15,6 +15,8 @@ import {
 
 import styles from "@/styles/worlds.module.css"
 
+export const revalidate = 300
+
 export const metadata: Metadata = {
   title: "Life",
 
