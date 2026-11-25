@@ -1,6 +1,6 @@
 import Link from "next/link"
 import { ArrowUpRight, ArrowRight, AudioLines, Orbit, Share2, MonitorPlay } from "lucide-react"
-import { ResilientImage } from "@/components/resilient-image"
+import { SonisphereEmbed } from "@/components/sonisphere-embed"
 import type { Project } from "@/lib/content/projects"
 
 export function isSonisphere(project: Project) {
@@ -32,10 +32,8 @@ export function SonisphereSpotlight({ project, detailed = false }: { project: Pr
         <div className="relative flex min-h-64 items-center justify-center overflow-hidden border-t border-white/10 bg-[#08090d] p-4 sm:p-8 lg:col-span-7 lg:border-l lg:border-t-0">
           <div aria-hidden="true" className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_center,rgba(105,98,215,0.16),transparent_72%)]" />
           <div className="relative w-full overflow-hidden border border-white/15 bg-black shadow-2xl">
-            <div className="flex items-center justify-between border-b border-white/10 px-4 py-3 font-mono text-[10px] uppercase tracking-widest text-white/70"><span>Sonisphere / Product preview</span><span className="flex gap-1.5" aria-hidden="true"><i className="size-1.5 rounded-full bg-white/40"/><i className="size-1.5 rounded-full bg-white/40"/><i className="size-1.5 rounded-full bg-white/40"/></span></div>
-            <div className="relative aspect-video">
-              <ResilientImage sources={[project.image_url]} alt="Sonisphere project preview" loading="eager" fallbackTone="build" fallbackLabel="Sonisphere" fallbackDetail="Interactive music experience" className="object-contain" />
-            </div>
+            <div className="flex items-center justify-between border-b border-white/10 px-4 py-3 font-mono text-[10px] uppercase tracking-widest text-white/70"><span>Sonisphere / Interactive preview</span><span className="flex gap-1.5" aria-hidden="true"><i className="size-1.5 rounded-full bg-white/40"/><i className="size-1.5 rounded-full bg-white/40"/><i className="size-1.5 rounded-full bg-white/40"/></span></div>
+            <SonisphereEmbed imageUrl={project.image_url} />
           </div>
         </div>
       </div>
