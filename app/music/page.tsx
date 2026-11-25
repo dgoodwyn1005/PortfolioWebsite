@@ -132,7 +132,7 @@ export default async function MusicPage() {
           </div>
         )}
 
-        <section className="border-b border-border/60 py-20 sm:py-28 lg:py-40">
+        <section className="portfolio-reveal border-b border-border/60 py-20 sm:py-28 lg:py-40">
           <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
             <div
               className={`${styles.musicCard} mx-auto max-w-5xl rounded-[2rem] border border-border/60 px-6 py-12 sm:px-10 sm:py-16 lg:px-16 lg:py-20`}
@@ -178,7 +178,7 @@ export default async function MusicPage() {
         )}
 
         {wynora && (
-          <section className="border-b border-border/60 py-20 sm:py-28 lg:py-36">
+          <section className="portfolio-reveal border-b border-border/60 py-20 sm:py-28 lg:py-36">
             <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
               <Link
                 href="/wynora"
@@ -256,7 +256,7 @@ export default async function MusicPage() {
         )}
 
         {audioClips.length > 0 && (
-          <section className="border-b border-border/60 bg-muted/10 py-8 sm:py-12">
+          <section className="portfolio-reveal border-b border-border/60 bg-muted/10 py-8 sm:py-12">
             <div className="mx-auto max-w-7xl px-4 pb-4 sm:px-6 lg:px-8">
               <div className="flex items-center justify-between border-b border-border/60 pb-4">
                 <p className="text-xs font-medium uppercase tracking-[0.22em] text-muted-foreground">
