@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button"
 
 interface Company {
   name: string
+  slug?: string
   tagline: string
   hero_title: string
   hero_subtitle: string
@@ -38,7 +39,7 @@ export function CompanyHero({ company }: { company: Company }) {
         }}
       />
 
-      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 pt-20 relative z-10">
+      <div className="w-full max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-24 relative z-10">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -55,7 +56,7 @@ export function CompanyHero({ company }: { company: Company }) {
               <img 
                 src={company.logo_url} 
                 alt={company.name} 
-                className="h-32 md:h-40 lg:h-48 w-auto mx-auto"
+                className="h-24 max-w-full object-contain sm:h-32 md:h-40 lg:h-48 w-auto mx-auto"
               />
             </motion.div>
           )}
@@ -96,7 +97,7 @@ export function CompanyHero({ company }: { company: Company }) {
           >
             <Button size="lg" className="text-white" style={{ backgroundColor: company.primary_color }} asChild>
               <a href="#contact">
-                Get Started
+                {company.slug === "wynora" ? "Request a booking" : "Start a project"}
                 <ArrowRight className="ml-2 h-4 w-4" />
               </a>
             </Button>
