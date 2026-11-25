@@ -14,16 +14,17 @@ import {
 } from "@/lib/content/site"
 
 export async function getHomePageData() {
+  // Reject failed regeneration rather than replacing the last good ISR page.
   const [
     site,
     projects,
     photos,
     videos,
   ] = await Promise.all([
-    getHomeSiteContent(),
-    getFeaturedProjects(),
-    getFeaturedPhotos(),
-    getFeaturedVideos(),
+    getHomeSiteContent(true),
+    getFeaturedProjects(true),
+    getFeaturedPhotos(true),
+    getFeaturedVideos(true),
   ])
 
   return {

@@ -28,7 +28,7 @@ export interface Video {
   world: string | null
 }
 
-export async function getFeaturedPhotos(): Promise<Photo[]> {
+export async function getFeaturedPhotos(strict = false): Promise<Photo[]> {
   try {
     const supabase = createPublicClient()
 
@@ -60,6 +60,7 @@ export async function getFeaturedPhotos(): Promise<Photo[]> {
         },
       )
 
+      if (strict) throw error
       return []
     }
 
@@ -70,11 +71,12 @@ export async function getFeaturedPhotos(): Promise<Photo[]> {
       error,
     )
 
+    if (strict) throw error
     return []
   }
 }
 
-export async function getFeaturedVideos(): Promise<Video[]> {
+export async function getFeaturedVideos(strict = false): Promise<Video[]> {
   try {
     const supabase = createPublicClient()
 
@@ -110,6 +112,7 @@ export async function getFeaturedVideos(): Promise<Video[]> {
         },
       )
 
+      if (strict) throw error
       return []
     }
 
@@ -120,6 +123,7 @@ export async function getFeaturedVideos(): Promise<Video[]> {
       error,
     )
 
+    if (strict) throw error
     return []
   }
 }
