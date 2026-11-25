@@ -454,6 +454,7 @@ function VideoThumbnail({
           getThumbnailSources(video)
         }
         alt=""
+        sizes={featured ? "(min-width: 1024px) 900px, 100vw" : "(min-width: 1024px) 400px, (min-width: 640px) 50vw, 100vw"}
         loading={
           featured
             ? "eager"
