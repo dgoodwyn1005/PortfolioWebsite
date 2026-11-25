@@ -85,6 +85,7 @@ export async function getFeaturedProjects(strict = false): Promise<Project[]> {
 
 export async function getProjectsByWorld(
   world: ContentWorld,
+  strict = false,
 ): Promise<Project[]> {
   try {
     const supabase =
@@ -126,6 +127,7 @@ export async function getProjectsByWorld(
         },
       )
 
+      if (strict) throw error
       return []
     }
 
@@ -136,6 +138,7 @@ export async function getProjectsByWorld(
       error,
     )
 
+    if (strict) throw error
     return []
   }
 }
