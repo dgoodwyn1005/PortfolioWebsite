@@ -304,6 +304,7 @@ export async function getHomeSiteContent(strict = false): Promise<HomeSiteConten
 
 export async function getStatsByWorld(
   world: ContentWorld,
+  strict = false,
 ): Promise<QuickStat[]> {
   try {
     const supabase =
@@ -338,6 +339,7 @@ export async function getStatsByWorld(
         },
       )
 
+      if (strict) throw error
       return []
     }
 
@@ -348,6 +350,7 @@ export async function getStatsByWorld(
       error,
     )
 
+    if (strict) throw error
     return []
   }
 }
