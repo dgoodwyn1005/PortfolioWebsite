@@ -67,6 +67,8 @@ export function Navbar({
   linkedinUrl = null,
 }: NavbarProps) {
   const pathname = usePathname()
+  const commercialHref = pathname === "/music" ? "/wynora#contact" : pathname === "/build" ? "/wyntech#contact" : "/#contact"
+  const commercialLabel = pathname === "/music" ? "Request Booking" : pathname === "/build" ? "Start a Project" : "Work With Me"
 
   const {
     resolvedTheme,
@@ -276,15 +278,16 @@ export function Navbar({
           )}
 
           <Link
-            href="/#contact"
+            href={commercialHref}
             className="ml-2 inline-flex min-h-10 items-center gap-2 rounded-full bg-foreground px-5 text-sm font-medium text-background transition-opacity hover:opacity-85"
           >
-            Work With Me
+            {commercialLabel}
             <ArrowUpRight className="size-4" />
           </Link>
         </div>
 
-        <div className="relative z-50 flex items-center gap-1 lg:hidden">
+        <div className="relative z-50 flex shrink-0 items-center gap-1 lg:hidden">
+          <Link href={commercialHref} onClick={() => setIsOpen(false)} className="inline-flex min-h-11 shrink-0 items-center rounded-full bg-foreground px-3 text-xs font-medium text-background">{pathname === "/music" ? "Book" : pathname === "/build" ? "Hire" : "Work with me"}</Link>
           {mounted && (
             <button
               type="button"
@@ -295,7 +298,7 @@ export function Navbar({
                   ? "Switch to light theme"
                   : "Switch to dark theme"
               }
-              className="flex size-11 items-center justify-center rounded-full text-muted-foreground transition-colors hover:bg-foreground/5 hover:text-foreground"
+              className="hidden size-11 items-center justify-center rounded-full text-muted-foreground transition-colors hover:bg-foreground/5 hover:text-foreground min-[420px]:flex"
             >
               {resolvedTheme ===
               "dark" ? (
@@ -438,14 +441,17 @@ export function Navbar({
               </div>
 
               <div className="mt-8 space-y-3">
+                {mounted && <button type="button" onClick={toggleTheme} className="flex min-h-11 items-center gap-2 text-sm min-[420px]:hidden">{resolvedTheme === "dark" ? <Sun className="size-4" /> : <Moon className="size-4" />} Switch theme</button>}
+                <Link href="/wynora#contact" onClick={() => setIsOpen(false)} className="flex min-h-12 items-center justify-between rounded-full border border-border px-5 text-sm font-medium">Book piano & music <ArrowUpRight className="size-4" /></Link>
+                <Link href="/wyntech#contact" onClick={() => setIsOpen(false)} className="flex min-h-12 items-center justify-between rounded-full border border-border px-5 text-sm font-medium">Hire Wyntech <ArrowUpRight className="size-4" /></Link>
                 <Link
-                  href="/#contact"
+                  href={commercialHref}
                   onClick={() =>
                     setIsOpen(false)
                   }
                   className="flex min-h-14 w-full items-center justify-between rounded-full bg-foreground px-6 text-base font-medium text-background"
                 >
-                  Work With Me
+                  {commercialLabel}
                   <ArrowUpRight className="size-5" />
                 </Link>
 
